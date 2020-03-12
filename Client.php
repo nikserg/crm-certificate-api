@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
+use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -17,6 +18,7 @@ class Client
     public const TEST_URL = 'https://dev.uc-itcom.ru/index.php/';
 
     private const ACTION_ADD_CUSTOMER_FORM = 'gateway/itkExchange/pushCustomerForm';
+    private const ACTION_GET_CUSTOMER_FORM = 'gateway/itkExchange/pullCustomerForm';
 
     protected $apiKey;
     protected $url;
@@ -74,6 +76,25 @@ class Client
         $response->id = $result->id;
         $response->token = $result->token;
         $response->generationToken = $result->generationToken;
+        return $response;
+    }
+
+    /**
+     * Получить информацию о заявке на сертификат
+     *
+     *
+     * @param int $customerFormCrmId
+     * @return GetCustomerForm
+     */
+    public function getCustomerForm($customerFormCrmId)
+    {
+
+        $url = $this->url . self::ACTION_GET_CUSTOMER_FORM . '?key=' . $this->apiKey;
+        $result = $this->guzzle->get($url.'&id='.$customerFormCrmId);
+        $result = $this->getJsonBody($result);
+
+        $response = new GetCustomerForm();
+        $response->status = $result->status;
         return $response;
     }
 
