@@ -10,9 +10,10 @@
     ],
     "autoload": {
         "psr-4": {
-            "nikserg\\CRMCertifficateAPI\\": ""
+            "nikserg\\CRMCertificateAPI\\": ""
         }
     },
     "require": {
+        "guzzlehttp/guzzle": "^6.5"
     }
 }
