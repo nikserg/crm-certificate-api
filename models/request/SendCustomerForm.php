@@ -104,4 +104,12 @@ class SendCustomerForm
      * @var string
      */
     public $inn;
+
+    /**
+     * Срок действия в месяцах
+     *
+     *
+     * @var int
+     */
+    public $period;
 }

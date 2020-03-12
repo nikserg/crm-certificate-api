@@ -13,7 +13,7 @@ namespace nikserg\CRMCertificateAPI\models\response;
  *
  * @package nikserg\CRMCertificateAPI\models\response
  */
-class Bool
+class BooleanResponse
 {
 
 

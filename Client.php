@@ -3,11 +3,14 @@
 namespace nikserg\CRMCertificateAPI;
 
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 
+use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
+use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
-use nikserg\CRMCertificateAPI\models\response\Bool;
+use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -105,19 +108,28 @@ class Client
      *
      *
      * @param int $customerFormCrmId
-     * @return Bool
+     * @return BooleanResponse
      */
     public function deleteCustomerForm($customerFormCrmId) {
 
-        $url = $this->url . self::ACTION_GET_CUSTOMER_FORM . '?key=' . $this->apiKey;
+        $url = $this->url . self::ACTION_DELETE_CUSTOMER_FORM . '?key=' . $this->apiKey;
 
-        $result = $this->guzzle->get($url.'&id='.$customerFormCrmId);
+        try {
+            $result = $this->guzzle->get($url . '&id=' . $customerFormCrmId);
+        }catch (GuzzleException $e) {
+            if ($e->getCode() == 404) {
+                throw new NotFoundException('В CRM не найдена заявка #'.$customerFormCrmId);
+            }
+        }
         $result = $this->getJsonBody($result);
 
-        $response = new Bool();
+        $response = new BooleanResponse();
         $response->status = $result->status;
         if (property_exists($result, 'message')) {
             $response->message = $result->message;
+        }
+        if (!$response->status) {
+            throw new BooleanResponseException('Ошибка при удалении заявки в CRM '.print_r($response, true));
         }
         return $response;
     }
