@@ -4,7 +4,10 @@ namespace nikserg\CRMCertificateAPI;
 
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
-use nikserg\CRMCertificateAPI\models\out\CustomerForm;
+use GuzzleHttp\RequestOptions;
+
+use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
+use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
 class Client
@@ -23,7 +26,9 @@ class Client
     {
         $this->apiKey = $apiKey;
         $this->url = $url;
-        $this->guzzle = new \GuzzleHttp\Client();
+        $this->guzzle = new \GuzzleHttp\Client([
+            'verify' => false]);
+
     }
 
     private function getJsonBody(ResponseInterface $response) {
@@ -39,20 +44,23 @@ class Client
     }
 
     /**
-     * @param CustomerForm $customerForm
-     * @return int ID заявки в CRM
+     * Отправить запрос на создание заявки на сертификат
+     *
+     *
+     * @param SendCustomerFormRequest $customerForm
+     * @return SendCustomerFormResponse
      */
-    public function sendCustomerForm(CustomerForm $customerForm)
+    public function sendCustomerForm(SendCustomerFormRequest $customerForm)
     {
-        $url = $this->url . self::ACTION_ADD_CUSTOMER_FORM;
+        $url = $this->url . self::ACTION_ADD_CUSTOMER_FORM.'?key='.$this->apiKey;
 
-        $postData = [
-            'form_params' => (array)$customerForm,
-        ];
-        print_r($postData);
-        exit;
-        $result = $this->guzzle->post($url, $postData);
+        $result = $this->guzzle->post($url, [RequestOptions::JSON => $customerForm]);
         $result = $this->getJsonBody($result);
-        return $result['zurmo-id'];
+
+        $response = new SendCustomerFormResponse();
+        $response->id = $result->id;
+        $response->token = $result->token;
+        $response->generationToken = $result->generationToken;
+        return $response;
     }
 }

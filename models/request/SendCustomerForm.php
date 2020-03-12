@@ -6,15 +6,15 @@
  * Time: 11:05
  */
 
-namespace nikserg\CRMCertificateAPI\models\out;
+namespace nikserg\CRMCertificateAPI\models\request;
 
 /**
  * Заявка на сертификат в CRM
  * Модель для передачи в CRM
  *
- * @package nikserg\CRMCertificateAPI\models\out
+ * @package nikserg\CRMCertificateAPI\models\request
  */
-class CustomerForm
+class SendCustomerForm
 {
     //
     // Возможные значения customerLegalForm
