@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
+use nikserg\CRMCertificateAPI\models\response\Bool;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -19,6 +20,7 @@ class Client
 
     private const ACTION_ADD_CUSTOMER_FORM = 'gateway/itkExchange/pushCustomerForm';
     private const ACTION_GET_CUSTOMER_FORM = 'gateway/itkExchange/pullCustomerForm';
+    private const ACTION_DELETE_CUSTOMER_FORM = 'gateway/itkExchange/deleteCustomerForm';
 
     protected $apiKey;
     protected $url;
@@ -95,6 +97,28 @@ class Client
 
         $response = new GetCustomerForm();
         $response->status = $result->status;
+        return $response;
+    }
+
+    /**
+     * Удалить заявку на сертификат
+     *
+     *
+     * @param int $customerFormCrmId
+     * @return Bool
+     */
+    public function deleteCustomerForm($customerFormCrmId) {
+
+        $url = $this->url . self::ACTION_GET_CUSTOMER_FORM . '?key=' . $this->apiKey;
+
+        $result = $this->guzzle->get($url.'&id='.$customerFormCrmId);
+        $result = $this->getJsonBody($result);
+
+        $response = new Bool();
+        $response->status = $result->status;
+        if (property_exists($result, 'message')) {
+            $response->message = $result->message;
+        }
         return $response;
     }
 
