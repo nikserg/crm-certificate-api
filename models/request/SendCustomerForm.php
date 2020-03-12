@@ -96,4 +96,12 @@ class SendCustomerForm
      * @var bool
      */
     public $embededCP = false;
+
+    /**
+     * ИНН клиента
+     *
+     *
+     * @var string
+     */
+    public $inn;
 }
