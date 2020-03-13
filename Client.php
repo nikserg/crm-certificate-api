@@ -143,7 +143,7 @@ class Client
      */
     public function editUrl($token)
     {
-        return $this->url.'/customerForms/external?token='.$token;
+        return $this->url.'customerForms/external?token='.$token;
     }
 
     /**
@@ -156,6 +156,6 @@ class Client
      */
     public function generationUrl($token, $generatonToken)
     {
-        return $this->url.'/customerForms/external/generate?token='.$token.'&generationToken='.$generatonToken;
+        return $this->url.'customerForms/external/generate?token='.$token.'&generationToken='.$generatonToken;
     }
 }
