@@ -24,6 +24,7 @@ class Client
     private const ACTION_ADD_CUSTOMER_FORM = 'gateway/itkExchange/pushCustomerForm';
     private const ACTION_GET_CUSTOMER_FORM = 'gateway/itkExchange/pullCustomerForm';
     private const ACTION_DELETE_CUSTOMER_FORM = 'gateway/itkExchange/deleteCustomerForm';
+    private const ACTION_UNION = 'gateway/itkExchange/union';
 
     protected $apiKey;
     protected $url;
@@ -109,6 +110,9 @@ class Client
      *
      * @param int $customerFormCrmId
      * @return BooleanResponse
+     * @throws BooleanResponseException
+     * @throws NotFoundException
+     * @throws GuzzleException
      */
     public function deleteCustomerForm($customerFormCrmId) {
 
@@ -120,6 +124,7 @@ class Client
             if ($e->getCode() == 404) {
                 throw new NotFoundException('В CRM не найдена заявка #'.$customerFormCrmId);
             }
+            throw $e;
         }
         $result = $this->getJsonBody($result);
 
@@ -132,6 +137,30 @@ class Client
             throw new BooleanResponseException('Ошибка при удалении заявки в CRM '.print_r($response, true));
         }
         return $response;
+    }
+
+    /**
+     * Получить заявление на выпуск сертификата
+     *
+     * @param int $customerFormCrmId
+     * @param string $format
+     * @return string
+     * @throws NotFoundException
+     * @throws GuzzleException
+     */
+    public function getCustomerFormClaim($customerFormCrmId, $format = 'pdf')
+    {
+        $url = $this->url . self::ACTION_UNION . '?key=' . $this->apiKey;
+        try {
+            $result = $this->guzzle->get($url . '&id=' . $customerFormCrmId.'&format='.$format);
+        }catch (GuzzleException $e) {
+            if ($e->getCode() == 404) {
+                throw new NotFoundException('В CRM не найдена заявка #'.$customerFormCrmId);
+            }
+            throw $e;
+        }
+
+        return $result->getBody()->getContents();
     }
 
     /**
