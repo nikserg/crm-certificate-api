@@ -218,10 +218,15 @@ class Client
      *
      * @param $token
      * @param $generatonToken
+     * @param bool $iframe Выводить отображение для фрейма
      * @return string
      */
-    public function generationUrl($token, $generatonToken)
+    public function generationUrl($token, $generatonToken, $iframe = false)
     {
-        return $this->url . 'customerForms/external/generate?token=' . $token . '&generationToken=' . $generatonToken;
+        $return = $this->url . 'customerForms/external/generate?token=' . $token . '&generationToken=' . $generatonToken;
+        if ($iframe) {
+            $return .= '&iframe=1';
+        }
+        return $return;
     }
 }
