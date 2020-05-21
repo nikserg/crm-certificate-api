@@ -9,6 +9,7 @@ use GuzzleHttp\RequestOptions;
 
 use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
+use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
@@ -25,6 +26,7 @@ class Client
     private const ACTION_GET_CUSTOMER_FORM = 'gateway/itkExchange/pullCustomerForm';
     private const ACTION_DELETE_CUSTOMER_FORM = 'gateway/itkExchange/deleteCustomerForm';
     private const ACTION_UNION = 'gateway/itkExchange/union';
+    private const ACTION_CHANGE_STATUS = 'gateway/itkExchange/pushCustomerFormStatus';
 
     protected $apiKey;
     protected $url;
@@ -96,11 +98,45 @@ class Client
     {
 
         $url = $this->url . self::ACTION_GET_CUSTOMER_FORM . '?key=' . $this->apiKey;
-        $result = $this->guzzle->get($url.'&id='.$customerFormCrmId);
+        $result = $this->guzzle->get($url . '&id=' . $customerFormCrmId);
         $result = $this->getJsonBody($result);
 
         $response = new GetCustomerForm();
         $response->status = $result->status;
+        return $response;
+    }
+
+    /**
+     * Изменить статус заявки
+     *
+     *
+     * @param ChangeStatus $changeStatus
+     * @return BooleanResponse
+     * @throws BooleanResponseException
+     * @throws GuzzleException
+     * @throws NotFoundException
+     */
+    public function changeStatus(ChangeStatus $changeStatus)
+    {
+        $url = $this->url . self::ACTION_CHANGE_STATUS . '?key=' . $this->apiKey;
+        try {
+            $result = $this->guzzle->post($url, [RequestOptions::JSON => $changeStatus]);
+        } catch (GuzzleException $e) {
+            if ($e->getCode() == 404) {
+                throw new NotFoundException('В CRM не найдена заявка #' . $changeStatus->id);
+            }
+            throw $e;
+        }
+        $result = $this->getJsonBody($result);
+
+        $response = new BooleanResponse();
+        $response->status = $result->status;
+        if (property_exists($result, 'message')) {
+            $response->message = $result->message;
+        }
+        if (!$response->status) {
+            throw new BooleanResponseException('Ошибка при обновлении статуса в CRM ' . print_r($response, true));
+        }
         return $response;
     }
 
@@ -114,15 +150,16 @@ class Client
      * @throws NotFoundException
      * @throws GuzzleException
      */
-    public function deleteCustomerForm($customerFormCrmId) {
+    public function deleteCustomerForm($customerFormCrmId)
+    {
 
         $url = $this->url . self::ACTION_DELETE_CUSTOMER_FORM . '?key=' . $this->apiKey;
 
         try {
             $result = $this->guzzle->get($url . '&id=' . $customerFormCrmId);
-        }catch (GuzzleException $e) {
+        } catch (GuzzleException $e) {
             if ($e->getCode() == 404) {
-                throw new NotFoundException('В CRM не найдена заявка #'.$customerFormCrmId);
+                throw new NotFoundException('В CRM не найдена заявка #' . $customerFormCrmId);
             }
             throw $e;
         }
@@ -134,7 +171,7 @@ class Client
             $response->message = $result->message;
         }
         if (!$response->status) {
-            throw new BooleanResponseException('Ошибка при удалении заявки в CRM '.print_r($response, true));
+            throw new BooleanResponseException('Ошибка при удалении заявки в CRM ' . print_r($response, true));
         }
         return $response;
     }
@@ -142,7 +179,7 @@ class Client
     /**
      * Получить заявление на выпуск сертификата
      *
-     * @param int $customerFormCrmId
+     * @param int    $customerFormCrmId
      * @param string $format
      * @return string
      * @throws NotFoundException
@@ -152,10 +189,10 @@ class Client
     {
         $url = $this->url . self::ACTION_UNION . '?key=' . $this->apiKey;
         try {
-            $result = $this->guzzle->get($url . '&id=' . $customerFormCrmId.'&format='.$format);
-        }catch (GuzzleException $e) {
+            $result = $this->guzzle->get($url . '&id=' . $customerFormCrmId . '&format=' . $format);
+        } catch (GuzzleException $e) {
             if ($e->getCode() == 404) {
-                throw new NotFoundException('В CRM не найдена заявка #'.$customerFormCrmId);
+                throw new NotFoundException('В CRM не найдена заявка #' . $customerFormCrmId);
             }
             throw $e;
         }
@@ -172,7 +209,7 @@ class Client
      */
     public function editUrl($token)
     {
-        return $this->url.'customerForms/external?token='.$token;
+        return $this->url . 'customerForms/external?token=' . $token;
     }
 
     /**
@@ -185,6 +222,6 @@ class Client
      */
     public function generationUrl($token, $generatonToken)
     {
-        return $this->url.'customerForms/external/generate?token='.$token.'&generationToken='.$generatonToken;
+        return $this->url . 'customerForms/external/generate?token=' . $token . '&generationToken=' . $generatonToken;
     }
 }

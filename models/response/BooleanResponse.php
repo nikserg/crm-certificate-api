@@ -15,8 +15,6 @@ namespace nikserg\CRMCertificateAPI\models\response;
  */
 class BooleanResponse
 {
-
-
     /**
      * Успех или нет
      *
