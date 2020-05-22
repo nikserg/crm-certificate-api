@@ -116,7 +116,21 @@ class SendCustomerForm
     /**
      * Телефон получателя сертификата
      *
-     * @var int
+     * @var string
      */
     public $phone;
+
+    /**
+     * КПП организации сертификата
+     *
+     * @var string
+     */
+    public $kpp;
+
+    /**
+     * ОГРН организации
+     *
+     * @var string
+     */
+    public $ogrn;
 }
