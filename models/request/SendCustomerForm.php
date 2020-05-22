@@ -112,4 +112,11 @@ class SendCustomerForm
      * @var int
      */
     public $period;
+
+    /**
+     * Телефон получателя сертификата
+     *
+     * @var int
+     */
+    public $phone;
 }
