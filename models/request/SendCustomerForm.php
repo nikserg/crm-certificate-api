@@ -112,4 +112,25 @@ class SendCustomerForm
      * @var int
      */
     public $period;
+
+    /**
+     * Телефон получателя сертификата
+     *
+     * @var string
+     */
+    public $phone;
+
+    /**
+     * КПП организации сертификата
+     *
+     * @var string
+     */
+    public $kpp;
+
+    /**
+     * ОГРН организации
+     *
+     * @var string
+     */
+    public $ogrn;
 }
