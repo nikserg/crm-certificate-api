@@ -106,6 +106,7 @@ class Client
 
         $response = new GetCustomerForm();
         $response->status = $result->status;
+        $response->tokenCertificate = $result->token ?? '';
         $response->opportunityId = $result->opportunityId ?? '';
         return $response;
     }
