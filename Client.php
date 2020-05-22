@@ -126,7 +126,7 @@ class Client
         $response = new GetOpportunity();
         $response->isPay = $result->isPay ?? '';
         $response->accountId = $result->accountId ?? '';
-        $response->paymentToken = $result->paymentTokne ?? '';
+        $response->paymentToken = $result->paymentToken ?? '';
 
         return $response;
     }
