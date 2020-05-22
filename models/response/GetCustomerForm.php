@@ -25,4 +25,17 @@ class GetCustomerForm
      */
     public $status;
 
+    /**
+     * Номер сделки
+     *
+     * @var int
+     */
+    public $opportunityId;
+
+    /**
+     * Номер клиента
+     *
+     * @var int
+     */
+    public $accountId;
 }

@@ -13,6 +13,7 @@ use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
+use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -25,6 +26,7 @@ class Client
     private const ACTION_ADD_CUSTOMER_FORM = 'gateway/itkExchange/pushCustomerForm';
     private const ACTION_GET_CUSTOMER_FORM = 'gateway/itkExchange/pullCustomerForm';
     private const ACTION_DELETE_CUSTOMER_FORM = 'gateway/itkExchange/deleteCustomerForm';
+    private const ACTION_GET_OPPORTUNITY = 'gateway/itkExchange/pullOpportunity';
     private const ACTION_UNION = 'gateway/itkExchange/union';
     private const ACTION_CERTIFICATE_BLANK = 'gateway/itkExchange/certificateBlank';
     private const ACTION_CHANGE_STATUS = 'gateway/itkExchange/pushCustomerFormStatus';
@@ -104,6 +106,28 @@ class Client
 
         $response = new GetCustomerForm();
         $response->status = $result->status;
+        $response->opportunityId = $result->opportunityId ?? '';
+        return $response;
+    }
+
+    /**
+     * Получить информацию о сделки
+     *
+     * @param $opportunityCrmId
+     * @return GetOpportunity
+     * @throws \Exception
+     */
+    public function getOpportunity($opportunityCrmId)
+    {
+        $url = $this->url . self::ACTION_GET_OPPORTUNITY . '?key=' . $this->apiKey;
+        $result = $this->guzzle->get($url . '&id=' . $opportunityCrmId);
+        $result = $this->getJsonBody($result);
+
+        $response = new GetOpportunity();
+        $response->isPay = $result->isPay ?? '';
+        $response->accountId = $result->accountId ?? '';
+        $response->paymentToken = $result->paymentTokne ?? '';
+
         return $response;
     }
 
