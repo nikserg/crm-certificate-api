@@ -38,4 +38,6 @@ class GetCustomerForm
      * @var int
      */
     public $accountId;
+
+    public $tokenCertificate;
 }
