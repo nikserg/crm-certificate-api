@@ -26,6 +26,7 @@ class Client
     private const ACTION_GET_CUSTOMER_FORM = 'gateway/itkExchange/pullCustomerForm';
     private const ACTION_DELETE_CUSTOMER_FORM = 'gateway/itkExchange/deleteCustomerForm';
     private const ACTION_UNION = 'gateway/itkExchange/union';
+    private const ACTION_CERTIFICATE_BLANK = 'gateway/itkExchange/certificateBlank';
     private const ACTION_CHANGE_STATUS = 'gateway/itkExchange/pushCustomerFormStatus';
 
     protected $apiKey;
@@ -197,6 +198,34 @@ class Client
             throw $e;
         }
 
+        return $result->getBody()->getContents();
+    }
+
+    /**
+     * Получить заявление на выпуск сертификата
+     *
+     * @param int    $customerFormCrmId
+     * @param string $format
+     * @return string
+     * @throws NotFoundException
+     * @throws GuzzleException
+     */
+    public function getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')
+    {
+        try {
+            $result = $this->guzzle->get($this->url . self::ACTION_CERTIFICATE_BLANK, [
+                'query' => [
+                    'key'    => $this->apiKey,
+                    'id'     => $customerFormCrmId,
+                    'format' => $format,
+                ],
+            ]);
+        } catch (GuzzleException $e) {
+            if ($e->getCode() == 404) {
+                throw new NotFoundException('В CRM не найдена заявка #' . $customerFormCrmId);
+            }
+            throw $e;
+        }
         return $result->getBody()->getContents();
     }
 
