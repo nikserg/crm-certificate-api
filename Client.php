@@ -12,6 +12,7 @@ use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
+use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
@@ -30,6 +31,7 @@ class Client
     private const ACTION_UNION = 'gateway/itkExchange/union';
     private const ACTION_CERTIFICATE_BLANK = 'gateway/itkExchange/certificateBlank';
     private const ACTION_CHANGE_STATUS = 'gateway/itkExchange/pushCustomerFormStatus';
+    private const ACTION_EGRUL = 'gateway/itkExchange/egrul';
 
     protected $apiKey;
     protected $url;
@@ -252,6 +254,24 @@ class Client
             throw $e;
         }
         return $result->getBody()->getContents();
+    }
+
+    public function getEgrul($customerFormCrmId) {
+        try {
+            $result = $this->guzzle->get($this->url . self::ACTION_EGRUL, [
+                'query' => [
+                    'key'    => $this->apiKey,
+                    'customerFormId'     => $customerFormCrmId,
+                ],
+            ]);
+        } catch (GuzzleException $e) {
+            if ($e->getCode() == 404) {
+                throw new NotFoundException('В CRM не найдена заявка #' . $customerFormCrmId);
+            }
+            throw $e;
+        }
+        $json = $result->getBody()->getContents();
+        return new GetEgrul($json);
     }
 
     /**
