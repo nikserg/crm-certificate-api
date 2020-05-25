@@ -301,7 +301,10 @@ class Client
     {
         $result = $this->guzzle->post($this->url . self::ACTION_PUSH_CUSTOMER_FORM_DATA, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
-            RequestOptions::JSON  => ['formData' => $customerForm->formData],
+            RequestOptions::JSON  => [
+                'id' => $customerForm->id,
+                'formData' => $customerForm->formData
+            ],
         ]);
         $result = $this->getJsonBody($result);
         $response = new SendCustomerFormResponse();
