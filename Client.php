@@ -306,7 +306,7 @@ class Client
             RequestOptions::QUERY => ['key' => $this->apiKey],
             RequestOptions::JSON  => [
                 'id' => $customerForm->id,
-                'formData' => $customerForm->formData
+                'formData' => $customerForm
             ],
         ]);
         $result = $this->getJsonBody($result);
