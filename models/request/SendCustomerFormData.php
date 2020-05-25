@@ -6,15 +6,17 @@
  * Time: 11:05
  */
 
-namespace nikserg\CRMCertificateAPI\models\request\SendCustomerForm;
+namespace nikserg\CRMCertificateAPI\models\request;
 
 /**
  * Class FormData
  *
  * @package nikserg\CRMCertificateAPI\models\request\SendCustomerForm
  */
-class FormData
+class SendCustomerFormData
 {
+    public $id;
+
     public $passportNumber;
     public $passportDate;
     public $passportIssuer;

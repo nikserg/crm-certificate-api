@@ -10,6 +10,7 @@ use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
+use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
@@ -293,11 +294,11 @@ class Client
     /**
      * Отправить данные бланка заявки на сертификат
      *
-     * @param SendCustomerFormRequest $customerForm
+     * @param SendCustomerFormData $customerForm
      * @return SendCustomerFormResponse
      * @throws \Exception
      */
-    public function sendCustomerFormData(SendCustomerFormRequest $customerForm)
+    public function sendCustomerFormData(SendCustomerFormData $customerForm)
     {
         $result = $this->guzzle->post($this->url . self::ACTION_PUSH_CUSTOMER_FORM_DATA, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
