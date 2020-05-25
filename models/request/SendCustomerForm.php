@@ -8,6 +8,8 @@
 
 namespace nikserg\CRMCertificateAPI\models\request;
 
+use nikserg\CRMCertificateAPI\models\request\SendCustomerForm\FormData;
+
 /**
  * Заявка на сертификат в CRM
  * Модель для передачи в CRM
@@ -137,7 +139,7 @@ class SendCustomerForm
     /**
      * Массив данных для формирования бланка сертификата
      *
-     * @var array
+     * @var FormData
      */
     public $formData;
 }

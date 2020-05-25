@@ -30,8 +30,13 @@ abstract class Esia
     /**
      * @var string
      */
-    public $rawResponse;
+    protected $rawResponse;
 
+    /**
+     * Esia constructor.
+     *
+     * @param string $json
+     */
     public function __construct($json)
     {
         $json = json_decode($json, true);
@@ -41,6 +46,17 @@ abstract class Esia
         if ($this->rawResponse) {
             $this->parseResponse($this->rawResponse);
         }
+    }
+
+    /**
+     * Завершен ли запрос
+     *
+     *
+     * @return bool
+     */
+    public function isDone()
+    {
+        return $this->status >= self::STATUS_EXECUTED;
     }
 
     abstract protected function parseResponse($rawResponse);
