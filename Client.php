@@ -15,6 +15,7 @@ use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
+use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -31,6 +32,7 @@ class Client
     private const ACTION_CHANGE_STATUS = 'gateway/itkExchange/pushCustomerFormStatus';
     private const ACTION_EGRUL = 'gateway/itkExchange/egrul';
     private const ACTION_PUSH_CUSTOMER_FORM_DATA = 'gateway/itkExchange/pushCustomerFormData';
+    private const ACTION_PASSPORT_CHECK = 'gateway/itkExchange/checkPassport';
     protected $apiKey;
     protected $url;
     protected $guzzle;
@@ -313,5 +315,39 @@ class Client
         $response->token = $result->token;
         $response->generationToken = $result->generationToken;
         return $response;
+    }
+
+    /**
+     * Проверка паспортных данных
+     *
+     *
+     * @param $series
+     * @param $number
+     * @return GetPassportCheck
+     * @throws \Exception
+     */
+    public function getPassportCheck($series, $number) {
+        try {
+            $result = $this->guzzle->get($this->url . self::ACTION_PASSPORT_CHECK, [
+                'query' => [
+                    'key'    => $this->apiKey,
+                    'series'     => $series,
+                    'number' => $number,
+                ],
+            ]);
+        } catch (GuzzleException $e) {
+            if ($e->getCode() == 400) {
+                throw new \Exception('Неправильный формат серии и номера паспорта '.$series.' '.$number);
+            }
+
+        }
+
+        $result = $this->getJsonBody($result);
+
+        $response = new GetPassportCheck();
+        $response->comment = $result->comment;
+        $response->status = $result->status;
+        return $response;
+
     }
 }
