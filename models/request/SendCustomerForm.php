@@ -133,4 +133,11 @@ class SendCustomerForm
      * @var string
      */
     public $ogrn;
+
+    /**
+     * Массив данных для формирования бланка сертификата
+     *
+     * @var array
+     */
+    public $formData;
 }
