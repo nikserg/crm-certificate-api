@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
-
 use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
@@ -20,10 +19,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class Client
 {
-
     public const PRODUCTION_URL = 'https://crm.uc-itcom.ru/index.php/';
     public const TEST_URL = 'https://dev.uc-itcom.ru/index.php/';
-
     private const ACTION_ADD_CUSTOMER_FORM = 'gateway/itkExchange/pushCustomerForm';
     private const ACTION_GET_CUSTOMER_FORM = 'gateway/itkExchange/pullCustomerForm';
     private const ACTION_DELETE_CUSTOMER_FORM = 'gateway/itkExchange/deleteCustomerForm';
@@ -32,7 +29,7 @@ class Client
     private const ACTION_CERTIFICATE_BLANK = 'gateway/itkExchange/certificateBlank';
     private const ACTION_CHANGE_STATUS = 'gateway/itkExchange/pushCustomerFormStatus';
     private const ACTION_EGRUL = 'gateway/itkExchange/egrul';
-
+    private const ACTION_PUSH_CUSTOMER_FORM_DATA = 'gateway/itkExchange/pushCustomerFormData';
     protected $apiKey;
     protected $url;
     protected $guzzle;
@@ -50,7 +47,6 @@ class Client
         $this->guzzle = new \GuzzleHttp\Client([
             'verify' => false,
         ]);
-
     }
 
     /**
@@ -81,10 +77,8 @@ class Client
     public function sendCustomerForm(SendCustomerFormRequest $customerForm)
     {
         $url = $this->url . self::ACTION_ADD_CUSTOMER_FORM . '?key=' . $this->apiKey;
-
         $result = $this->guzzle->post($url, [RequestOptions::JSON => $customerForm]);
         $result = $this->getJsonBody($result);
-
         $response = new SendCustomerFormResponse();
         $response->id = $result->id;
         $response->token = $result->token;
@@ -101,11 +95,9 @@ class Client
      */
     public function getCustomerForm($customerFormCrmId)
     {
-
         $url = $this->url . self::ACTION_GET_CUSTOMER_FORM . '?key=' . $this->apiKey;
         $result = $this->guzzle->get($url . '&id=' . $customerFormCrmId);
         $result = $this->getJsonBody($result);
-
         $response = new GetCustomerForm();
         $response->status = $result->status;
         $response->tokenCertificate = $result->token ?? '';
@@ -125,12 +117,10 @@ class Client
         $url = $this->url . self::ACTION_GET_OPPORTUNITY . '?key=' . $this->apiKey;
         $result = $this->guzzle->get($url . '&id=' . $opportunityCrmId);
         $result = $this->getJsonBody($result);
-
         $response = new GetOpportunity();
         $response->isPay = $result->isPay ?? '';
         $response->accountId = $result->accountId ?? '';
         $response->paymentToken = $result->paymentToken ?? '';
-
         return $response;
     }
 
@@ -156,7 +146,6 @@ class Client
             throw $e;
         }
         $result = $this->getJsonBody($result);
-
         $response = new BooleanResponse();
         $response->status = $result->status;
         if (property_exists($result, 'message')) {
@@ -180,9 +169,7 @@ class Client
      */
     public function deleteCustomerForm($customerFormCrmId)
     {
-
         $url = $this->url . self::ACTION_DELETE_CUSTOMER_FORM . '?key=' . $this->apiKey;
-
         try {
             $result = $this->guzzle->get($url . '&id=' . $customerFormCrmId);
         } catch (GuzzleException $e) {
@@ -192,7 +179,6 @@ class Client
             throw $e;
         }
         $result = $this->getJsonBody($result);
-
         $response = new BooleanResponse();
         $response->status = $result->status;
         if (property_exists($result, 'message')) {
@@ -224,7 +210,6 @@ class Client
             }
             throw $e;
         }
-
         return $result->getBody()->getContents();
     }
 
@@ -256,12 +241,13 @@ class Client
         return $result->getBody()->getContents();
     }
 
-    public function getEgrul($customerFormCrmId) {
+    public function getEgrul($customerFormCrmId)
+    {
         try {
             $result = $this->guzzle->get($this->url . self::ACTION_EGRUL, [
                 'query' => [
-                    'key'    => $this->apiKey,
-                    'customerFormId'     => $customerFormCrmId,
+                    'key'            => $this->apiKey,
+                    'customerFormId' => $customerFormCrmId,
                 ],
             ]);
         } catch (GuzzleException $e) {
@@ -290,8 +276,8 @@ class Client
      * Индивидуальная ссылка для генерации
      *
      *
-     * @param $token
-     * @param $generatonToken
+     * @param      $token
+     * @param      $generatonToken
      * @param bool $iframe Выводить отображение для фрейма
      * @return string
      */
@@ -302,5 +288,29 @@ class Client
             $return .= '&iframe=1';
         }
         return $return;
+    }
+
+    /**
+     * Отправить данные бланка заявки на сертификат
+     *
+     * @param SendCustomerFormRequest $customerForm
+     * @return SendCustomerFormResponse
+     * @throws \Exception
+     */
+    public function sendCustomerFormData(SendCustomerFormRequest $customerForm)
+    {
+        $result = $this->guzzle->post($this->url . self::ACTION_PUSH_CUSTOMER_FORM_DATA, [
+            RequestOptions::QUERY => ['key' => $this->apiKey],
+            RequestOptions::JSON  => [
+                'id' => $customerForm->id,
+                'formData' => $customerForm->formData
+            ],
+        ]);
+        $result = $this->getJsonBody($result);
+        $response = new SendCustomerFormResponse();
+        $response->id = $result->id;
+        $response->token = $result->token;
+        $response->generationToken = $result->generationToken;
+        return $response;
     }
 }
