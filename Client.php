@@ -296,17 +296,18 @@ class Client
     /**
      * Отправить данные бланка заявки на сертификат
      *
-     * @param SendCustomerFormData $customerForm
+     * @param int $crmCustomerFormId
+     * @param SendCustomerFormData $customerFormData
      * @return SendCustomerFormResponse
      * @throws \Exception
      */
-    public function sendCustomerFormData(SendCustomerFormData $customerForm)
+    public function sendCustomerFormData($crmCustomerFormId, SendCustomerFormData $customerFormData)
     {
         $result = $this->guzzle->post($this->url . self::ACTION_PUSH_CUSTOMER_FORM_DATA, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
             RequestOptions::JSON  => [
-                'id' => $customerForm->id,
-                'formData' => $customerForm
+                'id' => $crmCustomerFormId,
+                'formData' => $customerFormData
             ],
         ]);
         $result = $this->getJsonBody($result);

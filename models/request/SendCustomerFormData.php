@@ -15,8 +15,6 @@ namespace nikserg\CRMCertificateAPI\models\request;
  */
 class SendCustomerFormData
 {
-    public $id;
-
     public $passportNumber;
     public $passportDate;
     public $passportIssuer;
