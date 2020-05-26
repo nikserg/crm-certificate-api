@@ -8,8 +8,6 @@
 
 namespace nikserg\CRMCertificateAPI\models\request;
 
-use nikserg\CRMCertificateAPI\models\request\SendCustomerForm\FormData;
-
 /**
  * Заявка на сертификат в CRM
  * Модель для передачи в CRM
@@ -19,7 +17,13 @@ use nikserg\CRMCertificateAPI\models\request\SendCustomerForm\FormData;
 class SendCustomerForm
 {
     //
-    // Возможные значения customerLegalForm
+    // Вомзожные значения customerTarget (на кого выпускается подпись)
+    //
+    const CUSTOMER_TARGET_OWNER = 'owner';               //Руководитель организации (ИП) (по умолчанию)
+    const CUSTOMER_TARGET_CONFIDANT = 'confidant';       //Доверенное лицо организации (ИП)
+
+    //
+    // Возможные значения customerLegalForm (организационно-правовая форма)
     //
     const CUSTOMER_LEGAL_FORM_LEGAL = 'legal';           //Юр. лицо
     const CUSTOMER_LEGAL_FORM_INDIVIDUAL = 'individual'; //ИП
@@ -137,9 +141,9 @@ class SendCustomerForm
     public $ogrn;
 
     /**
-     * Массив данных для формирования бланка сертификата
+     * На кого выпускается подпись
      *
-     * @var FormData
+     * @var string
      */
-    public $formData;
+    public $customerTarget;
 }
