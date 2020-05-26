@@ -16,6 +16,7 @@ use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
+use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -33,6 +34,7 @@ class Client
     private const ACTION_EGRUL = 'gateway/itkExchange/egrul';
     private const ACTION_PUSH_CUSTOMER_FORM_DATA = 'gateway/itkExchange/pushCustomerFormData';
     private const ACTION_PASSPORT_CHECK = 'gateway/itkExchange/checkPassport';
+    private const ACTION_CHECK_SNILS = 'gateway/itkExchange/checkSnils';
     protected $apiKey;
     protected $url;
     protected $guzzle;
@@ -350,5 +352,32 @@ class Client
         $response->status = $result->status;
         return $response;
 
+    }
+
+    /**
+     * Проверка СНИЛС данных
+     */
+    public function getSnilsCheck($customerFormCrmId)
+    {
+        try {
+            $result = $this->guzzle->get($this->url . self::ACTION_CHECK_SNILS, [
+                'query' => [
+                    'key'    => $this->apiKey,
+                    'customerFormId' => $customerFormCrmId,
+                ],
+            ]);
+        } catch (GuzzleException $e) {
+            if ($e->getCode() == 400) {
+                throw new \Exception('Неправильный формат заявки ' . $customerFormCrmId);
+            }
+
+        }
+
+        $result = $this->getJsonBody($result);
+        $response = new GetSnilsCheck();
+        $response->status = $result->status ?? '';
+        $response->message = $result->message ?? '';
+
+        return $response;
     }
 }
