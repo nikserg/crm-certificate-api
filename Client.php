@@ -356,6 +356,10 @@ class Client
 
     /**
      * Проверка СНИЛС данных
+     *
+     * @param $customerFormCrmId
+     * @return GetSnilsCheck
+     * @throws \Exception
      */
     public function getSnilsCheck($customerFormCrmId)
     {
