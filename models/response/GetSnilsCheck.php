@@ -46,7 +46,20 @@ class GetSnilsCheck
      */
     const STATUS_INTERNAL_ERROR = 'internal_error';
 
+
+    const ERROR_MESSAGE_USER = [
+        self::STATUS_NOT_FOUND => 'Не найдено',
+        self::STATUS_WRONG => 'Комбинация СНИЛС-ФИО-пол-дата рождения - неверная',
+        self::STATUS_WAIT  => 'Запрос отправлен, но ответ не получен',
+        self::STATUS_PARSE_ERROR => 'Ошибка разбора ответа',
+    ];
+
+
     public $status;
 
     public $message;
+
+    public function getErrorMessage() {
+        return self::ERROR_MESSAGE_USER[$this->status] ?? 'Тип ошибки для статуса не надена';
+    }
 }
