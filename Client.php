@@ -355,7 +355,7 @@ class Client
     }
 
     /**
-     * Возвращает проверку СНИЛС
+     * Проверка СНИЛС данных
      *
      * @param $customerFormCrmId
      * @return GetSnilsCheck
