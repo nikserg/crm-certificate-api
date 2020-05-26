@@ -28,10 +28,14 @@ class SendCustomerFormData
     public $ownerLastName;
     public $ownerFirstName;
     public $ownerMiddleName;
+    public $ownerPosition;
+    public $departmentName;
 
     public $headLastName;
     public $headFirstName;
     public $headMiddleName;
+    public $headPosition;
+    public $authorityDocument;
 
     public $organizationShortName;
     public $INN;
@@ -49,6 +53,4 @@ class SendCustomerFormData
     public $SNILS;
 
 
-    public $ownerPosition;
-    public $departmentName;
 }
