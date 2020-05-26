@@ -20,6 +20,7 @@ class SendCustomerFormData
     public $passportIssuer;
     public $passportSeries;
     public $ownerPassportDeptCode;
+    public $ownerBirthDate;
 
     public $email;
     public $phone;
