@@ -146,4 +146,11 @@ class SendCustomerForm
      * @var string
      */
     public $customerTarget;
+
+    /**
+     * Дополнительный продукт.
+     *
+     * @var SendProductTemplate[] $additionalProducts
+     */
+    public $additionalProducts;
 }
