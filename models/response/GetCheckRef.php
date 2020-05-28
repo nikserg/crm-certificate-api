@@ -7,9 +7,12 @@ namespace nikserg\CRMCertificateAPI\models\response;
 class GetCheckRef
 {
 
-    public const PAYMENT_UNLIMITED = 0;   //Неограниченный выпуск
-    public const PAYMENT_BEFORE = 1;      //Предоплата
-    public const PAYMENT_AFTER = 2;       //Постоплата
+    /** @var int Тип оплаты по неограниченному выпуску. По партнерам на Общих условий  */
+    public const PAYMENT_UNLIMITED = 0;
+    /** @var int Тип оплаты Предоплата */
+    public const PAYMENT_BEFORE = 1;
+    /** @var int Тип оплаты Постоплата */
+    public const PAYMENT_AFTER = 2;
 
     /**
      * Номер партнера в заявки
