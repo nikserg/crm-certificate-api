@@ -29,6 +29,7 @@ class SendCustomerFormData
     public $ownerFirstName;
     public $ownerMiddleName;
     public $ownerPosition;
+    public $ownerGender;
     public $departmentName;
 
     public $headLastName;
