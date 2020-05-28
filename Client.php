@@ -385,4 +385,44 @@ class Client
 
         return $response;
     }
+
+    /**
+     * Ссылка для записи сертификата на носитель
+     *
+     *
+     * @param $customerFormId
+     * @param $token
+     * @return string
+     */
+    public function certificateWriteUrl($customerFormId, $token)
+    {
+        return $this->url . 'customerForms/external/writeCertificate?token=' . $token.'&customerFormId='.$customerFormId;
+    }
+
+
+    /**
+     * Ссылка для скачивания сертификата
+     *
+     *
+     * @param $customerFormId
+     * @param $token
+     * @return string
+     */
+    public function certificateDownloadUrl($customerFormId, $token)
+    {
+        return $this->url . 'customerForms/external/downloadCertificate?token=' . $token.'&customerFormId='.$customerFormId;
+    }
+
+    /**
+     * Ссылка для скачивания реализации
+     *
+     *
+     * @param $customerFormId
+     * @param $token
+     * @return string
+     */
+    public function realizationDownloadUrl($customerFormId, $token)
+    {
+        return $this->url . 'customerForms/external/downloadFirstRealization?token=' . $token.'&customerFormId='.$customerFormId;
+    }
 }
