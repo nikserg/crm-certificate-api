@@ -381,6 +381,7 @@ class Client
         $response = new GetSnilsCheck();
         $response->status = $result->status ?? '';
         $response->message = $result->message ?? '';
+        $response->id = $result->id;
 
         return $response;
     }

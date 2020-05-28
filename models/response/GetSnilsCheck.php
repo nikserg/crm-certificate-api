@@ -59,6 +59,8 @@ class GetSnilsCheck
 
     public $message;
 
+    public $id;
+
     public function getErrorMessage() {
         return self::ERROR_MESSAGE_USER[$this->status] ?? 'Тип ошибки для статуса не надена';
     }
