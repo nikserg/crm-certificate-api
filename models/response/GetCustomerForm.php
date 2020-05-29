@@ -39,5 +39,17 @@ class GetCustomerForm
      */
     public $accountId;
 
+    /**
+     * Токен из сертификата.
+     *
+     * @var string $tokenCertificate
+     */
     public $tokenCertificate;
+
+    /**
+     * Есть ли подтверждение заявки для ПО и ПР партнеров или есть оплата для сделки для ОУ партнера.
+     *
+     * @var bool
+     */
+    public $isPay;
 }
