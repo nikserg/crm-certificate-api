@@ -2,7 +2,11 @@
 
 namespace nikserg\CRMCertificateAPI\models\request;
 
-
+/**
+ * Отправка реферал ссылки
+ *
+ * @package nikserg\CRMCertificateAPI\models\request
+ */
 class SendCheckRef
 {
     /**
