@@ -9,14 +9,20 @@ use GuzzleHttp\RequestOptions;
 use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
+use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
+use nikserg\CRMCertificateAPI\models\request\SendPrice;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
+use nikserg\CRMCertificateAPI\models\response\GetCheckRef;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
+use nikserg\CRMCertificateAPI\models\response\GetPrice;
 use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
+use nikserg\CRMCertificateAPI\models\response\models\Platforms;
+use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -35,6 +41,8 @@ class Client
     private const ACTION_PUSH_CUSTOMER_FORM_DATA = 'gateway/itkExchange/pushCustomerFormData';
     private const ACTION_PASSPORT_CHECK = 'gateway/itkExchange/checkPassport';
     private const ACTION_CHECK_SNILS = 'gateway/itkExchange/checkSnils';
+    private const ACTION_CHECK_REFERRAL = 'gateway/itkExchange/checkRef';
+    private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
     protected $apiKey;
     protected $url;
     protected $guzzle;
@@ -107,6 +115,7 @@ class Client
         $response->status = $result->status;
         $response->tokenCertificate = $result->token ?? '';
         $response->opportunityId = $result->opportunityId ?? '';
+        $response->isPay = $result->isPay;
         return $response;
     }
 
@@ -397,6 +406,67 @@ class Client
     public function certificateWriteUrl($customerFormId, $token)
     {
         return $this->url . 'customerForms/external/writeCertificate?token=' . $token.'&customerFormId='.$customerFormId;
+    }
+
+    /**
+     * Получение информации из рееферальной ссылке
+     *
+     * @param SendCheckRef $sendCheckRef
+     * @return GetCheckRef
+     * @throws \Exception
+     */
+    public function getCheckRef(SendCheckRef $sendCheckRef)
+    {
+        $result = $this->guzzle->post($this->url . self::ACTION_CHECK_REFERRAL, [
+            RequestOptions::QUERY => ['key' => $this->apiKey],
+
+            RequestOptions::JSON => $sendCheckRef
+
+        ]);
+
+        $result = $this->getJsonBody($result);
+
+        $response = new GetCheckRef();
+        $response->id = $result->id ?? '';
+        $response->paymentMode = $result->paymentMode ?? '';
+
+        return $response;
+    }
+
+    /**
+     * Отдает цены по продуктам и платформам
+     *
+     * @param SendPrice $sendPrice
+     * @return GetPrice
+     * @throws \Exception
+     */
+    public function getPrice(SendPrice $sendPrice)
+    {
+        $result = $this->guzzle->post($this->url . self::ACTION_GET_PRICE, [
+            RequestOptions::QUERY => ['key' => $this->apiKey],
+            RequestOptions::JSON => $sendPrice
+        ]);
+        $result = $this->getJsonBody($result);
+        $response = new GetPrice();
+        $response->productTemplates = [];
+        $response->platforms  = [];
+
+
+        foreach ($result->productTemplates ?? [] as $productTemplateRequest) {
+            $productTemplate = new ProductTemplates();
+            $productTemplate->id = $productTemplateRequest->id ?? '';
+            $productTemplate->price = $productTemplateRequest->price ?? '';
+            $response->productTemplates[] = $productTemplate;
+        }
+        foreach ($result['platforms'] ?? [] as $platformRequest) {
+            $platform = new Platforms();
+            $platform->name = $platformRequest->name ?? '';
+            $platform->price = $platformRequest->price ?? '';
+            $response->platforms[] = $platform;
+        }
+        $response->notFoundPlatforms = $result->notFoundPlatforms ?? [];
+
+        return $response;
     }
 
 
