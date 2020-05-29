@@ -458,7 +458,7 @@ class Client
             $productTemplate->price = $productTemplateRequest->price ?? '';
             $response->productTemplates[] = $productTemplate;
         }
-        foreach ($result['platforms'] ?? [] as $platformRequest) {
+        foreach ($result->platforms ?? [] as $platformRequest) {
             $platform = new Platforms();
             $platform->name = $platformRequest->name ?? '';
             $platform->price = $platformRequest->price ?? '';
