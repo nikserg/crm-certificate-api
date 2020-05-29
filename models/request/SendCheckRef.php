@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rheola
- * Date: 28.05.20
- * Time: 18:19
- */
 
 namespace nikserg\CRMCertificateAPI\models\request;
 
