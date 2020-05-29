@@ -427,8 +427,8 @@ class Client
         $result = $this->getJsonBody($result);
 
         $response = new GetCheckRef();
-        $response->id = $result['id'] ?? '';
-        $response->paymentMode = $result['paymentMode'] ?? '';
+        $response->id = $result->id ?? '';
+        $response->paymentMode = $result->paymentMode ?? '';
 
         return $response;
     }
@@ -452,19 +452,19 @@ class Client
         $response->platforms  = [];
 
 
-        foreach ($result['productTemplates'] ?? [] as $productTemplateRequest) {
+        foreach ($result->productTemplates ?? [] as $productTemplateRequest) {
             $productTemplate = new ProductTemplates();
-            $productTemplate->id = $productTemplateRequest['id'] ?? '';
-            $productTemplate->price = $productTemplateRequest['price'] ?? '';
+            $productTemplate->id = $productTemplateRequest->id ?? '';
+            $productTemplate->price = $productTemplateRequest->price ?? '';
             $response->productTemplates[] = $productTemplate;
         }
         foreach ($result['platforms'] ?? [] as $platformRequest) {
             $platform = new Platforms();
-            $platform->name = $platformRequest['name'] ?? '';
-            $platform->price = $platformRequest['price'] ?? '';
+            $platform->name = $platformRequest->name ?? '';
+            $platform->price = $platformRequest->price ?? '';
             $response->platforms[] = $platform;
         }
-        $response->notFoundPlatforms = $result['notFoundPlatforms'] ?? [];
+        $response->notFoundPlatforms = $result->notFoundPlatforms ?? [];
 
         return $response;
     }
