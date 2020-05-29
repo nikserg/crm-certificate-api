@@ -1,18 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rheola
- * Date: 28.05.20
- * Time: 17:40
- */
 
 namespace nikserg\CRMCertificateAPI\models\response\models;
 
-
+/**
+ * Платформы в CRM.
+ */
 class Platforms
 {
     /**
-     * @var float $price Цена платформы
+     * Цена платформы
+     *
+     * @var float $price
      */
     public $price;
 

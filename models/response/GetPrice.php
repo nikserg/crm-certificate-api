@@ -1,29 +1,35 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: rheola
- * Date: 28.05.20
- * Time: 17:26
- */
 
 namespace nikserg\CRMCertificateAPI\models\response;
 
 
+use nikserg\CRMCertificateAPI\models\response\models\Platforms;
 use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
 
+/**
+ * Получения цен по платфомам и продуктам
+ *
+ * @package nikserg\CRMCertificateAPI\models\response
+ */
 class GetPrice
 {
     /**
+     * Информация о предмет каталоге.
+     *
      * @var ProductTemplates[] $productTemplates
      */
     public $productTemplates;
 
     /**
-     * @var
+     * Информация о платформах
+     *
+     * @var Platforms[] $platforms
      */
     public $platforms;
 
     /**
+     * Информация о не найденных платформах или которые были заблокированы.
+     *
      * @var string[] $notFoundPlatforms
      */
     public $notFoundPlatforms;
