@@ -115,6 +115,7 @@ class Client
         $response->status = $result->status;
         $response->tokenCertificate = $result->token ?? '';
         $response->opportunityId = $result->opportunityId ?? '';
+        $response->isPay = $result->isPay;
         return $response;
     }
 
