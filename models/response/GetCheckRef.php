@@ -31,4 +31,18 @@ class GetCheckRef
      * @var int $paymentMode
      */
     public $paymentMode;
+
+    /**
+     * Имя пользователя
+     *
+     * @var string $userName
+     */
+    public $userName;
+
+    /**
+     * Ссылка на фрейм.
+     *
+     * @var string
+     */
+    public $urlFrame;
 }
