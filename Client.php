@@ -429,6 +429,7 @@ class Client
         $response = new GetCheckRef();
         $response->id = $result->id ?? '';
         $response->paymentMode = $result->paymentMode ?? '';
+        $response->userName = $result->userName ?? '';
 
         return $response;
     }
