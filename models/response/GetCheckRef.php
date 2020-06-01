@@ -39,10 +39,4 @@ class GetCheckRef
      */
     public $userName;
 
-    /**
-     * Ссылка на фрейм.
-     *
-     * @var string
-     */
-    public $urlFrame;
 }

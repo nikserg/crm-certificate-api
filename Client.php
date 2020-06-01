@@ -430,7 +430,6 @@ class Client
         $response->id = $result->id ?? '';
         $response->paymentMode = $result->paymentMode ?? '';
         $response->userName = $result->userName ?? '';
-        $response->urlFrame = $result->urlFrame ?? '';
 
         return $response;
     }
