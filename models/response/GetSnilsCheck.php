@@ -70,4 +70,15 @@ class GetSnilsCheck
     public function getErrorMessage() {
         return self::ERROR_MESSAGE_USER[$this->status] ?? 'Тип ошибки для статуса не надена';
     }
+
+    /**
+     * Сколько секунд прошло после отправки на проверку СНИЛС
+     */
+    public function getSecondCheckRequest()
+    {
+        $createDate = new \DateTime($this->createRequestDate);
+        $nowCreateDate = new \DateTime();
+
+        return $createDate->getTimestamp() - $nowCreateDate->getTimestamp();
+    }
 }
