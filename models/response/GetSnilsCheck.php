@@ -11,6 +11,9 @@ namespace nikserg\CRMCertificateAPI\models\response;
 class GetSnilsCheck
 {
 
+    /** @var int Сколько проходит нормальная проверка по секундам */
+    const COUNT_MAX_SECOND_CHECK = 5 * 60;
+
     /**
      * @var  string
      * Запись Esia не найдена
