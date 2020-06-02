@@ -76,6 +76,8 @@ class GetSnilsCheck
 
     /**
      * Сколько секунд прошло после отправки на проверку СНИЛС
+     *
+     * @return int
      */
     public function getSecondCheckRequest()
     {
