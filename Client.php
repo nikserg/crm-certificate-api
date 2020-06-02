@@ -391,7 +391,6 @@ class Client
         $response->status = $result->status ?? '';
         $response->message = $result->message ?? '';
         $response->createRequestDate = $result->createRequestDate ?? '';
-        $response->isResponse = $result->isResponse ?? false;
         $response->id = $result->id;
 
         return $response;

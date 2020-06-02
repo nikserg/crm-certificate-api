@@ -61,13 +61,6 @@ class GetSnilsCheck
      */
     public $createRequestDate;
 
-    /**
-     * Был ли ответ от запроса СМЭВ по СНИЛС
-     *
-     * @var $isResponse
-     */
-    public $isResponse;
-
     public $status;
 
     public $message;
