@@ -32,25 +32,38 @@ use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
  */
 class MockClient extends Client
 {
+    //
+    // Данные для проверки паспорта
+    //
+    //Правильные
+    public const PASSPORTCHECK_VALID_SERIES = '1111';
+    public const PASSPORTCHECK_VALID_NUMBER = '111111';
+    //Неправильные
+    public const PASSPORTCHECK_INVALID_SERIES = '2222';
+    public const PASSPORTCHECK_INVALID_NUMBER = '222222';
+
+    public static $currentStatus = [];
+    public static $currentId = 1;
+
     public function getEgrul($customerFormCrmId)
     {
         return new GetEgrul(json_encode([
             "id"       => 1,
-            "status"   => Esia::STATUS_SUCCESS,
+            "status"   => Esia::STATUS_EXECUTED,
             "response" => [
-                'organizationShortName' => 'OOO',
-                'organizationFullName'  => 'Obwestwo s ogranichenoy otvetstvenostu',
-                'OGRN'                  => '1234567890',
-                'INN'                   => '1234567890',
+                'organizationShortName' => 'ООО "ИТК"',
+                'organizationFullName'  => 'ООО "ИТК"',
+                'OGRN'                  => '1112310000220',
+                'INN'                   => '2310152134',
                 'KPP'                   => '12345678',
                 'region'                => 'KRD',
                 'city'                  => 'Krasnodar',
                 'street'                => 'One way st.',
                 'fiasAddress'           => 'Krasnodar, One way st. 1337',
-                'headFirstName'         => 'Ivan',
-                'headMiddleName'        => 'Ivanov',
-                'headLastName'          => 'Ivanovi4',
-                'headPosition'          => 'The head',
+                'headFirstName'         => 'Дмитрий',
+                'headMiddleName'        => 'Викторович',
+                'headLastName'          => 'Сорокин',
+                'headPosition'          => 'Генеральный директор',
             ],
         ]));
     }
@@ -68,7 +81,12 @@ class MockClient extends Client
     public function sendCustomerForm(SendCustomerFormRequest $customerForm)
     {
         $response = new SendCustomerFormResponse();
-        $response->id = 1;
+        if ($customerForm->id) {
+            $response->id = $customerForm->id;
+        } else {
+            $response->id = static::$currentId++;
+        }
+        self::$currentStatus[$response->id] = Status::INIT;
         $response->token = 'crmToken';
         $response->generationToken = 'crmGenerateToken';
         return $response;
@@ -77,7 +95,7 @@ class MockClient extends Client
     public function getCustomerForm($customerFormCrmId)
     {
         $response = new GetCustomerForm();
-        $response->status = Status::CERTIFICATE;
+        $response->status = self::$currentStatus[$customerFormCrmId];
         $response->tokenCertificate = 'crmToken';
         $response->opportunityId = 1;
         return $response;
@@ -94,6 +112,7 @@ class MockClient extends Client
 
     public function changeStatus(ChangeStatus $changeStatus)
     {
+        self::$currentStatus[$changeStatus->id] = $changeStatus->status;
         $response = new BooleanResponse();
         $response->status = true;
         return $response;
@@ -117,10 +136,14 @@ class MockClient extends Client
 
     public function getPassportCheck($series, $number)
     {
-
         $response = new GetPassportCheck();
-        $response->comment = '';
-        $response->status = true;
+        if ($number == self::PASSPORTCHECK_INVALID_NUMBER) {
+            $response->comment = 'Паспорт не существует (тест)';
+            $response->status = GetPassportCheck::STATUS_INVALID;
+        } else {
+            $response->comment = '';
+            $response->status = GetPassportCheck::STATUS_VALID;
+        }
         return $response;
     }
 
