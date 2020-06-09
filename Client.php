@@ -20,6 +20,13 @@ use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Class Client
+ *
+ * Клиент для связи с CRM
+ *
+ * @package nikserg\CRMCertificateAPI
+ */
 class Client
 {
     public const PRODUCTION_URL = 'https://crm.uc-itcom.ru/index.php/';
