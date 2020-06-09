@@ -54,6 +54,12 @@ class GetSnilsCheck
         self::STATUS_PARSE_ERROR => 'Ошибка разбора ответа',
     ];
 
+    /**
+     * Дата создание запроса в СМЭВ
+     *
+     * @var string
+     */
+    public $createRequestDate;
 
     public $status;
 
