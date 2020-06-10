@@ -62,8 +62,9 @@ class MockClient extends Client
         }
         return self::$data;
     }
-    private static function flushData()
+    private static function flushData($data)
     {
+        self::$data = $data;
         file_put_contents(__DIR__.'/mock.runtime', serialize(self::$data));
     }
 
@@ -110,7 +111,7 @@ class MockClient extends Client
             $response->id = $data['currentId'];
             $data['currentStatus'][$response->id] = Status::INIT;
             $data['currentId'] = $response->id + 1;
-            self::flushData();
+            self::flushData($data);
         }
         $response->token = 'crmToken';
         $response->generationToken = 'crmGenerateToken';
@@ -141,7 +142,7 @@ class MockClient extends Client
     {
         $data = self::getData();
         $data['currentStatus'][$changeStatus->id] = $changeStatus->status;
-        self::flushData();
+        self::flushData($data);
         $response = new BooleanResponse();
         $response->status = true;
         return $response;
