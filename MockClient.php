@@ -42,8 +42,30 @@ class MockClient extends Client
     public const PASSPORTCHECK_INVALID_SERIES = '2222';
     public const PASSPORTCHECK_INVALID_NUMBER = '222222';
 
-    public static $currentStatus = [];
-    public static $currentId = 1;
+
+    private static $data;
+
+    private static function getData()
+    {
+        if (!empty(self::$data)) {
+            return self::$data;
+        }
+        if (file_exists(__DIR__.'/mock.runtime')) {
+            self::$data = unserialize(file_get_contents(__DIR__.'/mock.runtime'));
+        } else {
+            self::$data = [
+                'currentId' => 1,
+                'currentStatus' => [
+                    1 => 0
+                ]
+            ];
+        }
+        return self::$data;
+    }
+    private static function flushData()
+    {
+        file_put_contents(__DIR__.'/mock.runtime', serialize(self::$data));
+    }
 
     public function getEgrul($customerFormCrmId)
     {
@@ -84,9 +106,12 @@ class MockClient extends Client
         if ($customerForm->id) {
             $response->id = $customerForm->id;
         } else {
-            $response->id = static::$currentId++;
+            $data = self::getData();
+            $response->id = $data['currentId'];
+            $data['currentStatus'][$response->id] = Status::INIT;
+            $data['currentId'] = $response->id + 1;
+            self::flushData();
         }
-        self::$currentStatus[$response->id] = Status::INIT;
         $response->token = 'crmToken';
         $response->generationToken = 'crmGenerateToken';
         return $response;
@@ -95,7 +120,9 @@ class MockClient extends Client
     public function getCustomerForm($customerFormCrmId)
     {
         $response = new GetCustomerForm();
-        $response->status = self::$currentStatus[$customerFormCrmId];
+        $data = self::getData();
+        $response->isPay = true;
+        $response->status = $data['currentStatus'][$customerFormCrmId];
         $response->tokenCertificate = 'crmToken';
         $response->opportunityId = 1;
         return $response;
@@ -112,7 +139,9 @@ class MockClient extends Client
 
     public function changeStatus(ChangeStatus $changeStatus)
     {
-        self::$currentStatus[$changeStatus->id] = $changeStatus->status;
+        $data = self::getData();
+        $data['currentStatus'][$changeStatus->id] = $changeStatus->status;
+        self::flushData();
         $response = new BooleanResponse();
         $response->status = true;
         return $response;
@@ -128,7 +157,7 @@ class MockClient extends Client
     public function sendCustomerFormData($crmCustomerFormId, SendCustomerFormData $customerFormData)
     {
         $response = new SendCustomerFormResponse();
-        $response->id = 1;
+        $response->id = $crmCustomerFormId;
         $response->token = 'crmToken';
         $response->generationToken = 'crmGenerateToken';
         return $response;
