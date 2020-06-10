@@ -122,7 +122,6 @@ class MockClient extends Client
     {
         $response = new GetCustomerForm();
         $data = self::getData();
-        $response->isPay = true;
         $response->status = $data['currentStatus'][$customerFormCrmId];
         $response->tokenCertificate = 'crmToken';
         $response->opportunityId = 1;
