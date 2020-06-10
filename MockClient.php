@@ -70,12 +70,12 @@ class MockClient extends Client
 
     public function getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')
     {
-        return base64_encode("Imagine this is binary pdf content");
+        return base64_encode(file_get_contents(__DIR__.'/data/blank.pdf'));
     }
 
     public function getCustomerFormClaim($customerFormCrmId, $format = 'pdf')
     {
-        return base64_encode("Imagine this is binary pdf content");
+        return base64_encode(file_get_contents(__DIR__.'/data/claim.pdf'));
     }
 
     public function sendCustomerForm(SendCustomerFormRequest $customerForm)
