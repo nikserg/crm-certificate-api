@@ -244,11 +244,11 @@ class MockClient extends Client
         },
         {
             "price": 8300,
-            "name": "AETP_NEW_BASE,RJD"
+            "name": "PROLONGATION_BISNES_RJD"
         },
         {
             "price": 6000,
-            "name": "CDT_BUYER"
+            "name": "PROLONGATION_BIDDING_CDT"
         },
         {
             "price": 33900,
