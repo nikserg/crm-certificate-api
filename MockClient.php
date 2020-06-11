@@ -5,6 +5,7 @@ namespace nikserg\CRMCertificateAPI;
 
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
+use nikserg\CRMCertificateAPI\models\request\PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
@@ -16,8 +17,10 @@ use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
 use nikserg\CRMCertificateAPI\models\response\GetPrice;
 use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
+use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\Platforms;
 use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
+use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\Esia;
@@ -283,4 +286,54 @@ class MockClient extends Client
         return $response;
     }
 
+    /**
+     * Получает платформы, доступные партнеру переданному в запросе
+     *
+     * @param PartnerPlatformsRequest $request
+     * @return PartnerPlatforms
+     * @throws \Exception
+     */
+    public function getPartnerPlatforms(PartnerPlatformsRequest $request)
+    {
+        $json = /** @lang JSON */ '{
+            "platforms": [
+                {
+                    "price": 2500,
+                    "description": "Описание EPGU",
+                    "name": "Имя EPGU",
+                    "platform": "EPGU"
+                },
+                {
+                    "price": 17600,
+                    "description": "Описание FABRIKANT",
+                    "name": "Имя FABRIKANT",
+                    "platform": "FABRIKANT"
+                },
+                {
+                    "price": 3500,
+                    "description": "Описание AETP_NEW_BASE",
+                    "name": "Имя AETP_NEW_BASE",
+                    "platform": "AETP_NEW_BASE"
+                },
+                {
+                    "price": 6900,
+                    "description": "Имя Описание B2B",
+                    "name": "Имя B2B",
+                    "platform": "B2B"
+                }
+            ]
+        }';
+        $result = json_decode($json);
+        $response = new PartnerPlatforms();
+        $response->availablePlatforms = [];
+        foreach ($result->platforms as $platform) {
+            $partnerPlatform = new PartnerPlatform;
+            $partnerPlatform->name = $platform->name;
+            $partnerPlatform->description = $platform->description;
+            $partnerPlatform->platform = $platform->platform;
+            $partnerPlatform->price = $platform->price;
+            $response->availablePlatforms[] = $partnerPlatform;
+        }
+        return $response;
+    }
 }

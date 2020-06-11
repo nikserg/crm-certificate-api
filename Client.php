@@ -9,6 +9,7 @@ use GuzzleHttp\RequestOptions;
 use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
+use nikserg\CRMCertificateAPI\models\request\PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
@@ -21,8 +22,10 @@ use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
 use nikserg\CRMCertificateAPI\models\response\GetPrice;
 use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
+use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\Platforms;
 use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
+use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -50,6 +53,7 @@ class Client
     private const ACTION_CHECK_SNILS = 'gateway/itkExchange/checkSnils';
     private const ACTION_CHECK_REFERRAL = 'gateway/itkExchange/checkRef';
     private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
+    private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo'; // TODO:
     protected $apiKey;
     protected $url;
     protected $guzzle;
@@ -478,6 +482,35 @@ class Client
         return $response;
     }
 
+    /**
+     * Получает платформы, доступные партнеру переданному в запросе
+     *
+     * @param PartnerPlatformsRequest $request
+     * @return PartnerPlatforms
+     * @throws \Exception
+     */
+    public function getPartnerPlatforms(PartnerPlatformsRequest $request)
+    {
+        $result = $this->guzzle->post($this->url . self::ACTION_GET_PARTNER_PLATFORMS, [
+            RequestOptions::QUERY => ['key' => $this->apiKey],
+            RequestOptions::JSON => [
+                'referalId' => $request->partnerUserId,
+                'legalForm' => $request->clientLegalForm,
+            ]
+        ]);
+        $result = $this->getJsonBody($result);
+        $response = new PartnerPlatforms();
+        $response->availablePlatforms = [];
+        foreach ($result->platforms as $platform) {
+            $partnerPlatform = new PartnerPlatform;
+            $partnerPlatform->name = $platform->name;
+            $partnerPlatform->description = $platform->description;
+            $partnerPlatform->platform = $platform->platform;
+            $partnerPlatform->price = $platform->price;
+            $response->availablePlatforms[] = $partnerPlatform;
+        }
+        return $response;
+    }
 
     /**
      * Ссылка для скачивания сертификата
