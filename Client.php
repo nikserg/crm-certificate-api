@@ -81,12 +81,14 @@ class Client
     private function getJsonBody(ResponseInterface $response)
     {
         $body = $response->getBody();
-        if (!$body) {
-            throw new  \Exception('Получено пустое тело ответа на запрос');
+        if (strlen($body)===0) {
+            throw new \Exception('Получено пустое тело ответа на запрос');
         }
         $json = @json_decode($body);
-        if (!$json) {
-            throw new  \Exception('Невозможно распарсить ответ ' . print_r($body, true));
+        $jsonErrorCode = json_last_error();
+        $jsonErrorMessage = json_last_error_msg();
+        if ($jsonErrorCode !== JSON_ERROR_NONE) {
+            throw new \Exception("Невозможно распарсить ответ ($jsonErrorMessage): " . print_r($body, true),$jsonErrorCode);
         }
         return $json;
     }
