@@ -84,7 +84,7 @@ class Client
         if (strlen($body)===0) {
             throw new \Exception('Получено пустое тело ответа на запрос');
         }
-        $json = json_decode($body);
+        $json = @json_decode($body);
         $jsonErrorCode = json_last_error();
         $jsonErrorMessage = json_last_error_msg();
         if ($jsonErrorCode !== JSON_ERROR_NONE) {
