@@ -6,6 +6,7 @@ namespace nikserg\CRMCertificateAPI;
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatformsRequest;
+use nikserg\CRMCertificateAPI\models\request\PartnerProductsRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
@@ -18,9 +19,11 @@ use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
 use nikserg\CRMCertificateAPI\models\response\GetPrice;
 use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
+use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
 use nikserg\CRMCertificateAPI\models\response\models\Platforms;
 use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
 use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms;
+use nikserg\CRMCertificateAPI\models\response\PartnerProducts;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\Esia;
@@ -333,6 +336,57 @@ class MockClient extends Client
             $partnerPlatform->platform = $platform->platform;
             $partnerPlatform->price = $platform->price;
             $response->availablePlatforms[] = $partnerPlatform;
+        }
+        return $response;
+    }
+
+
+    /**
+     * Получает продукты, настроенные для партнера переданного в запросе
+     *
+     * @param PartnerProductsRequest $request
+     * @return PartnerProducts
+     * @throws \Exception
+     */
+    public function getPartnerProducts(PartnerProductsRequest $request)
+    {
+        $json = /** @lang JSON */ '{
+            "productInfo": [
+                {
+                    "id": 981,
+                    "price": 1500,
+                    "name": "Сертифицированный защищенный носитель (Рутокен)",
+                    "description": "Рутокен — специальное сертифицированное защищённое USB-устройство, внешне похожее на флешку. Предназначено для хранения и использования электронной подписи (КЭП)."
+                },
+                {
+                    "id": 511,
+                    "price": 700,
+                    "name": "Лицензия на право использования СКЗИ КриптоПро CSP в составе сертификата ключа",
+                    "description": "КриптоПро - специальная программа криптозащиты.\\nОна используется для генерации ключа электронной подписи и работы с сертификатами. Без действующей лицензии СКЗИ КриптоПро CSP электронная подпись на вашем компьютере не сможет работать."
+                },
+                {
+                    "id": 127,
+                    "price": 1000,
+                    "name": "Установка СКЗИ КриптоПро CSP и КЭП",
+                    "description": "Процесс установки СКЗИ «КриптоПро» и настройки рабочего места для корректной работы электронной подписи — весьма трудоёмкий и требует специальных знаний. Чтобы облегчить и ускорить этот процесс, закажите его у специалистов технической поддержки."
+                }
+            ]
+        }';
+        $result = json_decode($json);
+        $response = new PartnerProducts();
+        $response->availableProducts = [];
+        if (empty($result)) {
+            $response->hasSettings = false;
+        } else {
+            $response->hasSettings = true;
+            foreach ($result->productInfo as $product) {
+                $partnerPlatform = new PartnerProduct();
+                $partnerPlatform->name = $product->name;
+                $partnerPlatform->description = $product->description;
+                $partnerPlatform->id = $product->id;
+                $partnerPlatform->price = $product->price;
+                $response->availableProducts[] = $partnerPlatform;
+            }
         }
         return $response;
     }
