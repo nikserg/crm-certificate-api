@@ -10,6 +10,7 @@ use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatformsRequest;
+use nikserg\CRMCertificateAPI\models\request\PartnerProductsRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
@@ -23,9 +24,11 @@ use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
 use nikserg\CRMCertificateAPI\models\response\GetPrice;
 use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
+use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
 use nikserg\CRMCertificateAPI\models\response\models\Platforms;
 use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
 use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms;
+use nikserg\CRMCertificateAPI\models\response\PartnerProducts;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -53,7 +56,8 @@ class Client
     private const ACTION_CHECK_SNILS = 'gateway/itkExchange/checkSnils';
     private const ACTION_CHECK_REFERRAL = 'gateway/itkExchange/checkRef';
     private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
-    private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo'; // TODO:
+    private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo';
+    private const ACTION_GET_PARTNER_PRODUCTS = 'gateway/itkExchange/infoProducts';
     protected $apiKey;
     protected $url;
     protected $guzzle;
@@ -510,6 +514,40 @@ class Client
             $partnerPlatform->platform = $platform->platform;
             $partnerPlatform->price = $platform->price;
             $response->availablePlatforms[] = $partnerPlatform;
+        }
+        return $response;
+    }
+
+    /**
+     * Получает продукты, настроенные для партнера переданного в запросе
+     *
+     * @param PartnerProductsRequest $request
+     * @return PartnerProducts
+     * @throws \Exception
+     */
+    public function getPartnerProducts(PartnerProductsRequest $request)
+    {
+        $result = $this->guzzle->post($this->url . self::ACTION_GET_PARTNER_PRODUCTS, [
+            RequestOptions::QUERY => ['key' => $this->apiKey],
+            RequestOptions::JSON => [
+                'referalId' => $request->partnerUserId,
+            ]
+        ]);
+        $result = $this->getJsonBody($result);
+        $response = new PartnerProducts();
+        $response->availableProducts = [];
+        if (empty($result)) {
+            $response->hasSettings = false;
+        } else {
+            $response->hasSettings = true;
+            foreach ($result->productInfo as $product) {
+                $partnerPlatform = new PartnerProduct();
+                $partnerPlatform->name = $product->name;
+                $partnerPlatform->description = $product->description;
+                $partnerPlatform->id = $product->id;
+                $partnerPlatform->price = $product->price;
+                $response->availableProducts[] = $partnerPlatform;
+            }
         }
         return $response;
     }
