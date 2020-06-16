@@ -48,6 +48,11 @@ class MockClient extends Client
     public const PASSPORTCHECK_INVALID_SERIES = '2222';
     public const PASSPORTCHECK_INVALID_NUMBER = '222222';
 
+    //
+    // Данные для запроса ЕГРЮЛ
+    //
+    public const EGRUL_IP_KULSH = PHP_INT_MAX-2; //Выписка для ИП Кулиш Янина Викторовна
+    public const EGRUL_LEGAL_ITK = PHP_INT_MAX-1; //Пыписка для юридического лица ООО "ИТК"
 
     private static $data;
 
@@ -76,6 +81,11 @@ class MockClient extends Client
 
     public function getEgrul($customerFormCrmId)
     {
+        if ($customerFormCrmId == self::EGRUL_IP_KULSH) {
+            return new GetEgrul('{ "id": 695854, "status": "4", "response": { "organizationShortName": "ИП КУЛИШ ЯНИНА ВИКТОРОВНА", "OGRNIP": "306232719200028", "INN": "232702943100", "headLastName": "Кулиш", "headFirstName": "Янина", "headMiddleName": "Викторовна", "ownerGender": 2 }, "customerFormId": "559196" }');
+        } elseif ($customerFormCrmId == self::EGRUL_LEGAL_ITK) {
+            return new GetEgrul('{ "id": 689373, "status": "4", "response": { "organizationShortName": "ООО \"ИТК\"", "organizationFullName": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ИНТЕРНЕТ ТЕХНОЛОГИИ И КОММУНИКАЦИИ\"", "OGRN": "1112310000220", "INN": "2310152134", "KPP": "230801001", "fiasAddress": "КРАЙ КРАСНОДАРСКИЙ, ГОРОД КРАСНОДАР, УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "rawParticipators": [ " ", " ", " " ], "rawRegion": "КРАЙ КРАСНОДАРСКИЙ", "rawCity": "КРАСНОДАР", "rawOffice": "ПОМЕЩЕНИЕ 140", "rawHouse": "ДОМ 39\/3", "rawStreet": "УЛИЦА ДАЛЬНЯЯ", "postcode": "350051", "region": "23 Краснодарский край", "city": "Краснодар", "street": "УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "headLastName": "Сорокин", "headFirstName": "Дмитрий", "headMiddleName": "Викторович", "headPosition": "Генеральный директор" }, "customerFormId": "557436" }');
+        }
         return new GetEgrul(json_encode([
             "id"       => 1,
             "status"   => Esia::STATUS_EXECUTED,

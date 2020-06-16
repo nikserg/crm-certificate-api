@@ -18,6 +18,7 @@ class GetEgrul extends Esia
     public $shortName;
     public $fullName;
     public $ogrn;
+    public $ogrnip;
     public $inn;
     public $kpp;
 
@@ -34,23 +35,24 @@ class GetEgrul extends Esia
     protected function parseResponse($rawResponse)
     {
         $this->shortName = $rawResponse['organizationShortName'];
-        $this->fullName = $rawResponse['organizationFullName'];
+        $this->fullName = $rawResponse['organizationFullName'] ?? null;
 
-        $this->ogrn = $rawResponse['OGRN'];
+        $this->ogrn = $rawResponse['OGRN'] ?? null;
+        $this->ogrnip = $rawResponse['OGRNIP'] ?? null;
         $this->inn = $rawResponse['INN'];
-        $this->kpp = $rawResponse['KPP'];
+        $this->kpp = $rawResponse['KPP'] ?? null;
 
         $this->address = new Address();
-        $this->address->region = $rawResponse['region'];
-        $this->address->city = $rawResponse['city'];
-        $this->address->street = $rawResponse['street'];
-        $this->address->raw = $rawResponse['fiasAddress'];
+        $this->address->region = $rawResponse['region'] ?? null;
+        $this->address->city = $rawResponse['city'] ?? null;
+        $this->address->street = $rawResponse['street'] ?? null;
+        $this->address->raw = $rawResponse['fiasAddress'] ?? null;
 
         $this->head = new Person();
         $this->head->firstName = $rawResponse['headFirstName'];
         $this->head->middleName = $rawResponse['headMiddleName'];
         $this->head->lastName = $rawResponse['headLastName'];
-        $this->head->jobName = $rawResponse['headPosition'];
+        $this->head->jobName = $rawResponse['headPosition'] ?? null;
 
     }
 }
