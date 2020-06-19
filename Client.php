@@ -29,6 +29,7 @@ use nikserg\CRMCertificateAPI\models\response\models\Platforms;
 use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
 use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms;
 use nikserg\CRMCertificateAPI\models\response\PartnerProducts;
+use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -55,6 +56,7 @@ class Client
     private const ACTION_PASSPORT_CHECK = 'gateway/itkExchange/checkPassport';
     private const ACTION_CHECK_SNILS = 'gateway/itkExchange/checkSnils';
     private const ACTION_CHECK_REFERRAL = 'gateway/itkExchange/checkRef';
+    private const ACTION_GET_REFERRAL_USER = 'gateway/itkExchange/getRefUserInfo';
     private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
     private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo';
     private const ACTION_GET_PARTNER_PRODUCTS = 'gateway/itkExchange/infoProducts';
@@ -449,6 +451,32 @@ class Client
         $response->paymentMode = $result->paymentMode ?? '';
         $response->userName = $result->userName ?? '';
 
+        return $response;
+    }
+
+    /**
+     * Получение информации о реферальном пользователе
+     *
+     * @param SendCheckRef $sendCheckRef
+     * @return ReferralUser|null - null если реферальный пользователь не найден
+     * @throws \Exception
+     */
+    public function getReferralUser(SendCheckRef $sendCheckRef)
+    {
+        $result = $this->guzzle->post($this->url . self::ACTION_GET_REFERRAL_USER, [
+            RequestOptions::QUERY => ['key' => $this->apiKey],
+            RequestOptions::JSON => $sendCheckRef
+        ]);
+        $result = $this->getJsonBody($result);
+        if ($result===null) {
+            return null;
+        }
+        $response = new ReferralUser();
+        $response->id = $result->id;
+        $response->paymentMode = $result->paymentMode;
+        $response->userName = $result->userName;
+        $response->isOfd = $result->isOfd;
+        $response->enablePlatformSelection = $result->enablePlatformSelection;
         return $response;
     }
 

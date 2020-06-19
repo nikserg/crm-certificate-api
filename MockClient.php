@@ -24,6 +24,7 @@ use nikserg\CRMCertificateAPI\models\response\models\Platforms;
 use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
 use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms;
 use nikserg\CRMCertificateAPI\models\response\PartnerProducts;
+use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\Esia;
@@ -208,7 +209,17 @@ class MockClient extends Client
         $response->id = 1;
         $response->paymentMode = GetCheckRef::PAYMENT_UNLIMITED;
         $response->userName = 'username';
+        return $response;
+    }
 
+    public function getReferralUser(SendCheckRef $sendCheckRef)
+    {
+        $response = new ReferralUser();
+        $response->id = 1;
+        $response->paymentMode = GetCheckRef::PAYMENT_UNLIMITED;
+        $response->userName = 'username';
+        $response->isOfd = true;
+        $response->enablePlatformSelection = true;
         return $response;
     }
 
