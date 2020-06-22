@@ -5,8 +5,8 @@ namespace nikserg\CRMCertificateAPI;
 
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
-use nikserg\CRMCertificateAPI\models\request\PartnerPlatformsRequest;
-use nikserg\CRMCertificateAPI\models\request\PartnerProductsRequest;
+use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
+use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
@@ -22,8 +22,8 @@ use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
 use nikserg\CRMCertificateAPI\models\response\models\Platforms;
 use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
-use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms;
-use nikserg\CRMCertificateAPI\models\response\PartnerProducts;
+use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms as PartnerPlatformsResponse;
+use nikserg\CRMCertificateAPI\models\response\PartnerProducts as PartnerProductsResponse;
 use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm;
@@ -314,7 +314,7 @@ class MockClient extends Client
      * Получает платформы, доступные партнеру переданному в запросе
      *
      * @param PartnerPlatformsRequest $request
-     * @return PartnerPlatforms
+     * @return PartnerPlatformsResponse
      * @throws \Exception
      */
     public function getPartnerPlatforms(PartnerPlatformsRequest $request)
@@ -348,7 +348,7 @@ class MockClient extends Client
             ]
         }';
         $result = json_decode($json);
-        $response = new PartnerPlatforms();
+        $response = new PartnerPlatformsResponse();
         $response->availablePlatforms = [];
         foreach ($result->platforms as $platform) {
             $partnerPlatform = new PartnerPlatform;
@@ -366,7 +366,7 @@ class MockClient extends Client
      * Получает продукты, настроенные для партнера переданного в запросе
      *
      * @param PartnerProductsRequest $request
-     * @return PartnerProducts
+     * @return PartnerProductsResponse
      * @throws \Exception
      */
     public function getPartnerProducts(PartnerProductsRequest $request)
@@ -394,7 +394,7 @@ class MockClient extends Client
             ]
         }';
         $result = json_decode($json);
-        $response = new PartnerProducts();
+        $response = new PartnerProductsResponse();
         $response->availableProducts = [];
         if (empty($result)) {
             $response->hasSettings = false;

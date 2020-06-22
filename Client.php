@@ -9,13 +9,15 @@ use GuzzleHttp\RequestOptions;
 use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
-use nikserg\CRMCertificateAPI\models\request\PartnerPlatformsRequest;
-use nikserg\CRMCertificateAPI\models\request\PartnerProductsRequest;
+use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
+use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
+use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
 use nikserg\CRMCertificateAPI\models\request\SendPrice;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
+use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariantPlatform;
 use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
 use nikserg\CRMCertificateAPI\models\response\GetCheckRef;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
@@ -27,8 +29,9 @@ use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
 use nikserg\CRMCertificateAPI\models\response\models\Platforms;
 use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
-use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms;
-use nikserg\CRMCertificateAPI\models\response\PartnerProducts;
+use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms as PartnerPlatformsResponse;
+use nikserg\CRMCertificateAPI\models\response\PartnerProducts as PartnerProductsResponse;
+use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
 use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -42,8 +45,16 @@ use Psr\Http\Message\ResponseInterface;
  */
 class Client
 {
-    public const PRODUCTION_URL = 'https://crm.uc-itcom.ru/index.php/';
-    public const TEST_URL = 'https://dev.uc-itcom.ru/index.php/';
+    //
+    // Адреса систем
+    //
+    public const PRODUCTION_URL = 'https://crm.uc-itcom.ru/index.php/'; //Боевая
+    public const TEST_URL = 'https://dev.uc-itcom.ru/index.php/';       //Тестовая
+
+
+    //
+    // Действия API
+    //
     private const ACTION_ADD_CUSTOMER_FORM = 'gateway/itkExchange/pushCustomerForm';
     private const ACTION_GET_CUSTOMER_FORM = 'gateway/itkExchange/pullCustomerForm';
     private const ACTION_DELETE_CUSTOMER_FORM = 'gateway/itkExchange/deleteCustomerForm';
@@ -60,8 +71,21 @@ class Client
     private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
     private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo';
     private const ACTION_GET_PARTNER_PRODUCTS = 'gateway/itkExchange/infoProducts';
+    private const ACTION_DETECT_PLATFORMS = 'gateway/itkExchange/detectPlatforms';
+
+    /**
+     * @var string
+     */
     protected $apiKey;
+
+    /**
+     * @var string
+     */
     protected $url;
+
+    /**
+     * @var \GuzzleHttp\Client
+     */
     protected $guzzle;
 
     /**
@@ -87,14 +111,15 @@ class Client
     private function getJsonBody(ResponseInterface $response)
     {
         $body = $response->getBody();
-        if (strlen($body)===0) {
+        if (strlen($body) === 0) {
             throw new \Exception('Получено пустое тело ответа на запрос');
         }
         $json = @json_decode($body);
         $jsonErrorCode = json_last_error();
         $jsonErrorMessage = json_last_error_msg();
         if ($jsonErrorCode !== JSON_ERROR_NONE) {
-            throw new \Exception("Невозможно распарсить ответ ($jsonErrorMessage): " . print_r($body, true),$jsonErrorCode);
+            throw new \Exception("Невозможно распарсить ответ ($jsonErrorMessage): " . print_r($body, true),
+                $jsonErrorCode);
         }
         return $json;
     }
@@ -326,7 +351,7 @@ class Client
     /**
      * Отправить данные бланка заявки на сертификат
      *
-     * @param int $crmCustomerFormId
+     * @param int                  $crmCustomerFormId
      * @param SendCustomerFormData $customerFormData
      * @return SendCustomerFormResponse
      * @throws \Exception
@@ -336,8 +361,8 @@ class Client
         $result = $this->guzzle->post($this->url . self::ACTION_PUSH_CUSTOMER_FORM_DATA, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
             RequestOptions::JSON  => [
-                'id' => $crmCustomerFormId,
-                'formData' => $customerFormData
+                'id'       => $crmCustomerFormId,
+                'formData' => $customerFormData,
             ],
         ]);
         $result = $this->getJsonBody($result);
@@ -357,18 +382,19 @@ class Client
      * @return GetPassportCheck
      * @throws \Exception
      */
-    public function getPassportCheck($series, $number) {
+    public function getPassportCheck($series, $number)
+    {
         try {
             $result = $this->guzzle->get($this->url . self::ACTION_PASSPORT_CHECK, [
                 'query' => [
                     'key'    => $this->apiKey,
-                    'series'     => $series,
+                    'series' => $series,
                     'number' => $number,
                 ],
             ]);
         } catch (GuzzleException $e) {
             if ($e->getCode() == 400) {
-                throw new \Exception('Неправильный формат серии и номера паспорта '.$series.' '.$number);
+                throw new \Exception('Неправильный формат серии и номера паспорта ' . $series . ' ' . $number);
             }
 
         }
@@ -394,7 +420,7 @@ class Client
         try {
             $result = $this->guzzle->get($this->url . self::ACTION_CHECK_SNILS, [
                 'query' => [
-                    'key'    => $this->apiKey,
+                    'key'            => $this->apiKey,
                     'customerFormId' => $customerFormCrmId,
                 ],
             ]);
@@ -425,7 +451,7 @@ class Client
      */
     public function certificateWriteUrl($customerFormId, $token)
     {
-        return $this->url . 'customerForms/external/writeCertificate?token=' . $token.'&customerFormId='.$customerFormId;
+        return $this->url . 'customerForms/external/writeCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
     }
 
     /**
@@ -440,7 +466,7 @@ class Client
         $result = $this->guzzle->post($this->url . self::ACTION_CHECK_REFERRAL, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
 
-            RequestOptions::JSON => $sendCheckRef
+            RequestOptions::JSON => $sendCheckRef,
 
         ]);
 
@@ -465,10 +491,10 @@ class Client
     {
         $result = $this->guzzle->post($this->url . self::ACTION_GET_REFERRAL_USER, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
-            RequestOptions::JSON => $sendCheckRef
+            RequestOptions::JSON  => $sendCheckRef,
         ]);
         $result = $this->getJsonBody($result);
-        if ($result===null) {
+        if ($result === null) {
             return null;
         }
         $response = new ReferralUser();
@@ -491,12 +517,12 @@ class Client
     {
         $result = $this->guzzle->post($this->url . self::ACTION_GET_PRICE, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
-            RequestOptions::JSON => $sendPrice
+            RequestOptions::JSON  => $sendPrice,
         ]);
         $result = $this->getJsonBody($result);
         $response = new GetPrice();
         $response->productTemplates = [];
-        $response->platforms  = [];
+        $response->platforms = [];
 
 
         foreach ($result->productTemplates ?? [] as $productTemplateRequest) {
@@ -520,20 +546,20 @@ class Client
      * Получает платформы, доступные партнеру переданному в запросе
      *
      * @param PartnerPlatformsRequest $request
-     * @return PartnerPlatforms
+     * @return PartnerPlatformsResponse
      * @throws \Exception
      */
     public function getPartnerPlatforms(PartnerPlatformsRequest $request)
     {
         $result = $this->guzzle->post($this->url . self::ACTION_GET_PARTNER_PLATFORMS, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
-            RequestOptions::JSON => [
+            RequestOptions::JSON  => [
                 'referalId' => $request->partnerUserId,
                 'legalForm' => $request->clientLegalForm,
-            ]
+            ],
         ]);
         $result = $this->getJsonBody($result);
-        $response = new PartnerPlatforms();
+        $response = new PartnerPlatformsResponse();
         $response->availablePlatforms = [];
         foreach ($result->platforms as $platform) {
             $partnerPlatform = new PartnerPlatform;
@@ -550,19 +576,19 @@ class Client
      * Получает продукты, настроенные для партнера переданного в запросе
      *
      * @param PartnerProductsRequest $request
-     * @return PartnerProducts
+     * @return PartnerProductsResponse
      * @throws \Exception
      */
     public function getPartnerProducts(PartnerProductsRequest $request)
     {
         $result = $this->guzzle->post($this->url . self::ACTION_GET_PARTNER_PRODUCTS, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
-            RequestOptions::JSON => [
+            RequestOptions::JSON  => [
                 'referalId' => $request->partnerUserId,
-            ]
+            ],
         ]);
         $result = $this->getJsonBody($result);
-        $response = new PartnerProducts();
+        $response = new PartnerProductsResponse();
         $response->availableProducts = [];
         if (empty($result)) {
             $response->hasSettings = false;
@@ -581,6 +607,46 @@ class Client
     }
 
     /**
+     * Определить варианты площадок для переданного списка ОИДов
+     *
+     *
+     * @param DetectPlatformsRequest $request
+     * @return DetectPlatformVariant[]
+     */
+    public function detectPlatforms(DetectPlatformsRequest $request)
+    {
+        $result = $this->guzzle->post($this->url . self::ACTION_DETECT_PLATFORMS, [
+            RequestOptions::QUERY => ['key' => $this->apiKey],
+            RequestOptions::JSON  => [
+                'userId' => $request->partnerUserId,
+                'legalForm' => $request->clientLegalForm,
+                'period' => $request->period,
+                'oids' => $request->oids
+            ],
+        ]);
+        $result = $this->getJsonBody($result);
+        if (empty($result->variants)) {
+            return [];
+        }
+        $return = [];
+        foreach ($result->variants as $variant) {
+            $variantModel = new DetectPlatformVariant();
+            $variantModel->platforms = [];
+            foreach ($variant->platforms as $value => $name) {
+                $platform = new \nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform();
+                $platform->value = $value;
+                $platform->name = $name;
+                $variantModel->platforms[] = $platform;
+            }
+            $variantModel->price = $variant->price;
+            $variantModel->excluded = $variant->excluded;
+            $return[] = $variantModel;
+        }
+
+        return $return;
+    }
+
+    /**
      * Ссылка для скачивания сертификата
      *
      *
@@ -590,7 +656,7 @@ class Client
      */
     public function certificateDownloadUrl($customerFormId, $token)
     {
-        return $this->url . 'customerForms/external/downloadCertificate?token=' . $token.'&customerFormId='.$customerFormId;
+        return $this->url . 'customerForms/external/downloadCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
     }
 
     /**
@@ -603,6 +669,6 @@ class Client
      */
     public function realizationDownloadUrl($customerFormId, $token)
     {
-        return $this->url . 'customerForms/external/downloadFirstRealization?token=' . $token.'&customerFormId='.$customerFormId;
+        return $this->url . 'customerForms/external/downloadFirstRealization?token=' . $token . '&customerFormId=' . $customerFormId;
     }
 }

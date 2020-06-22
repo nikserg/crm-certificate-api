@@ -5,7 +5,7 @@ namespace nikserg\CRMCertificateAPI\models\request;
 /**
  * Запрос на получение доступных платформ
  */
-class PartnerPlatformsRequest
+class PartnerPlatforms
 {
     /**
      * Номер пользователя партнера
