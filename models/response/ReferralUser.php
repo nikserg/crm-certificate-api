@@ -35,6 +35,13 @@ class ReferralUser
     public $userName;
 
     /**
+     * Адрес почты пользователя (для уведомлений и прочего)
+     *
+     * @var ?string
+     */
+    public $email;
+
+    /**
      * Является-ли пользователь ОФД (?)
      *
      * @var bool
