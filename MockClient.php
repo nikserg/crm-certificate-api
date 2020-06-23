@@ -218,6 +218,7 @@ class MockClient extends Client
         $response->id = 1;
         $response->paymentMode = GetCheckRef::PAYMENT_UNLIMITED;
         $response->userName = 'username';
+        $response->email = 'user@na.me';
         $response->isOfd = true;
         $response->enablePlatformSelection = true;
         return $response;
