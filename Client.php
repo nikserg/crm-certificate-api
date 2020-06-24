@@ -502,6 +502,7 @@ class Client
         $response->paymentMode = $result->paymentMode;
         $response->userName = $result->userName;
         $response->email = $result->email;
+        $response->phone = $result->phone;
         $response->isOfd = $result->isOfd;
         $response->enablePlatformSelection = $result->enablePlatformSelection;
         return $response;
