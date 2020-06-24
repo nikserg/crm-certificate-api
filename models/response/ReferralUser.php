@@ -42,6 +42,13 @@ class ReferralUser
     public $email;
 
     /**
+     * Телефон для связи с пользователем
+     *
+     * @var ?string
+     */
+    public $phone;
+
+    /**
      * Является-ли пользователь ОФД (?)
      *
      * @var bool
