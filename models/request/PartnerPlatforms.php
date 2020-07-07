@@ -20,4 +20,11 @@ class PartnerPlatforms
      * @var string
      */
     public $clientLegalForm;
+
+    /**
+     * Выбранные платформы (разбитые)
+     *
+     * @var string[]
+     */
+    public $selectedPlatforms = [];
 }

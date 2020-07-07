@@ -4,7 +4,9 @@ namespace nikserg\CRMCertificateAPI;
 
 
 use nikserg\CRMCertificateAPI\models\data\Status;
+use nikserg\CRMCertificateAPI\models\PaymentModes;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
+use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
@@ -12,7 +14,6 @@ use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFor
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
 use nikserg\CRMCertificateAPI\models\request\SendPrice;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
-use nikserg\CRMCertificateAPI\models\response\GetCheckRef;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
@@ -203,20 +204,11 @@ class MockClient extends Client
         return $response;
     }
 
-    public function getCheckRef(SendCheckRef $sendCheckRef)
-    {
-        $response = new GetCheckRef();
-        $response->id = 1;
-        $response->paymentMode = GetCheckRef::PAYMENT_UNLIMITED;
-        $response->userName = 'username';
-        return $response;
-    }
-
     public function getReferralUser(SendCheckRef $sendCheckRef)
     {
         $response = new ReferralUser();
         $response->id = 1;
-        $response->paymentMode = GetCheckRef::PAYMENT_UNLIMITED;
+        $response->paymentMode = PaymentModes::PAYMENT_UNLIMITED;
         $response->userName = 'username';
         $response->email = 'user@na.me';
         $response->phone = 'hi :)';
@@ -412,5 +404,10 @@ class MockClient extends Client
             }
         }
         return $response;
+    }
+
+    public function pushCustomerFormDocuments(CustomerFormDocuments $documents)
+    {
+        return true;
     }
 }
