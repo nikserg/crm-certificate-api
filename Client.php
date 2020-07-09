@@ -532,6 +532,7 @@ class Client
             RequestOptions::JSON  => [
                 'referalId' => $request->partnerUserId,
                 'legalForm' => $request->clientLegalForm,
+                'selectedPlatforms' => $request->selectedPlatforms,
             ],
         ]);
         $result = $this->getJsonBody($result);
