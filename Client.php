@@ -663,24 +663,31 @@ class Client
 
     public function pushCustomerFormDocuments(CustomerFormDocuments $documents)
     {
+        $multipart = [
+            [
+                'name'     => 'customerFormId',
+                'contents' => $documents->customerFormId,
+            ],
+        ];
+        if ($documents->signedClaim) {
+            $multipart[] = [
+                'name'     => 'signedClaim',
+                'filename' => 'claim.pdf.sig',
+                'contents' => $documents->signedClaim,
+            ];
+        }
+        if ($documents->signedBlank) {
+            $multipart[] = [
+                'name'     => 'signedBlank',
+                'filename' => 'blank.pdf.sig',
+                'contents' => $documents->signedBlank,
+            ];
+        }
         $result = $this->guzzle->request('POST', $this->url . self::ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS, [
             RequestOptions::QUERY     => ['key' => $this->apiKey],
-            RequestOptions::MULTIPART => [
-                [
-                    'name'     => 'customerFormId',
-                    'contents' => $documents->customerFormId,
-                ],
-                [
-                    'name'     => 'signedClaim',
-                    'contents' => $documents->signedClaim,
-                ],
-                [
-                    'name'     => 'signedBlank',
-                    'contents' => $documents->signedBlank,
-                ],
-            ],
+            RequestOptions::MULTIPART => $multipart,
         ]);
-        $result = $this->getJsonBody($result);
+        $this->getJsonBody($result);
         // todo: что полезного может ответить сервер на загрузку файлов?
         return true;
     }
