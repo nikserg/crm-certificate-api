@@ -2,9 +2,13 @@
 
 namespace nikserg\CRMCertificateAPI;
 
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
+use nikserg\CRMCertificateAPI\exceptions\InvalidRequestException;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
+use nikserg\CRMCertificateAPI\exceptions\ServerException;
+use nikserg\CRMCertificateAPI\exceptions\TransportException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\CheckPassport;
 use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
@@ -35,8 +39,6 @@ use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFo
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Class Client
- *
  * Клиент для связи с CRM
  *
  * @package nikserg\CRMCertificateAPI
@@ -91,7 +93,8 @@ class Client
         $this->apiKey = $apiKey;
         $this->url = $url;
         $this->guzzle = new \GuzzleHttp\Client([
-            'verify' => false,
+            RequestOptions::VERIFY      => false,
+            RequestOptions::HTTP_ERRORS => false,
         ]);
     }
 
@@ -100,11 +103,32 @@ class Client
      * @param       $endpoint
      * @param array $options
      * @return ResponseInterface
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     * @throws InvalidRequestException
      */
     protected function request($method, $endpoint, $options = [])
     {
         $options[RequestOptions::QUERY]['key'] = $this->apiKey;
-        return $this->guzzle->request($method, $this->url . $endpoint, $options);
+        try {
+            $response = $this->guzzle->request($method, $this->url . $endpoint, $options);
+        } catch (GuzzleException $e) {
+            throw new TransportException("Ошибка запроса; {$e->getMessage()}");
+        }
+        switch ($response->getStatusCode()) {
+            case 200:
+            case 204:
+                return $response;
+            case 400:
+                throw new InvalidRequestException("Неверный формат запроса");
+            case 404:
+                throw new NotFoundException("Сущность или точка АПИ не найдены");
+            case 500:
+                throw new ServerException("Ошибка сервера");
+            default:
+                throw new TransportException("Неожиданный код ответа {$response->getStatusCode()}");
+        }
     }
 
     /**
@@ -113,29 +137,63 @@ class Client
      * @param       $data
      * @param array $options
      * @return mixed
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     * @throws InvalidRequestException
      */
     protected function requestJson($method, $endpoint, $data, $options = [])
     {
+        $options[RequestOptions::QUERY]['key'] = $this->apiKey;
         $options[RequestOptions::JSON] = $data;
-        $response = $this->request($method, $endpoint, $options);
-        return $this->getJsonBody($response);
+        try {
+            $response = $this->guzzle->request($method, $this->url . $endpoint, $options);
+        } catch (GuzzleException $e) {
+            throw new TransportException("Ошибка запроса; {$e->getMessage()}");
+        }
+        return $this->parseJsonResponse($response);
     }
 
     /**
      * @param ResponseInterface $response
      * @return mixed
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    protected function parseJsonResponse (ResponseInterface $response) {
+        $data = $this->getJsonBody($response);
+        switch ($response->getStatusCode()) {
+            case 200:
+                return $data;
+            case 400:
+                throw new InvalidRequestException($data['error']['message'] ?? $data['message'] ?? "Неверный формат запроса");
+            case 404:
+                throw new NotFoundException($data['error']['message'] ?? $data['message'] ?? "Сущность или точка АПИ не найдены");
+            case 500:
+                throw new ServerException($data['error']['message'] ?? $data['message'] ?? "Неожиданная ошибка сервера");
+            default:
+                throw new TransportException($data['error']['message'] ?? $data['message'] ?? "Неожиданный код ответа {$response->getStatusCode()}");
+        }
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return mixed
+     * @throws TransportException
      */
     private function getJsonBody(ResponseInterface $response)
     {
         $body = $response->getBody();
         if (strlen($body) === 0) {
-            throw new \JsonException('Пустое тело ответа на JSON запрос');
+            throw new TransportException('Пустое тело ответа на JSON запрос');
         }
         $json = @json_decode($body);
         $jsonErrorCode = json_last_error();
         $jsonErrorMessage = json_last_error_msg();
         if ($jsonErrorCode !== JSON_ERROR_NONE) {
-            throw new \JsonException("$jsonErrorMessage: " . print_r($body, true),
+            throw new TransportException("$jsonErrorMessage: " . print_r($body, true),
                 $jsonErrorCode);
         }
         return $json;
@@ -144,9 +202,12 @@ class Client
     /**
      * Отправить запрос на создание заявки на сертификат
      *
-     *
      * @param SendCustomerFormRequest $customerForm
      * @return SendCustomerFormResponse
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function sendCustomerForm(SendCustomerFormRequest $customerForm)
     {
@@ -161,9 +222,12 @@ class Client
     /**
      * Получить информацию о заявке на сертификат
      *
-     *
      * @param int $customerFormCrmId
      * @return GetCustomerForm
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getCustomerForm($customerFormCrmId)
     {
@@ -185,6 +249,10 @@ class Client
      *
      * @param $opportunityCrmId
      * @return GetOpportunity
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getOpportunity($opportunityCrmId)
     {
@@ -203,17 +271,17 @@ class Client
     /**
      * Изменить статус заявки
      *
-     *
      * @param ChangeStatus $changeStatus
      * @return BooleanResponse
      * @throws BooleanResponseException
+     * @throws InvalidRequestException
      * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function changeStatus(ChangeStatus $changeStatus)
     {
-        $result = $this->getJsonBody($this->request('POST', self::ACTION_CHANGE_STATUS, [
-            RequestOptions::JSON => $changeStatus,
-        ]));
+        $result = $this->requestJson('POST', self::ACTION_CHANGE_STATUS, $changeStatus);
         $response = new BooleanResponse();
         $response->status = $result->status;
         $response->message = $result->message ?? null;
@@ -226,11 +294,13 @@ class Client
     /**
      * Удалить заявку на сертификат
      *
-     *
      * @param int $customerFormCrmId
      * @return BooleanResponse
      * @throws BooleanResponseException
+     * @throws InvalidRequestException
      * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function deleteCustomerForm($customerFormCrmId)
     {
@@ -254,7 +324,10 @@ class Client
      * @param int    $customerFormCrmId
      * @param string $format
      * @return string
+     * @throws InvalidRequestException
      * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getCustomerFormClaim($customerFormCrmId, $format = 'pdf')
     {
@@ -273,7 +346,10 @@ class Client
      * @param int    $customerFormCrmId
      * @param string $format
      * @return string
+     * @throws InvalidRequestException
      * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')
     {
@@ -286,6 +362,16 @@ class Client
         return $result->getBody()->getContents();
     }
 
+    /**
+     * Проверка ЕГРЮЛ
+     *
+     * @param $customerFormCrmId
+     * @return GetEgrul
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
     public function getEgrul($customerFormCrmId)
     {
         $result = $this->getJsonBody($this->request('GET', self::ACTION_EGRUL, [
@@ -302,7 +388,10 @@ class Client
      * @param int                  $crmCustomerFormId
      * @param SendCustomerFormData $customerFormData
      * @return SendCustomerFormResponse
-     * @throws \Exception
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function sendCustomerFormData($crmCustomerFormId, SendCustomerFormData $customerFormData)
     {
@@ -320,11 +409,13 @@ class Client
     /**
      * Проверка паспортных данных
      *
-     *
      * @param $series
      * @param $number
      * @return GetPassportCheck
-     * @throws \Exception
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getPassportCheck($series, $number)
     {
@@ -341,6 +432,16 @@ class Client
 
     }
 
+    /**
+     * Расширенная проверка паспортных данных
+     *
+     * @param CheckPassport $request
+     * @return GetPassportCheck
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
     public function checkPassport(CheckPassport $request)
     {
         $result = $this->requestJson('GET', self::ACTION_PASSPORT_CHECK, $request);
@@ -355,7 +456,10 @@ class Client
      *
      * @param $customerFormCrmId
      * @return GetSnilsCheck
-     * @throws \Exception
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getSnilsCheck($customerFormCrmId)
     {
@@ -373,24 +477,14 @@ class Client
     }
 
     /**
-     * Ссылка для записи сертификата на носитель
-     *
-     *
-     * @param $customerFormId
-     * @param $token
-     * @return string
-     */
-    public function certificateWriteUrl($customerFormId, $token)
-    {
-        return $this->url . 'customerForms/external/writeCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
-    }
-
-    /**
      * Получение информации о реферальном пользователе
      *
      * @param SendCheckRef $sendCheckRef
      * @return ReferralUser|null - null если реферальный пользователь не найден
-     * @throws \Exception
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getReferralUser(SendCheckRef $sendCheckRef)
     {
@@ -414,7 +508,10 @@ class Client
      *
      * @param SendPrice $sendPrice
      * @return GetPrice
-     * @throws \Exception
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getPrice(SendPrice $sendPrice)
     {
@@ -443,7 +540,10 @@ class Client
      *
      * @param PartnerPlatformsRequest $request
      * @return PartnerPlatformsResponse
-     * @throws \Exception
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getPartnerPlatforms(PartnerPlatformsRequest $request)
     {
@@ -470,7 +570,10 @@ class Client
      *
      * @param PartnerProductsRequest $request
      * @return PartnerProductsResponse
-     * @throws \Exception
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function getPartnerProducts(PartnerProductsRequest $request)
     {
@@ -498,9 +601,12 @@ class Client
     /**
      * Определить варианты площадок для переданного списка ОИДов
      *
-     *
      * @param DetectPlatformsRequest $request
      * @return DetectPlatformVariant[]
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function detectPlatforms(DetectPlatformsRequest $request)
     {
@@ -533,6 +639,10 @@ class Client
     /**
      * @param CustomerFormDocuments $documents
      * @return bool
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function pushCustomerFormDocuments(CustomerFormDocuments $documents)
     {
@@ -556,10 +666,9 @@ class Client
                 'contents' => $documents->signedBlank,
             ];
         }
-        $this->getJsonBody($this->request('POST', self::ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS, [
+        $this->request('POST', self::ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS, [
             RequestOptions::MULTIPART => $multipart,
-        ]));
-        // todo: что полезного может ответить сервер на загрузку файлов?
+        ]);
         return true;
     }
 
@@ -630,6 +739,18 @@ class Client
     public function customerFormFrameUrl($customerFormId, $token)
     {
         return $this->url . 'customerForms/external/step1?token=' . $token . '&customerFormId=' . $customerFormId;
+    }
+
+    /**
+     * Ссылка для записи сертификата на носитель
+     *
+     * @param $customerFormId
+     * @param $token
+     * @return string
+     */
+    public function certificateWriteUrl($customerFormId, $token)
+    {
+        return $this->url . 'customerForms/external/writeCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
     }
     #endregion urls
 }

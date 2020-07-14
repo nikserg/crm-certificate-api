@@ -5,6 +5,7 @@ namespace nikserg\CRMCertificateAPI\exceptions;
 /**
  * @package nikserg\CRMCertificateAPI\exceptions
  */
-class BooleanResponseException extends \Exception
+class ServerException extends \Exception
 {
+
 }
