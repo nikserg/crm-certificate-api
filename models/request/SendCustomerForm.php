@@ -153,4 +153,11 @@ class SendCustomerForm
      * @var SendProductTemplate[] $additionalProducts
      */
     public $additionalProducts;
+
+    /**
+     * Требуется ли сверка документов (трансфер)
+     *
+     * @var bool
+     */
+    public $transferNotRequired;
 }

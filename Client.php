@@ -9,6 +9,7 @@ use GuzzleHttp\RequestOptions;
 use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
+use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
@@ -19,7 +20,6 @@ use nikserg\CRMCertificateAPI\models\request\SendPrice;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariantPlatform;
 use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
-use nikserg\CRMCertificateAPI\models\response\GetCheckRef;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
@@ -66,12 +66,12 @@ class Client
     private const ACTION_PUSH_CUSTOMER_FORM_DATA = 'gateway/itkExchange/pushCustomerFormData';
     private const ACTION_PASSPORT_CHECK = 'gateway/itkExchange/checkPassport';
     private const ACTION_CHECK_SNILS = 'gateway/itkExchange/checkSnils';
-    private const ACTION_CHECK_REFERRAL = 'gateway/itkExchange/checkRef';
     private const ACTION_GET_REFERRAL_USER = 'gateway/itkExchange/getRefUserInfo';
     private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
     private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo';
     private const ACTION_GET_PARTNER_PRODUCTS = 'gateway/itkExchange/infoProducts';
     private const ACTION_DETECT_PLATFORMS = 'gateway/itkExchange/detectPlatforms';
+    private const ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS = 'gateway/itkExchange/pushCustomerFormDocuments';
 
     /**
      * @var string
@@ -455,32 +455,6 @@ class Client
     }
 
     /**
-     * Получение информации из рееферальной ссылке
-     *
-     * @param SendCheckRef $sendCheckRef
-     * @return GetCheckRef
-     * @throws \Exception
-     */
-    public function getCheckRef(SendCheckRef $sendCheckRef)
-    {
-        $result = $this->guzzle->post($this->url . self::ACTION_CHECK_REFERRAL, [
-            RequestOptions::QUERY => ['key' => $this->apiKey],
-
-            RequestOptions::JSON => $sendCheckRef,
-
-        ]);
-
-        $result = $this->getJsonBody($result);
-
-        $response = new GetCheckRef();
-        $response->id = $result->id ?? '';
-        $response->paymentMode = $result->paymentMode ?? '';
-        $response->userName = $result->userName ?? '';
-
-        return $response;
-    }
-
-    /**
      * Получение информации о реферальном пользователе
      *
      * @param SendCheckRef $sendCheckRef
@@ -502,6 +476,7 @@ class Client
         $response->paymentMode = $result->paymentMode;
         $response->userName = $result->userName;
         $response->email = $result->email;
+        $response->phone = $result->phone;
         $response->isOfd = $result->isOfd;
         $response->enablePlatformSelection = $result->enablePlatformSelection;
         return $response;
@@ -557,6 +532,7 @@ class Client
             RequestOptions::JSON  => [
                 'referalId' => $request->partnerUserId,
                 'legalForm' => $request->clientLegalForm,
+                'selectedPlatforms' => $request->selectedPlatforms,
             ],
         ]);
         $result = $this->getJsonBody($result);
@@ -619,10 +595,10 @@ class Client
         $result = $this->guzzle->post($this->url . self::ACTION_DETECT_PLATFORMS, [
             RequestOptions::QUERY => ['key' => $this->apiKey],
             RequestOptions::JSON  => [
-                'userId' => $request->partnerUserId,
+                'userId'    => $request->partnerUserId,
                 'legalForm' => $request->clientLegalForm,
-                'period' => $request->period,
-                'oids' => $request->oids
+                'period'    => $request->period,
+                'oids'      => $request->oids,
             ],
         ]);
         $result = $this->getJsonBody($result);
@@ -671,5 +647,48 @@ class Client
     public function realizationDownloadUrl($customerFormId, $token)
     {
         return $this->url . 'customerForms/external/downloadFirstRealization?token=' . $token . '&customerFormId=' . $customerFormId;
+    }
+
+    /**
+     * Ссылка на фрейм
+     *
+     * @param $customerFormId
+     * @param $token
+     * @return string
+     */
+    public function customerFormFrameUrl($customerFormId, $token)
+    {
+        return $this->url . 'customerForms/external/step1?token=' . $token . '&customerFormId=' . $customerFormId;
+    }
+
+    public function pushCustomerFormDocuments(CustomerFormDocuments $documents)
+    {
+        $multipart = [
+            [
+                'name'     => 'customerFormId',
+                'contents' => $documents->customerFormId,
+            ],
+        ];
+        if ($documents->signedClaim) {
+            $multipart[] = [
+                'name'     => 'signedClaim',
+                'filename' => 'claim.pdf.sig',
+                'contents' => $documents->signedClaim,
+            ];
+        }
+        if ($documents->signedBlank) {
+            $multipart[] = [
+                'name'     => 'signedBlank',
+                'filename' => 'blank.pdf.sig',
+                'contents' => $documents->signedBlank,
+            ];
+        }
+        $result = $this->guzzle->request('POST', $this->url . self::ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS, [
+            RequestOptions::QUERY     => ['key' => $this->apiKey],
+            RequestOptions::MULTIPART => $multipart,
+        ]);
+        $this->getJsonBody($result);
+        // todo: что полезного может ответить сервер на загрузку файлов?
+        return true;
     }
 }
