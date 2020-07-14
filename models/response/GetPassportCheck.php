@@ -4,7 +4,7 @@ namespace nikserg\CRMCertificateAPI\models\response;
 
 
 /**
- * Ответ на запрос Сделки
+ * Ответ проверки паспорта
  *
  * @package nikserg\CRMCertificateAPI\models\response
  */

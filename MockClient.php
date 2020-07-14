@@ -6,6 +6,7 @@ namespace nikserg\CRMCertificateAPI;
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\PaymentModes;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
+use nikserg\CRMCertificateAPI\models\request\CheckPassport;
 use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
@@ -84,11 +85,11 @@ class MockClient extends Client
     public function getEgrul($customerFormCrmId)
     {
         if ($customerFormCrmId == self::EGRUL_IP_KULSH) {
-            return new GetEgrul('{ "id": 695854, "status": "4", "response": { "organizationShortName": "ИП КУЛИШ ЯНИНА ВИКТОРОВНА", "OGRNIP": "306232719200028", "INN": "232702943100", "headLastName": "Кулиш", "headFirstName": "Янина", "headMiddleName": "Викторовна", "ownerGender": 2 }, "customerFormId": "559196" }');
+            return new GetEgrul(json_decode('{ "id": 695854, "status": "4", "response": { "organizationShortName": "ИП КУЛИШ ЯНИНА ВИКТОРОВНА", "OGRNIP": "306232719200028", "INN": "232702943100", "headLastName": "Кулиш", "headFirstName": "Янина", "headMiddleName": "Викторовна", "ownerGender": 2 }, "customerFormId": "559196" }',1));
         } elseif ($customerFormCrmId == self::EGRUL_LEGAL_ITK) {
-            return new GetEgrul('{ "id": 689373, "status": "4", "response": { "organizationShortName": "ООО \"ИТК\"", "organizationFullName": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ИНТЕРНЕТ ТЕХНОЛОГИИ И КОММУНИКАЦИИ\"", "OGRN": "1112310000220", "INN": "2310152134", "KPP": "230801001", "fiasAddress": "КРАЙ КРАСНОДАРСКИЙ, ГОРОД КРАСНОДАР, УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "rawParticipators": [ " ", " ", " " ], "rawRegion": "КРАЙ КРАСНОДАРСКИЙ", "rawCity": "КРАСНОДАР", "rawOffice": "ПОМЕЩЕНИЕ 140", "rawHouse": "ДОМ 39\/3", "rawStreet": "УЛИЦА ДАЛЬНЯЯ", "postcode": "350051", "region": "23 Краснодарский край", "city": "Краснодар", "street": "УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "headLastName": "Сорокин", "headFirstName": "Дмитрий", "headMiddleName": "Викторович", "headPosition": "Генеральный директор" }, "customerFormId": "557436" }');
+            return new GetEgrul(json_decode('{ "id": 689373, "status": "4", "response": { "organizationShortName": "ООО \"ИТК\"", "organizationFullName": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ИНТЕРНЕТ ТЕХНОЛОГИИ И КОММУНИКАЦИИ\"", "OGRN": "1112310000220", "INN": "2310152134", "KPP": "230801001", "fiasAddress": "КРАЙ КРАСНОДАРСКИЙ, ГОРОД КРАСНОДАР, УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "rawParticipators": [ " ", " ", " " ], "rawRegion": "КРАЙ КРАСНОДАРСКИЙ", "rawCity": "КРАСНОДАР", "rawOffice": "ПОМЕЩЕНИЕ 140", "rawHouse": "ДОМ 39\/3", "rawStreet": "УЛИЦА ДАЛЬНЯЯ", "postcode": "350051", "region": "23 Краснодарский край", "city": "Краснодар", "street": "УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "headLastName": "Сорокин", "headFirstName": "Дмитрий", "headMiddleName": "Викторович", "headPosition": "Генеральный директор" }, "customerFormId": "557436" }',1));
         }
-        return new GetEgrul(json_encode([
+        return new GetEgrul([
             "id"       => 1,
             "status"   => Esia::STATUS_EXECUTED,
             "response" => [
@@ -106,7 +107,7 @@ class MockClient extends Client
                 'headLastName'          => 'Сорокин',
                 'headPosition'          => 'Генеральный директор',
             ],
-        ]));
+        ]);
     }
 
     public function getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')
@@ -185,6 +186,19 @@ class MockClient extends Client
     {
         $response = new GetPassportCheck();
         if ($number == self::PASSPORTCHECK_INVALID_NUMBER) {
+            $response->comment = 'Паспорт не существует (тест)';
+            $response->status = GetPassportCheck::STATUS_INVALID;
+        } else {
+            $response->comment = '';
+            $response->status = GetPassportCheck::STATUS_VALID;
+        }
+        return $response;
+    }
+
+    public function checkPassport(CheckPassport $request)
+    {
+        $response = new GetPassportCheck();
+        if ($request->number == self::PASSPORTCHECK_INVALID_NUMBER) {
             $response->comment = 'Паспорт не существует (тест)';
             $response->status = GetPassportCheck::STATUS_INVALID;
         } else {

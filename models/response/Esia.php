@@ -35,11 +35,10 @@ abstract class Esia
     /**
      * Esia constructor.
      *
-     * @param string $json
+     * @param array $json
      */
     public function __construct($json)
     {
-        $json = json_decode($json, true);
         $this->id = $json['id'];
         $this->status = $json['status'];
         $this->rawResponse = $json['response'];
