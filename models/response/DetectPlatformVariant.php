@@ -2,6 +2,8 @@
 
 namespace nikserg\CRMCertificateAPI\models\response;
 
+use nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform;
+
 /**
  * Вариант определения типа платформы
  *
@@ -62,5 +64,16 @@ class DetectPlatformVariant
             $return[] = $platform->value;
         }
         return $return;
+    }
+
+    /**
+     * Список площадок в строку
+     *
+     *
+     * @return string
+     */
+    public function getImplodedPlatforms()
+    {
+        return implode(',', $this->getPlatformValues());
     }
 }
