@@ -168,13 +168,13 @@ class Client
             case 200:
                 return $data;
             case 400:
-                throw new InvalidRequestException($data['error']['message'] ?? $data['message'] ?? "Неверный формат запроса");
+                throw new InvalidRequestException($data->error->message ?? $data->message ?? "Неверный формат запроса");
             case 404:
-                throw new NotFoundException($data['error']['message'] ?? $data['message'] ?? "Сущность или точка АПИ не найдены");
+                throw new NotFoundException($data->error->message ?? $data->message ?? "Сущность или точка АПИ не найдены");
             case 500:
-                throw new ServerException($data['error']['message'] ?? $data['message'] ?? "Неожиданная ошибка сервера");
+                throw new ServerException($data->error->message ?? $data->message ?? "Неожиданная ошибка сервера");
             default:
-                throw new TransportException($data['error']['message'] ?? $data['message'] ?? "Неожиданный код ответа {$response->getStatusCode()}");
+                throw new TransportException($data->error->message ?? $data->message ?? "Неожиданный код ответа {$response->getStatusCode()}");
         }
     }
 
