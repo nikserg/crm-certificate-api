@@ -9,6 +9,8 @@ use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\CheckPassport;
 use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
+use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
+use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
@@ -20,6 +22,7 @@ use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
 use nikserg\CRMCertificateAPI\models\response\GetPrice;
 use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
+use nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
 use nikserg\CRMCertificateAPI\models\response\models\Platforms;
@@ -54,8 +57,8 @@ class MockClient extends Client
     //
     // Данные для запроса ЕГРЮЛ
     //
-    public const EGRUL_IP_KULSH = PHP_INT_MAX-2; //Выписка для ИП Кулиш Янина Викторовна
-    public const EGRUL_LEGAL_ITK = PHP_INT_MAX-1; //Пыписка для юридического лица ООО "ИТК"
+    public const EGRUL_IP_KULSH = PHP_INT_MAX - 2; //Выписка для ИП Кулиш Янина Викторовна
+    public const EGRUL_LEGAL_ITK = PHP_INT_MAX - 1; //Пыписка для юридического лица ООО "ИТК"
 
     private static $data;
 
@@ -64,30 +67,33 @@ class MockClient extends Client
         if (!empty(self::$data)) {
             return self::$data;
         }
-        if (file_exists(__DIR__.'/mock.runtime')) {
-            self::$data = unserialize(file_get_contents(__DIR__.'/mock.runtime'));
+        if (file_exists(__DIR__ . '/mock.runtime')) {
+            self::$data = unserialize(file_get_contents(__DIR__ . '/mock.runtime'));
         } else {
             self::$data = [
-                'currentId' => 1,
+                'currentId'     => 1,
                 'currentStatus' => [
-                    1 => 0
-                ]
+                    1 => 0,
+                ],
             ];
         }
         return self::$data;
     }
+
     private static function flushData($data)
     {
         self::$data = $data;
-        file_put_contents(__DIR__.'/mock.runtime', serialize(self::$data));
+        file_put_contents(__DIR__ . '/mock.runtime', serialize(self::$data));
     }
 
     public function getEgrul($customerFormCrmId)
     {
         if ($customerFormCrmId == self::EGRUL_IP_KULSH) {
-            return new GetEgrul(json_decode('{ "id": 695854, "status": "4", "response": { "organizationShortName": "ИП КУЛИШ ЯНИНА ВИКТОРОВНА", "OGRNIP": "306232719200028", "INN": "232702943100", "headLastName": "Кулиш", "headFirstName": "Янина", "headMiddleName": "Викторовна", "ownerGender": 2 }, "customerFormId": "559196" }',1));
+            return new GetEgrul(json_decode('{ "id": 695854, "status": "4", "response": { "organizationShortName": "ИП КУЛИШ ЯНИНА ВИКТОРОВНА", "OGRNIP": "306232719200028", "INN": "232702943100", "headLastName": "Кулиш", "headFirstName": "Янина", "headMiddleName": "Викторовна", "ownerGender": 2 }, "customerFormId": "559196" }',
+                1));
         } elseif ($customerFormCrmId == self::EGRUL_LEGAL_ITK) {
-            return new GetEgrul(json_decode('{ "id": 689373, "status": "4", "response": { "organizationShortName": "ООО \"ИТК\"", "organizationFullName": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ИНТЕРНЕТ ТЕХНОЛОГИИ И КОММУНИКАЦИИ\"", "OGRN": "1112310000220", "INN": "2310152134", "KPP": "230801001", "fiasAddress": "КРАЙ КРАСНОДАРСКИЙ, ГОРОД КРАСНОДАР, УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "rawParticipators": [ " ", " ", " " ], "rawRegion": "КРАЙ КРАСНОДАРСКИЙ", "rawCity": "КРАСНОДАР", "rawOffice": "ПОМЕЩЕНИЕ 140", "rawHouse": "ДОМ 39\/3", "rawStreet": "УЛИЦА ДАЛЬНЯЯ", "postcode": "350051", "region": "23 Краснодарский край", "city": "Краснодар", "street": "УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "headLastName": "Сорокин", "headFirstName": "Дмитрий", "headMiddleName": "Викторович", "headPosition": "Генеральный директор" }, "customerFormId": "557436" }',1));
+            return new GetEgrul(json_decode('{ "id": 689373, "status": "4", "response": { "organizationShortName": "ООО \"ИТК\"", "organizationFullName": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ИНТЕРНЕТ ТЕХНОЛОГИИ И КОММУНИКАЦИИ\"", "OGRN": "1112310000220", "INN": "2310152134", "KPP": "230801001", "fiasAddress": "КРАЙ КРАСНОДАРСКИЙ, ГОРОД КРАСНОДАР, УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "rawParticipators": [ " ", " ", " " ], "rawRegion": "КРАЙ КРАСНОДАРСКИЙ", "rawCity": "КРАСНОДАР", "rawOffice": "ПОМЕЩЕНИЕ 140", "rawHouse": "ДОМ 39\/3", "rawStreet": "УЛИЦА ДАЛЬНЯЯ", "postcode": "350051", "region": "23 Краснодарский край", "city": "Краснодар", "street": "УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "headLastName": "Сорокин", "headFirstName": "Дмитрий", "headMiddleName": "Викторович", "headPosition": "Генеральный директор" }, "customerFormId": "557436" }',
+                1));
         }
         return new GetEgrul([
             "id"       => 1,
@@ -112,12 +118,12 @@ class MockClient extends Client
 
     public function getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')
     {
-        return base64_encode(file_get_contents(__DIR__.'/data/blank.pdf'));
+        return base64_encode(file_get_contents(__DIR__ . '/data/blank.pdf'));
     }
 
     public function getCustomerFormClaim($customerFormCrmId, $format = 'pdf')
     {
-        return base64_encode(file_get_contents(__DIR__.'/data/claim.pdf'));
+        return base64_encode(file_get_contents(__DIR__ . '/data/claim.pdf'));
     }
 
     public function sendCustomerForm(SendCustomerFormRequest $customerForm)
@@ -327,7 +333,8 @@ class MockClient extends Client
      */
     public function getPartnerPlatforms(PartnerPlatformsRequest $request)
     {
-        $json = /** @lang JSON */ '{
+        $json = /** @lang JSON */
+            '{
             "platforms": [
                 {
                     "price": 2500,
@@ -379,7 +386,8 @@ class MockClient extends Client
      */
     public function getPartnerProducts(PartnerProductsRequest $request)
     {
-        $json = /** @lang JSON */ '{
+        $json = /** @lang JSON */
+            '{
             "productInfo": [
                 {
                     "id": 981,
@@ -423,5 +431,27 @@ class MockClient extends Client
     public function pushCustomerFormDocuments(CustomerFormDocuments $documents)
     {
         return true;
+    }
+
+    public function detectPlatforms(DetectPlatformsRequest $request)
+    {
+        $return = [];
+        foreach ([
+                     ['platforms' => ['EPGU' => 'ЕПГУ', 'EFRSDUL' => 'ЕФРСДЮЛ'], 'price' => 1000, 'excluded' => []],
+                     ['platforms' => ['FSRAR' => 'ФСРАР'], 'price' => 2000, 'excluded' => ['1.2.3']],
+                 ] as $variant) {
+            $variantModel = new DetectPlatformVariant();
+            $variantModel->platforms = [];
+            foreach ($variant['platforms'] as $value => $name) {
+                $platform = new DetectPlatformVariantPlatform();
+                $platform->value = $value;
+                $platform->name = $name;
+                $variantModel->platforms[] = $platform;
+            }
+            $variantModel->price = $variant['price'];
+            $variantModel->excluded = $variant['excluded'];
+            $return[] = $variantModel;
+        }
+        return $return;
     }
 }
