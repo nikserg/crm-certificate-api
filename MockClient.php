@@ -435,23 +435,34 @@ class MockClient extends Client
 
     public function detectPlatforms(DetectPlatformsRequest $request)
     {
-        $return = [];
-        foreach ([
-                     ['platforms' => ['EPGU' => 'ЕПГУ', 'EFRSDUL' => 'ЕФРСДЮЛ'], 'price' => 1000, 'excluded' => []],
-                     ['platforms' => ['FSRAR' => 'ФСРАР'], 'price' => 2000, 'excluded' => ['1.2.3']],
-                 ] as $variant) {
-            $variantModel = new DetectPlatformVariant();
-            $variantModel->platforms = [];
-            foreach ($variant['platforms'] as $value => $name) {
-                $platform = new DetectPlatformVariantPlatform();
-                $platform->value = $value;
-                $platform->name = $name;
-                $variantModel->platforms[] = $platform;
-            }
-            $variantModel->price = $variant['price'];
-            $variantModel->excluded = $variant['excluded'];
-            $return[] = $variantModel;
-        }
-        return $return;
+        $known = [
+            "1.3.6.1.5.5.7.3.2",
+            "1.3.6.1.5.5.7.3.4",
+            "1.2.643.6.3.1.4.1",
+            "1.2.643.6.3",
+            "1.2.643.6.7",
+            "1.2.643.6.3.1.1",
+            "1.2.643.3.8.100.1.42",
+            "1.2.643.100.113.1",
+            "1.2.643.100.113.2",
+            "1.2.643.2.2.34.6",
+            "1.2.643.6.19.3",
+            "1.2.643.6.3.1.4.3",
+            "1.2.643.6.3.1.4.2",
+            "1.2.643.6.3.1.3.1",
+            "1.2.643.6.3.1.2.1",
+        ];
+        $unknown = array_diff($request->oids, $known);
+        $variant = new DetectPlatformVariant();
+        $platform1 = new DetectPlatformVariantPlatform();
+        $platform1->value = 'AETP';
+        $platform1->name = 'АЭТП';
+        $platform2 = new DetectPlatformVariantPlatform();
+        $platform2->value = 'PROLONGATION_BIDDING_COMPLECT';
+        $platform2->name = 'Тариф «ЭП Торги-комплект»';
+        $variant->platforms = [$platform1, $platform2];
+        $variant->price = 5000;
+        $variant->excluded = $unknown;
+        return [$variant];
     }
 }

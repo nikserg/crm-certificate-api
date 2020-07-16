@@ -151,7 +151,16 @@ class Client
         } catch (GuzzleException $e) {
             throw new TransportException("Ошибка запроса; {$e->getMessage()}");
         }
-        return $this->parseJsonResponse($response);
+        try {
+            return $this->parseJsonResponse($response);
+        } catch (TransportException $e) {
+            throw new TransportException('Ошибка во время отправки запроса '.print_r([
+                $method,
+                    $this->url.$endpoint,
+                    $options,
+                    $data
+                ], true).': '.$e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
@@ -187,7 +196,7 @@ class Client
     {
         $body = $response->getBody();
         if (strlen($body) === 0) {
-            throw new TransportException('Пустое тело ответа на JSON запрос');
+            throw new TransportException('Пустое тело ответа на JSON запрос. Код ответа '.$response->getStatusCode());
         }
         $json = @json_decode($body);
         $jsonErrorCode = json_last_error();
