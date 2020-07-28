@@ -154,12 +154,12 @@ class Client
         try {
             return $this->parseJsonResponse($response);
         } catch (TransportException $e) {
-            throw new TransportException('Ошибка во время отправки запроса '.print_r([
-                $method,
-                    $this->url.$endpoint,
+            throw new TransportException('Ошибка во время отправки запроса ' . print_r([
+                    $method,
+                    $this->url . $endpoint,
                     $options,
-                    $data
-                ], true).': '.$e->getMessage(), $e->getCode(), $e);
+                    $data,
+                ], true) . ': ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -171,7 +171,8 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    protected function parseJsonResponse (ResponseInterface $response) {
+    protected function parseJsonResponse(ResponseInterface $response)
+    {
         $data = $this->getJsonBody($response);
         switch ($response->getStatusCode()) {
             case 200:
@@ -189,16 +190,17 @@ class Client
 
     /**
      * @param ResponseInterface $response
+     * @param bool              $asAssociativeArray
      * @return mixed
      * @throws TransportException
      */
-    private function getJsonBody(ResponseInterface $response)
+    private function getJsonBody(ResponseInterface $response, $asAssociativeArray = false)
     {
         $body = $response->getBody();
         if (strlen($body) === 0) {
-            throw new TransportException('Пустое тело ответа на JSON запрос. Код ответа '.$response->getStatusCode());
+            throw new TransportException('Пустое тело ответа на JSON запрос. Код ответа ' . $response->getStatusCode());
         }
-        $json = @json_decode($body);
+        $json = @json_decode($body, $asAssociativeArray);
         $jsonErrorCode = json_last_error();
         $jsonErrorMessage = json_last_error_msg();
         if ($jsonErrorCode !== JSON_ERROR_NONE) {
@@ -387,7 +389,7 @@ class Client
             RequestOptions::QUERY => [
                 'customerFormId' => $customerFormCrmId,
             ],
-        ]));
+        ]), true);
         return new GetEgrul($result);
     }
 
@@ -682,6 +684,7 @@ class Client
     }
 
     #region urls
+
     /**
      * Ссылка для скачивания сертификата
      *
