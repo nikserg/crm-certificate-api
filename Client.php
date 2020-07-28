@@ -63,10 +63,10 @@ class Client
     private const ACTION_GET_REFERRAL_USER = 'gateway/itkExchange/getRefUserInfo';
     private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
     private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo';
-    private const ACTION_GET_PARTNER_PLATFORMS_ALL = 'gateway/itkExchange/getPlatformsInfoAll';
+    private const ACTION_GET_PARTNER_PLATFORMS_ALL = 'gateway/itkExchange/getPartnerPlatforms';
     private const ACTION_GET_PARTNER_PRODUCTS = 'gateway/itkExchange/infoProducts';
-    private const ACTION_GET_PARTNER_PRODUCTS_ALL = 'gateway/itkExchange/infoProductsAll';
-    private const ACTION_GET_PARTNER_FULL_PRICE = 'gateway/itkExchange/fullPrice';
+    private const ACTION_GET_PARTNER_PRODUCTS_ALL = 'gateway/itkExchange/getPartnerProducts';
+    private const ACTION_GET_PARTNER_FULL_PRICE = 'gateway/itkExchange/getPartnerFullPrice';
     private const ACTION_DETECT_PLATFORMS = 'gateway/itkExchange/detectPlatforms';
     private const ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS = 'gateway/itkExchange/pushCustomerFormDocuments';
     #endregion Действия API
