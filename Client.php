@@ -62,7 +62,10 @@ class Client
     private const ACTION_GET_REFERRAL_USER = 'gateway/itkExchange/getRefUserInfo';
     private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
     private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo';
+    private const ACTION_GET_PARTNER_PLATFORMS_ALL = 'gateway/itkExchange/getPlatformsInfoAll';
     private const ACTION_GET_PARTNER_PRODUCTS = 'gateway/itkExchange/infoProducts';
+    private const ACTION_GET_PARTNER_PRODUCTS_ALL = 'gateway/itkExchange/infoProductsAll';
+    private const ACTION_GET_PARTNER_FULL_PRICE = 'gateway/itkExchange/fullPrice';
     private const ACTION_DETECT_PLATFORMS = 'gateway/itkExchange/detectPlatforms';
     private const ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS = 'gateway/itkExchange/pushCustomerFormDocuments';
     #endregion Действия API
@@ -575,6 +578,36 @@ class Client
     }
 
     /**
+     * Получает платформы, доступные партнеру переданному в запросе
+     *
+     * @param PartnerPlatformsRequest $request
+     * @return PartnerPlatformsResponse
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function getPartnerPlatformsAll(PartnerPlatformsRequest $request)
+    {
+        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PLATFORMS_ALL, [
+            'referralId'         => $request->partnerUserId,
+            'legalForm'         => $request->clientLegalForm,
+            'selectedPlatforms' => $request->selectedPlatforms,
+        ]);
+        $response = new PartnerPlatformsResponse();
+        $response->availablePlatforms = [];
+        foreach ($result->platforms as $platform) {
+            $partnerPlatform = new PartnerPlatform;
+            $partnerPlatform->name = $platform->name;
+            $partnerPlatform->description = $platform->description;
+            $partnerPlatform->platform = $platform->platform;
+            $partnerPlatform->price = $platform->price;
+            $response->availablePlatforms[] = $partnerPlatform;
+        }
+        return $response;
+    }
+
+    /**
      * Получает продукты, настроенные для партнера переданного в запросе
      *
      * @param PartnerProductsRequest $request
@@ -586,8 +619,8 @@ class Client
      */
     public function getPartnerProducts(PartnerProductsRequest $request)
     {
-        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PRODUCTS, [
-            'referalId' => $request->partnerUserId,
+        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PRODUCTS_ALL, [
+            'referralId' => $request->partnerUserId,
         ]);
         $response = new PartnerProductsResponse();
         $response->availableProducts = [];
@@ -604,6 +637,59 @@ class Client
                 $response->availableProducts[] = $partnerPlatform;
             }
         }
+        return $response;
+    }
+
+    /**
+     * Получает продукты, настроенные для партнера переданного в запросе
+     *
+     * @param PartnerProductsRequest $request
+     * @return PartnerProductsResponse
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function getPartnerProductsAll(PartnerProductsRequest $request)
+    {
+        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_FULL_PRICE, [
+            'referralId' => $request->partnerUserId,
+        ]);
+        $response = new PartnerProductsResponse();
+        $response->availableProducts = [];
+        if (empty($result)) {
+            $response->hasSettings = false;
+        } else {
+            $response->hasSettings = true;
+            foreach ($result->productInfo as $product) {
+                $partnerPlatform = new PartnerProduct();
+                $partnerPlatform->name = $product->name;
+                $partnerPlatform->description = $product->description;
+                $partnerPlatform->id = $product->id;
+                $partnerPlatform->price = $product->price;
+                $response->availableProducts[] = $partnerPlatform;
+            }
+        }
+        return $response;
+    }
+
+    /**
+     * Отдает сумму по выбранным продуктам и плаформам для пользователя
+     *
+     * @param SendPrice $sendPrice
+     * @return GetPrice
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function getFullPrice(SendPrice $sendPrice)
+    {
+        $result = $this->requestJson('POST', self::ACTION_GET_FULL_PRICE, $sendPrice);
+        $response = new GetPrice();
+        $response->productTemplates = [];
+        $response->platforms = [];
+        $response->notFoundPlatforms = $result->notFoundPlatforms ?? [];
         return $response;
     }
 
