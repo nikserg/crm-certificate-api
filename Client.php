@@ -125,7 +125,7 @@ class Client
             case 404:
                 throw new NotFoundException("Сущность или точка АПИ не найдены");
             case 500:
-                throw new ServerException("Ошибка сервера");
+                throw new ServerException("Ошибка сервера: ".$response->getBody()->getContents());
             default:
                 throw new TransportException("Неожиданный код ответа {$response->getStatusCode()}");
         }
