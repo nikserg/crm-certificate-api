@@ -3,7 +3,7 @@
 namespace nikserg\CRMCertificateAPI\models\request;
 
 /**
- * Запрос на получение доступных платформ
+ * Запрос на получение доступных платформ партнера
  */
 class PartnerPlatforms
 {
@@ -15,11 +15,18 @@ class PartnerPlatforms
     public $partnerUserId;
 
     /**
-     * Организационно-правовая форма клиента
+     * Организационно-правовая форма клиента. По умолчанию 'legal'
      *
      * @var string
      */
     public $clientLegalForm;
+
+    /**
+     * Период действие сертфиката. По умолчанию берется 1 год
+     *
+     * @var string
+     */
+    public $period;
 
     /**
      * Выбранные платформы (разбитые)

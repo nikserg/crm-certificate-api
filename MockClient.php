@@ -8,6 +8,7 @@ use nikserg\CRMCertificateAPI\models\PaymentModes;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\CheckPassport;
 use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
+use nikserg\CRMCertificateAPI\models\request\PartnerFullPrice as PartnerFullPriceRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
@@ -464,5 +465,110 @@ class MockClient extends Client
         $variant->price = 5000;
         $variant->excluded = $unknown;
         return [$variant];
+    }
+
+    /**
+     * Получает платформы, доступные партнеру переданному в запросе
+     *
+     * @param PartnerPlatformsRequest $request
+     * @return PartnerPlatform[]
+     */
+    public function getPartnerPlatformsAll(PartnerPlatformsRequest $request)
+    {
+        $json = /** @lang JSON */
+            '{
+            "platforms": [
+                {
+                    "price": 2500,
+                    "description": "Описание EPGU",
+                    "name": "Имя EPGU",
+                    "platform": "EPGU"
+                },
+                {
+                    "price": 17600,
+                    "description": "Описание FABRIKANT",
+                    "name": "Имя FABRIKANT",
+                    "platform": "FABRIKANT"
+                },
+                {
+                    "price": 3500,
+                    "description": "Описание AETP_NEW_BASE",
+                    "name": "Имя AETP_NEW_BASE",
+                    "platform": "AETP_NEW_BASE"
+                },
+                {
+                    "price": 6900,
+                    "description": "Имя Описание B2B",
+                    "name": "Имя B2B",
+                    "platform": "B2B"
+                }
+            ]
+        }';
+        $result = json_decode($json);
+        $response = [];
+        foreach ($result->platforms as $platform) {
+            $partnerPlatform = new PartnerPlatform;
+            $partnerPlatform->name = $platform->name;
+            $partnerPlatform->description = $platform->description;
+            $partnerPlatform->platform = $platform->platform;
+            $partnerPlatform->price = $platform->price;
+            $response[] = $partnerPlatform;
+        }
+        return $response;
+    }
+
+    /**
+     * Получает продукты, настроенные для партнера переданного в запросе
+     *
+     * @param PartnerProductsRequest $request
+     * @return PartnerProduct[]
+     */
+    public function getPartnerProductsAll(PartnerProductsRequest $request)
+    {
+        $json = /** @lang JSON */
+            '{
+            "productInfo": [
+                {
+                    "id": 981,
+                    "price": 1500,
+                    "name": "Сертифицированный защищенный носитель (Рутокен)",
+                    "description": "Рутокен — специальное сертифицированное защищённое USB-устройство, внешне похожее на флешку. Предназначено для хранения и использования электронной подписи (КЭП)."
+                },
+                {
+                    "id": 511,
+                    "price": 700,
+                    "name": "Лицензия на право использования СКЗИ КриптоПро CSP в составе сертификата ключа",
+                    "description": "КриптоПро - специальная программа криптозащиты.\\nОна используется для генерации ключа электронной подписи и работы с сертификатами. Без действующей лицензии СКЗИ КриптоПро CSP электронная подпись на вашем компьютере не сможет работать."
+                },
+                {
+                    "id": 127,
+                    "price": 1000,
+                    "name": "Установка СКЗИ КриптоПро CSP и КЭП",
+                    "description": "Процесс установки СКЗИ «КриптоПро» и настройки рабочего места для корректной работы электронной подписи — весьма трудоёмкий и требует специальных знаний. Чтобы облегчить и ускорить этот процесс, закажите его у специалистов технической поддержки."
+                }
+            ]
+        }';
+        $result = json_decode($json);
+        $response = [];
+        foreach ($result->productInfo as $product) {
+            $partnerPlatform = new PartnerProduct();
+            $partnerPlatform->name = $product->name;
+            $partnerPlatform->description = $product->description;
+            $partnerPlatform->id = $product->id;
+            $partnerPlatform->price = $product->price;
+            $response[] = $partnerPlatform;
+        }
+        return $response;
+    }
+
+    /**
+     * Отдает сумму по выбранным продуктам и плаформам для партнера
+     *
+     * @param PartnerFullPriceRequest $fullPriceRequest
+     * @return float
+     */
+    public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest)
+    {
+        return 666;
     }
 }
