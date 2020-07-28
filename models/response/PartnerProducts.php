@@ -12,6 +12,7 @@ class PartnerProducts
     /**
      * Флаг - у партнера есть настройки продуктов
      *
+     * @deprecated
      * @var bool
      */
     public $hasSettings;

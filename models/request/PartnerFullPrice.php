@@ -3,9 +3,9 @@
 namespace nikserg\CRMCertificateAPI\models\request;
 
 /**
- * Запрос на получение доступных платформ партнера
+ * Запрос на получение полной цены на выбранные продукты и платформы партнера
  */
-class PartnerPlatforms
+class PartnerFullPrice
 {
     /**
      * Номер пользователя партнера
@@ -24,14 +24,21 @@ class PartnerPlatforms
     /**
      * Период действие сертфиката. По умолчанию берется 1 год
      *
-     * @var string
+     * @var string $period
      */
     public $period;
 
     /**
-     * Выбранные платформы (разбитые)
+     * Платформы по которым нужно проверить цены
      *
      * @var string[]
      */
-    public $selectedPlatforms = [];
+    public $platforms;
+
+    /**
+     * Номера продуктов предмета коталог
+     *
+     * @var int[]
+     */
+    public $products;
 }

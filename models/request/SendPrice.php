@@ -2,6 +2,12 @@
 
 namespace nikserg\CRMCertificateAPI\models\request;
 
+/**
+ * Class SendPrice
+ *
+ * @deprecated
+ * @package nikserg\CRMCertificateAPI\models\request
+ */
 class SendPrice
 {
     /**

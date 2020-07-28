@@ -13,6 +13,7 @@ use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\CheckPassport;
 use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
+use nikserg\CRMCertificateAPI\models\request\PartnerFullPrice as PartnerFullPriceRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
@@ -62,7 +63,10 @@ class Client
     private const ACTION_GET_REFERRAL_USER = 'gateway/itkExchange/getRefUserInfo';
     private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
     private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo';
+    private const ACTION_GET_PARTNER_PLATFORMS_ALL = 'gateway/itkExchange/getPartnerPlatforms';
     private const ACTION_GET_PARTNER_PRODUCTS = 'gateway/itkExchange/infoProducts';
+    private const ACTION_GET_PARTNER_PRODUCTS_ALL = 'gateway/itkExchange/getPartnerProducts';
+    private const ACTION_GET_PARTNER_FULL_PRICE = 'gateway/itkExchange/getPartnerFullPrice';
     private const ACTION_DETECT_PLATFORMS = 'gateway/itkExchange/detectPlatforms';
     private const ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS = 'gateway/itkExchange/pushCustomerFormDocuments';
     #endregion Действия API
@@ -517,6 +521,7 @@ class Client
     /**
      * Отдает цены по продуктам и платформам
      *
+     * @deprecated
      * @param SendPrice $sendPrice
      * @return GetPrice
      * @throws InvalidRequestException
@@ -681,6 +686,72 @@ class Client
             RequestOptions::MULTIPART => $multipart,
         ]);
         return true;
+    }
+
+    /**
+     * Получает платформы, доступные партнеру переданному в запросе
+     *
+     * @param PartnerPlatformsRequest $request
+     * @return PartnerPlatform[]
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function getPartnerPlatformsAll(PartnerPlatformsRequest $request)
+    {
+        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PLATFORMS_ALL, $request);
+        $response = [];
+        foreach ($result->platforms as $platform) {
+            $partnerPlatform = new PartnerPlatform;
+            $partnerPlatform->name = $platform->name;
+            $partnerPlatform->description = $platform->description;
+            $partnerPlatform->platform = $platform->platform;
+            $partnerPlatform->price = $platform->price;
+            $response[] = $partnerPlatform;
+        }
+        return $response;
+    }
+
+    /**
+     * Получает продукты, настроенные для партнера переданного в запросе
+     *
+     * @param PartnerProductsRequest $request
+     * @return PartnerProduct[]
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function getPartnerProductsAll(PartnerProductsRequest $request)
+    {
+        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PRODUCTS_ALL, $request);
+        $response = [];
+        foreach ($result->productInfo as $product) {
+            $partnerPlatform = new PartnerProduct();
+            $partnerPlatform->name = $product->name;
+            $partnerPlatform->description = $product->description;
+            $partnerPlatform->id = $product->id;
+            $partnerPlatform->price = $product->price;
+            $response[] = $partnerPlatform;
+        }
+        return $response;
+    }
+
+    /**
+     * Отдает сумму по выбранным продуктам и плаформам для партнера
+     *
+     * @param PartnerFullPriceRequest $fullPriceRequest
+     * @return float
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest)
+    {
+        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_FULL_PRICE, $fullPriceRequest);
+        return $result->price;
     }
 
     #region urls
