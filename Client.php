@@ -727,7 +727,7 @@ class Client
     {
         $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PRODUCTS_ALL, $request);
         $response = [];
-        foreach ($result->productInfo as $product) {
+        foreach ($result->products as $product) {
             $partnerPlatform = new PartnerProduct();
             $partnerPlatform->name = $product->name;
             $partnerPlatform->description = $product->description;
