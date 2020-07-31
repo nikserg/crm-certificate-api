@@ -501,6 +501,18 @@ class MockClient extends Client
                     "description": "Имя Описание B2B",
                     "name": "Имя B2B",
                     "platform": "B2B"
+                },
+                {
+                    "price": 1777,
+                    "description": "АЭТП",
+                    "name": "АЭТП",
+                    "platform": "AETP"
+                },
+                {
+                    "price": 1333,
+                    "description": "Тариф «ЭП Торги-комплект»",
+                    "name": "Тариф «ЭП Торги-комплект»",
+                    "platform": "PROLONGATION_BIDDING_COMPLECT"
                 }
             ]
         }';
