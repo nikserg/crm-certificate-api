@@ -626,12 +626,7 @@ class Client
      */
     public function detectPlatforms(DetectPlatformsRequest $request)
     {
-        $result = $this->requestJson('POST', self::ACTION_DETECT_PLATFORMS, [
-            'userId'    => $request->partnerUserId,
-            'legalForm' => $request->clientLegalForm,
-            'period'    => $request->period,
-            'oids'      => $request->oids,
-        ]);
+        $result = $this->requestJson('POST', self::ACTION_DETECT_PLATFORMS, $request);
         if (empty($result->variants)) {
             return [];
         }

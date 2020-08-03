@@ -24,7 +24,6 @@ class DetectPlatforms
     /**
      * Срок действия подписи в месяцах
      *
-     *
      * @var int
      */
     public $period;
@@ -32,8 +31,14 @@ class DetectPlatforms
     /**
      * Список ОИДов, для которых определяем платформу
      *
-     *
      * @var string[]
      */
     public $oids;
+
+    /**
+     * Ограничивающий список платформ
+     *
+     * @var string[]
+     */
+    public $platforms;
 }
