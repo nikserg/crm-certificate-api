@@ -626,16 +626,7 @@ class Client
      */
     public function detectPlatforms(DetectPlatformsRequest $request)
     {
-        // todo: убрать маппинг полей после перехода на новые индексы
-        $result = $this->requestJson('POST', self::ACTION_DETECT_PLATFORMS, [
-            'userId'          => $request->partnerUserId,
-            'partnerUserId'   => $request->partnerUserId,
-            'legalForm'       => $request->clientLegalForm,
-            'clientLegalForm' => $request->clientLegalForm,
-            'period'          => $request->period,
-            'oids'            => $request->oids,
-            'platforms'       => $request->platforms,
-        ]);
+        $result = $this->requestJson('POST', self::ACTION_DETECT_PLATFORMS, $request);
         if (empty($result->variants)) {
             return [];
         }
