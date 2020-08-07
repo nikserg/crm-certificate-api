@@ -48,4 +48,8 @@ class CheckPassport
      * @var int - 1: муж. 2: жун.
      */
     public $gender;
+    /**
+     * @var int - id связанной заявки crm если есть
+     */
+    public $customerForm;
 }
