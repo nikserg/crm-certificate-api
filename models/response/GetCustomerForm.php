@@ -33,6 +33,13 @@ class GetCustomerForm
     public $opportunityId;
 
     /**
+     * Владелец
+     *
+     * @var string
+     */
+    public $owner;
+
+    /**
      * Номер клиента
      *
      * @var int
@@ -52,4 +59,11 @@ class GetCustomerForm
      * @var bool
      */
     public $isPay;
+
+    /**
+     * Полная стоимость заявки
+     *
+     * @var float|null
+     */
+    public $totalPrice;
 }

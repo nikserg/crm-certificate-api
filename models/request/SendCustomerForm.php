@@ -29,7 +29,6 @@ class SendCustomerForm
     const CUSTOMER_LEGAL_FORM_INDIVIDUAL = 'individual'; //ИП
     const CUSTOMER_LEGAL_FORM_PERSON = 'person';         //Физ. лицо
 
-
     //
     // Криптопровайдеры
     //
