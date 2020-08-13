@@ -19,21 +19,15 @@ use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsR
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
-use nikserg\CRMCertificateAPI\models\request\SendPrice;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
-use nikserg\CRMCertificateAPI\models\response\GetPrice;
 use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
-use nikserg\CRMCertificateAPI\models\response\models\Platforms;
-use nikserg\CRMCertificateAPI\models\response\models\ProductTemplates;
-use nikserg\CRMCertificateAPI\models\response\PartnerPlatforms as PartnerPlatformsResponse;
-use nikserg\CRMCertificateAPI\models\response\PartnerProducts as PartnerProductsResponse;
 use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
 use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
@@ -61,10 +55,7 @@ class Client
     private const ACTION_PASSPORT_CHECK = 'gateway/itkExchange/checkPassport';
     private const ACTION_CHECK_SNILS = 'gateway/itkExchange/checkSnils';
     private const ACTION_GET_REFERRAL_USER = 'gateway/itkExchange/getRefUserInfo';
-    private const ACTION_GET_PRICE = 'gateway/itkExchange/getPrice';
-    private const ACTION_GET_PARTNER_PLATFORMS = 'gateway/itkExchange/getPlatformsInfo';
     private const ACTION_GET_PARTNER_PLATFORMS_ALL = 'gateway/itkExchange/getPartnerPlatforms';
-    private const ACTION_GET_PARTNER_PRODUCTS = 'gateway/itkExchange/infoProducts';
     private const ACTION_GET_PARTNER_PRODUCTS_ALL = 'gateway/itkExchange/getPartnerProducts';
     private const ACTION_GET_PARTNER_FULL_PRICE = 'gateway/itkExchange/getPartnerFullPrice';
     private const ACTION_DETECT_PLATFORMS = 'gateway/itkExchange/detectPlatforms';
@@ -256,6 +247,8 @@ class Client
         $response->tokenCertificate = $result->token ?? '';
         $response->opportunityId = $result->opportunityId ?? '';
         $response->isPay = $result->isPay;
+        $response->owner = $result->owner;
+        $response->totalPrice = $result->totalPrice;
         return $response;
     }
 
@@ -515,102 +508,6 @@ class Client
         $response->phone = $result->phone;
         $response->isOfd = $result->isOfd;
         $response->enablePlatformSelection = $result->enablePlatformSelection;
-        return $response;
-    }
-
-    /**
-     * Отдает цены по продуктам и платформам
-     *
-     * @deprecated
-     * @param SendPrice $sendPrice
-     * @return GetPrice
-     * @throws InvalidRequestException
-     * @throws NotFoundException
-     * @throws ServerException
-     * @throws TransportException
-     */
-    public function getPrice(SendPrice $sendPrice)
-    {
-        $result = $this->requestJson('POST', self::ACTION_GET_PRICE, $sendPrice);
-        $response = new GetPrice();
-        $response->productTemplates = [];
-        $response->platforms = [];
-        foreach ($result->productTemplates ?? [] as $productTemplateRequest) {
-            $productTemplate = new ProductTemplates();
-            $productTemplate->id = $productTemplateRequest->id ?? '';
-            $productTemplate->price = $productTemplateRequest->price ?? '';
-            $response->productTemplates[] = $productTemplate;
-        }
-        foreach ($result->platforms ?? [] as $platformRequest) {
-            $platform = new Platforms();
-            $platform->name = $platformRequest->name ?? '';
-            $platform->price = $platformRequest->price ?? '';
-            $response->platforms[] = $platform;
-        }
-        $response->notFoundPlatforms = $result->notFoundPlatforms ?? [];
-        return $response;
-    }
-
-    /**
-     * Получает платформы, доступные партнеру переданному в запросе
-     *
-     * @param PartnerPlatformsRequest $request
-     * @return PartnerPlatformsResponse
-     * @throws InvalidRequestException
-     * @throws NotFoundException
-     * @throws ServerException
-     * @throws TransportException
-     */
-    public function getPartnerPlatforms(PartnerPlatformsRequest $request)
-    {
-        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PLATFORMS, [
-            'referalId'         => $request->partnerUserId,
-            'legalForm'         => $request->clientLegalForm,
-            'selectedPlatforms' => $request->selectedPlatforms,
-        ]);
-        $response = new PartnerPlatformsResponse();
-        $response->availablePlatforms = [];
-        foreach ($result->platforms as $platform) {
-            $partnerPlatform = new PartnerPlatform;
-            $partnerPlatform->name = $platform->name;
-            $partnerPlatform->description = $platform->description;
-            $partnerPlatform->platform = $platform->platform;
-            $partnerPlatform->price = $platform->price;
-            $response->availablePlatforms[] = $partnerPlatform;
-        }
-        return $response;
-    }
-
-    /**
-     * Получает продукты, настроенные для партнера переданного в запросе
-     *
-     * @param PartnerProductsRequest $request
-     * @return PartnerProductsResponse
-     * @throws InvalidRequestException
-     * @throws NotFoundException
-     * @throws ServerException
-     * @throws TransportException
-     */
-    public function getPartnerProducts(PartnerProductsRequest $request)
-    {
-        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PRODUCTS, [
-            'referalId' => $request->partnerUserId,
-        ]);
-        $response = new PartnerProductsResponse();
-        $response->availableProducts = [];
-        if (empty($result)) {
-            $response->hasSettings = false;
-        } else {
-            $response->hasSettings = true;
-            foreach ($result->productInfo as $product) {
-                $partnerPlatform = new PartnerProduct();
-                $partnerPlatform->name = $product->name;
-                $partnerPlatform->description = $product->description;
-                $partnerPlatform->id = $product->id;
-                $partnerPlatform->price = $product->price;
-                $response->availableProducts[] = $partnerPlatform;
-            }
-        }
         return $response;
     }
 
