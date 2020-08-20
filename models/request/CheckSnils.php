@@ -5,11 +5,11 @@ namespace nikserg\CRMCertificateAPI\models\request;
 class CheckSnils
 {
     /**
-     * @var string
+     * @var string `000-000-000 00`
      */
     public $snils;
     /**
-     * @var string - dd.mm.YYYY
+     * @var string `dd.mm.YYYY`
      */
     public $birthDate;
     /**
@@ -19,13 +19,13 @@ class CheckSnils
     /**
      * @var string
      */
-    public $lastName;
+    public $familyName;
     /**
-     * @var string
+     * @var string|null
      */
-    public $middleName;
+    public $patronymic;
     /**
-     * @var int - 1: муж. 2: жун.
+     * @var string - Female|Male
      */
     public $gender;
     /**
