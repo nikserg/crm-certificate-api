@@ -52,6 +52,4 @@ class SendCustomerFormData
     public $OGRN;
     public $OGRNIP;
     public $SNILS;
-
-
 }
