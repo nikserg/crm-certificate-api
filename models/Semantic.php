@@ -1,9 +1,13 @@
 <?php
 
 
-namespace nikserg\CRMCertificateAPI\models\data;
+namespace nikserg\CRMCertificateAPI\models;
 
-
+/**
+ * Семантический статус ответа
+ *
+ * @package nikserg\CRMCertificateAPI\models
+ */
 class Semantic
 {
     const UNDEFINED = 0;

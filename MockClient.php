@@ -3,7 +3,7 @@
 namespace nikserg\CRMCertificateAPI;
 
 
-use nikserg\CRMCertificateAPI\models\data\Semantic;
+use nikserg\CRMCertificateAPI\models\Semantic;
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\PaymentModes;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
@@ -232,12 +232,6 @@ class MockClient extends Client
         return [$variant];
     }
 
-    /**
-     * Получает платформы, доступные партнеру переданному в запросе
-     *
-     * @param PartnerPlatformsRequest $request
-     * @return PartnerPlatform[]
-     */
     public function getPartnerPlatformsAll(PartnerPlatformsRequest $request)
     {
         $json = /** @lang JSON */
@@ -294,12 +288,6 @@ class MockClient extends Client
         return $response;
     }
 
-    /**
-     * Получает продукты, настроенные для партнера переданного в запросе
-     *
-     * @param PartnerProductsRequest $request
-     * @return PartnerProduct[]
-     */
     public function getPartnerProductsAll(PartnerProductsRequest $request)
     {
         $json = /** @lang JSON */
@@ -338,12 +326,6 @@ class MockClient extends Client
         return $response;
     }
 
-    /**
-     * Отдает сумму по выбранным продуктам и плаформам для партнера
-     *
-     * @param PartnerFullPriceRequest $fullPriceRequest
-     * @return float
-     */
     public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest)
     {
         return 666;
