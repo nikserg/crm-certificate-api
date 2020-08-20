@@ -10,6 +10,8 @@ use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\exceptions\ServerException;
 use nikserg\CRMCertificateAPI\exceptions\TransportException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
+use nikserg\CRMCertificateAPI\models\request\CheckSnils;
+use nikserg\CRMCertificateAPI\models\request\Egrul as EgrulRequest;
 use nikserg\CRMCertificateAPI\models\request\CheckPassport;
 use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
@@ -20,11 +22,11 @@ use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
-use nikserg\CRMCertificateAPI\models\response\Esia\GetEgrul;
+use nikserg\CRMCertificateAPI\models\response\Esia\Egrul as EgrulResponse;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
-use nikserg\CRMCertificateAPI\models\response\GetPassportCheck;
-use nikserg\CRMCertificateAPI\models\response\GetSnilsCheck;
+use nikserg\CRMCertificateAPI\models\response\PassportCheck;
+use nikserg\CRMCertificateAPI\models\response\SnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
@@ -40,28 +42,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 class Client
 {
-    public const PRODUCTION_URL = 'https://crm.uc-itcom.ru/index.php/'; //Боевая
-
-    #region Действия API
-    private const ACTION_ADD_CUSTOMER_FORM = 'gateway/itkExchange/pushCustomerForm';
-    private const ACTION_GET_CUSTOMER_FORM = 'gateway/itkExchange/pullCustomerForm';
-    private const ACTION_DELETE_CUSTOMER_FORM = 'gateway/itkExchange/deleteCustomerForm';
-    private const ACTION_GET_OPPORTUNITY = 'gateway/itkExchange/pullOpportunity';
-    private const ACTION_UNION = 'gateway/itkExchange/union';
-    private const ACTION_CERTIFICATE_BLANK = 'gateway/itkExchange/certificateBlank';
-    private const ACTION_CHANGE_STATUS = 'gateway/itkExchange/pushCustomerFormStatus';
-    private const ACTION_EGRUL = 'gateway/itkExchange/egrul';
-    private const ACTION_PUSH_CUSTOMER_FORM_DATA = 'gateway/itkExchange/pushCustomerFormData';
-    private const ACTION_PASSPORT_CHECK = 'gateway/itkExchange/checkPassport';
-    private const ACTION_CHECK_SNILS = 'gateway/itkExchange/checkSnils';
-    private const ACTION_GET_REFERRAL_USER = 'gateway/itkExchange/getRefUserInfo';
-    private const ACTION_GET_PARTNER_PLATFORMS_ALL = 'gateway/itkExchange/getPartnerPlatforms';
-    private const ACTION_GET_PARTNER_PRODUCTS_ALL = 'gateway/itkExchange/getPartnerProducts';
-    private const ACTION_GET_PARTNER_FULL_PRICE = 'gateway/itkExchange/getPartnerFullPrice';
-    private const ACTION_DETECT_PLATFORMS = 'gateway/itkExchange/detectPlatforms';
-    private const ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS = 'gateway/itkExchange/pushCustomerFormDocuments';
-    #endregion Действия API
-
     /**
      * @var string
      */
@@ -78,15 +58,13 @@ class Client
     protected $guzzle;
 
     /**
-     * Client constructor.
-     *
      * @param string $apiKey
      * @param string $url
      */
-    public function __construct($apiKey, $url = self::PRODUCTION_URL)
+    public function __construct($apiKey, $url = 'https://crm.uc-itcom.ru/index.php/')
     {
         $this->apiKey = $apiKey;
-        $this->url = $url;
+        $this->url = trim($url, " /") . "/";
         $this->guzzle = new \GuzzleHttp\Client([
             RequestOptions::VERIFY      => false,
             RequestOptions::HTTP_ERRORS => false,
@@ -120,7 +98,7 @@ class Client
             case 404:
                 throw new NotFoundException("Сущность или точка АПИ не найдены");
             case 500:
-                throw new ServerException("Ошибка сервера: ".$response->getBody()->getContents());
+                throw new ServerException("Ошибка сервера: " . $response->getBody()->getContents());
             default:
                 throw new TransportException("Неожиданный код ответа {$response->getStatusCode()}");
         }
@@ -185,22 +163,20 @@ class Client
 
     /**
      * @param ResponseInterface $response
-     * @param bool              $asAssociativeArray
      * @return mixed
      * @throws TransportException
      */
-    private function getJsonBody(ResponseInterface $response, $asAssociativeArray = false)
+    private function getJsonBody(ResponseInterface $response)
     {
         $body = $response->getBody();
         if (strlen($body) === 0) {
             throw new TransportException('Пустое тело ответа на JSON запрос. Код ответа ' . $response->getStatusCode());
         }
-        $json = @json_decode($body, $asAssociativeArray);
+        $json = json_decode($body);
         $jsonErrorCode = json_last_error();
         $jsonErrorMessage = json_last_error_msg();
         if ($jsonErrorCode !== JSON_ERROR_NONE) {
-            throw new TransportException("$jsonErrorMessage: " . print_r($body, true),
-                $jsonErrorCode);
+            throw new TransportException("$jsonErrorMessage: $body", $jsonErrorCode);
         }
         return $json;
     }
@@ -217,7 +193,7 @@ class Client
      */
     public function sendCustomerForm(SendCustomerFormRequest $customerForm)
     {
-        $result = $this->requestJson('POST', self::ACTION_ADD_CUSTOMER_FORM, $customerForm);
+        $result = $this->requestJson('POST', 'gateway/itkExchange/pushCustomerForm', $customerForm);
         $response = new SendCustomerFormResponse();
         $response->id = $result->id;
         $response->token = $result->token;
@@ -237,15 +213,15 @@ class Client
      */
     public function getCustomerForm($customerFormCrmId)
     {
-        $result = $this->getJsonBody($this->request('GET', self::ACTION_GET_CUSTOMER_FORM, [
+        $result = $this->getJsonBody($this->request('GET', 'gateway/itkExchange/pullCustomerForm', [
             RequestOptions::QUERY => [
                 'id' => $customerFormCrmId,
             ],
         ]));
         $response = new GetCustomerForm();
         $response->status = $result->status;
-        $response->tokenCertificate = $result->token ?? '';
-        $response->opportunityId = $result->opportunityId ?? '';
+        $response->tokenCertificate = $result->token;
+        $response->opportunityId = $result->opportunityId;
         $response->isPay = $result->isPay;
         $response->owner = $result->owner;
         $response->totalPrice = $result->totalPrice;
@@ -264,15 +240,15 @@ class Client
      */
     public function getOpportunity($opportunityCrmId)
     {
-        $result = $this->getJsonBody($this->request('GET', self::ACTION_GET_OPPORTUNITY, [
+        $result = $this->getJsonBody($this->request('GET', 'gateway/itkExchange/pullOpportunity', [
             RequestOptions::QUERY => [
                 'id' => $opportunityCrmId,
             ],
         ]));
         $response = new GetOpportunity();
-        $response->isPay = $result->isPay ?? '';
-        $response->accountId = $result->accountId ?? '';
-        $response->paymentToken = $result->paymentToken ?? '';
+        $response->isPay = $result->isPay;
+        $response->accountId = $result->accountId;
+        $response->paymentToken = $result->paymentToken;
         return $response;
     }
 
@@ -289,7 +265,7 @@ class Client
      */
     public function changeStatus(ChangeStatus $changeStatus)
     {
-        $result = $this->requestJson('POST', self::ACTION_CHANGE_STATUS, $changeStatus);
+        $result = $this->requestJson('POST', 'gateway/itkExchange/pushCustomerFormStatus', $changeStatus);
         $response = new BooleanResponse();
         $response->status = $result->status;
         $response->message = $result->message ?? null;
@@ -312,7 +288,7 @@ class Client
      */
     public function deleteCustomerForm($customerFormCrmId)
     {
-        $result = $this->getJsonBody($this->request('GET', self::ACTION_DELETE_CUSTOMER_FORM, [
+        $result = $this->getJsonBody($this->request('GET', 'gateway/itkExchange/deleteCustomerForm', [
             RequestOptions::QUERY => [
                 'id' => $customerFormCrmId,
             ],
@@ -339,7 +315,7 @@ class Client
      */
     public function getCustomerFormClaim($customerFormCrmId, $format = 'pdf')
     {
-        $result = $this->request('GET', self::ACTION_UNION, [
+        $result = $this->request('GET', 'gateway/itkExchange/union', [
             RequestOptions::QUERY => [
                 'id'     => $customerFormCrmId,
                 'format' => $format,
@@ -361,7 +337,7 @@ class Client
      */
     public function getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')
     {
-        $result = $this->request('GET', self::ACTION_CERTIFICATE_BLANK, [
+        $result = $this->request('GET', 'gateway/itkExchange/certificateBlank', [
             RequestOptions::QUERY => [
                 'id'     => $customerFormCrmId,
                 'format' => $format,
@@ -371,23 +347,18 @@ class Client
     }
 
     /**
-     * Проверка ЕГРЮЛ
+     * Выписка ЕГРЮЛ
      *
-     * @param $customerFormCrmId
-     * @return GetEgrul
+     * @param EgrulRequest $request
+     * @return EgrulResponse
      * @throws InvalidRequestException
      * @throws NotFoundException
      * @throws ServerException
      * @throws TransportException
      */
-    public function getEgrul($customerFormCrmId)
+    public function egrul(EgrulRequest $request)
     {
-        $result = $this->getJsonBody($this->request('GET', self::ACTION_EGRUL, [
-            RequestOptions::QUERY => [
-                'customerFormId' => $customerFormCrmId,
-            ],
-        ]), true);
-        return new GetEgrul($result);
+        return new EgrulResponse($this->requestJson('GET', 'gateway/itkExchange/egrul', $request));
     }
 
     /**
@@ -403,7 +374,7 @@ class Client
      */
     public function sendCustomerFormData($crmCustomerFormId, SendCustomerFormData $customerFormData)
     {
-        $result = $this->requestJson('POST', self::ACTION_PUSH_CUSTOMER_FORM_DATA, [
+        $result = $this->requestJson('POST', 'gateway/itkExchange/pushCustomerFormData', [
             'id'       => $crmCustomerFormId,
             'formData' => $customerFormData,
         ]);
@@ -415,36 +386,10 @@ class Client
     }
 
     /**
-     * Проверка паспортных данных
-     *
-     * @param $series
-     * @param $number
-     * @return GetPassportCheck
-     * @throws InvalidRequestException
-     * @throws NotFoundException
-     * @throws ServerException
-     * @throws TransportException
-     */
-    public function getPassportCheck($series, $number)
-    {
-        $result = $this->getJsonBody($this->request('GET', self::ACTION_PASSPORT_CHECK, [
-            RequestOptions::QUERY => [
-                'series' => $series,
-                'number' => $number,
-            ],
-        ]));
-        $response = new GetPassportCheck();
-        $response->comment = $result->comment;
-        $response->status = $result->status;
-        return $response;
-
-    }
-
-    /**
      * Расширенная проверка паспортных данных
      *
      * @param CheckPassport $request
-     * @return GetPassportCheck
+     * @return PassportCheck
      * @throws InvalidRequestException
      * @throws NotFoundException
      * @throws ServerException
@@ -452,8 +397,8 @@ class Client
      */
     public function checkPassport(CheckPassport $request)
     {
-        $result = $this->requestJson('GET', self::ACTION_PASSPORT_CHECK, $request);
-        $response = new GetPassportCheck();
+        $result = $this->requestJson('GET', 'gateway/itkExchange/checkPassport', $request);
+        $response = new PassportCheck();
         $response->status = $result->status;
         $response->comment = $result->comment;
         return $response;
@@ -462,25 +407,21 @@ class Client
     /**
      * Проверка СНИЛС данных
      *
-     * @param $customerFormCrmId
-     * @return GetSnilsCheck
+     * @param CheckSnils $request
+     * @return SnilsCheck
      * @throws InvalidRequestException
      * @throws NotFoundException
      * @throws ServerException
      * @throws TransportException
      */
-    public function getSnilsCheck($customerFormCrmId)
+    public function checkSnils(CheckSnils $request)
     {
-        $result = $this->getJsonBody($this->request('GET', self::ACTION_CHECK_SNILS, [
-            RequestOptions::QUERY => [
-                'customerFormId' => $customerFormCrmId,
-            ],
-        ]));
-        $response = new GetSnilsCheck();
-        $response->status = $result->status ?? '';
-        $response->message = $result->message ?? '';
-        $response->createRequestDate = $result->createRequestDate ?? '';
+        $result = $this->requestJson('GET', 'gateway/itkExchange/checkSnils', $request);
+        $response = new SnilsCheck();
         $response->id = $result->id;
+        $response->status = $result->status;
+        $response->comment = $result->comment;
+        $response->created = $result->created;
         return $response;
     }
 
@@ -496,7 +437,7 @@ class Client
      */
     public function getReferralUser(SendCheckRef $sendCheckRef)
     {
-        $result = $this->requestJson('POST', self::ACTION_GET_REFERRAL_USER, $sendCheckRef);
+        $result = $this->requestJson('POST', 'gateway/itkExchange/getRefUserInfo', $sendCheckRef);
         if ($result === null) {
             return null;
         }
@@ -523,7 +464,7 @@ class Client
      */
     public function detectPlatforms(DetectPlatformsRequest $request)
     {
-        $result = $this->requestJson('POST', self::ACTION_DETECT_PLATFORMS, $request);
+        $result = $this->requestJson('POST', 'gateway/itkExchange/detectPlatforms', $request);
         if (empty($result->variants)) {
             return [];
         }
@@ -574,7 +515,7 @@ class Client
                 'contents' => $documents->signedBlank,
             ];
         }
-        $this->request('POST', self::ACTION_PUSH_CUSTOMER_FORM_DOCUMENTS, [
+        $this->request('POST', 'gateway/itkExchange/pushCustomerFormDocuments', [
             RequestOptions::MULTIPART => $multipart,
         ]);
         return true;
@@ -592,7 +533,7 @@ class Client
      */
     public function getPartnerPlatformsAll(PartnerPlatformsRequest $request)
     {
-        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PLATFORMS_ALL, $request);
+        $result = $this->requestJson('POST', 'gateway/itkExchange/getPartnerPlatforms', $request);
         $response = [];
         foreach ($result->platforms as $platform) {
             $partnerPlatform = new PartnerPlatform;
@@ -617,13 +558,13 @@ class Client
      */
     public function getPartnerProductsAll(PartnerProductsRequest $request)
     {
-        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_PRODUCTS_ALL, $request);
+        $result = $this->requestJson('POST', 'gateway/itkExchange/getPartnerProducts', $request);
         $response = [];
         foreach ($result->products as $product) {
             $partnerPlatform = new PartnerProduct();
+            $partnerPlatform->id = $product->id;
             $partnerPlatform->name = $product->name;
             $partnerPlatform->description = $product->description;
-            $partnerPlatform->id = $product->id;
             $partnerPlatform->price = $product->price;
             $response[] = $partnerPlatform;
         }
@@ -642,7 +583,7 @@ class Client
      */
     public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest)
     {
-        $result = $this->requestJson('POST', self::ACTION_GET_PARTNER_FULL_PRICE, $fullPriceRequest);
+        $result = $this->requestJson('POST', 'gateway/itkExchange/getPartnerFullPrice', $fullPriceRequest);
         return $result->price;
     }
 

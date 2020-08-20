@@ -2,28 +2,16 @@
 
 namespace nikserg\CRMCertificateAPI\models\request;
 
-class CheckPassport
+class CheckSnils
 {
     /**
      * @var string
      */
-    public $series;
-    /**
-     * @var string
-     */
-    public $number;
+    public $snils;
     /**
      * @var string - dd.mm.YYYY
      */
-    public $issueDate;
-    /**
-     * @var string
-     */
-    public $issuer;
-    /**
-     * @var string
-     */
-    public $issuerCode;
+    public $birthDate;
     /**
      * @var string
      */
@@ -36,14 +24,6 @@ class CheckPassport
      * @var string
      */
     public $middleName;
-    /**
-     * @var string - dd.mm.YYYY
-     */
-    public $birthday;
-    /**
-     * @var string
-     */
-    public $birthplace;
     /**
      * @var int - 1: муж. 2: жун.
      */
