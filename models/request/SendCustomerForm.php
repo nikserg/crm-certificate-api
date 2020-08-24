@@ -105,11 +105,9 @@ class SendCustomerForm
     public $phone;
 
     /**
-     * КПП организации сертификата
-     *
-     * @var string
+     * @var SendCustomerFormData|null
      */
-    public $kpp;
+    public $formData;
 
     /**
      * ОГРН организации
