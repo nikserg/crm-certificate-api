@@ -1,16 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: n.zarubin
- * Date: 12.03.2020
- * Time: 11:05
- */
 
 namespace nikserg\CRMCertificateAPI\models\request;
 
 /**
- * Class FormData
- *
  * @package nikserg\CRMCertificateAPI\models\request\SendCustomerForm
  */
 class SendCustomerFormData
