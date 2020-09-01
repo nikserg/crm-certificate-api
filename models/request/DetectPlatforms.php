@@ -22,6 +22,13 @@ class DetectPlatforms
     public $clientLegalForm;
 
     /**
+     * Криптопровайдер клиента
+     *
+     * @var string
+     */
+    public $cryptoProvider;
+
+    /**
      * Срок действия подписи в месяцах
      *
      * @var int
