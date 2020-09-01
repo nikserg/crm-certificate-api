@@ -22,6 +22,13 @@ class PartnerPlatforms
     public $clientLegalForm;
 
     /**
+     * Криптопровайдер клиента
+     *
+     * @var string
+     */
+    public $cryptoProvider;
+
+    /**
      * Период действие сертфиката. По умолчанию берется 1 год
      *
      * @var string

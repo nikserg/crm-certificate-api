@@ -79,7 +79,7 @@ class SendCustomerForm
      *
      * @var bool
      */
-    public $embededCP = false;
+    public $embededCP;
 
     /**
      * ИНН клиента
