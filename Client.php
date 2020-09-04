@@ -538,6 +538,7 @@ class Client
         foreach ($result->platforms as $platform) {
             $partnerPlatform = new PartnerPlatform;
             $partnerPlatform->name = $platform->name;
+            $partnerPlatform->group = $platform->group;
             $partnerPlatform->description = $platform->description;
             $partnerPlatform->platform = $platform->platform;
             $partnerPlatform->price = $platform->price;

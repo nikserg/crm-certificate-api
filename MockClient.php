@@ -280,6 +280,7 @@ class MockClient extends Client
         foreach ($result->platforms as $platform) {
             $partnerPlatform = new PartnerPlatform;
             $partnerPlatform->name = $platform->name;
+            $partnerPlatform->group = "Группа";
             $partnerPlatform->description = $platform->description;
             $partnerPlatform->platform = $platform->platform;
             $partnerPlatform->price = $platform->price;
