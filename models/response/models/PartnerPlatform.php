@@ -14,6 +14,12 @@ class PartnerPlatform
      */
     public $name;
     /**
+     * Наименование группы
+     *
+     * @var string
+     */
+    public $group;
+    /**
      * Описание
      *
      * @var string
