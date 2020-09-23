@@ -3,6 +3,9 @@
 namespace nikserg\CRMCertificateAPI;
 
 
+use nikserg\CRMCertificateAPI\models\request\PartnerStores as PartnerStoresRequest;
+use nikserg\CRMCertificateAPI\models\response\models\Store;
+use nikserg\CRMCertificateAPI\models\response\PartnerStores as PartnerStoresResponse;
 use nikserg\CRMCertificateAPI\models\Semantic;
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\PaymentModes;
@@ -330,5 +333,40 @@ class MockClient extends Client
     public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest)
     {
         return 666;
+    }
+
+    public function getPartnerStores(PartnerStoresRequest $partnerStores)
+    {
+        $json = /** @lang JSON */
+            '{
+              "stores": [
+                {
+                    "id": 3195,
+                    "title": "ИП Глумова Татьяна Борисовна",
+                    "address": "656002, Алтайский край, Барнаул г, Сизова ул, дом № 14Б",
+                    "phone": "",
+                    "lat": "53.280205",
+                    "lng": "83.761495"
+                },
+                {
+                    "id": 3225,
+                    "title": "ООО БРАВО",
+                    "address": "659319, Алтайский край, Бийск г, Петра Мерлина ул, дом № 58, кв 311",
+                    "phone": "",
+                    "lat": "52.530544",
+                    "lng": "85.16064800000004"
+                },
+                {
+                    "id": 3049,
+                    "title": "ИП Лапина Ирина Анатольевна",
+                    "address": "453431, Башкортостан респ, Благовещенский р-н, Благовещенск г, Седова ул, дом № 110",
+                    "phone": "",
+                    "lat": "55.049091",
+                    "lng": "55.95632899999998"
+                }
+              ]
+            }';
+        $result = json_decode($json);
+        return $this->fillList(Store::class, $result->stores);
     }
 }

@@ -43,9 +43,9 @@ class GetCustomerForm
     /**
      * Токен из сертификата.
      *
-     * @var string $tokenCertificate
+     * @var string
      */
-    public $tokenCertificate;
+    public $token;
 
     /**
      * Есть ли подтверждение заявки для ПО и ПР партнеров или есть оплата для сделки для ОУ партнера.

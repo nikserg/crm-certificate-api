@@ -18,6 +18,7 @@ use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsR
 use nikserg\CRMCertificateAPI\models\request\PartnerFullPrice as PartnerFullPriceRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
+use nikserg\CRMCertificateAPI\models\request\PartnerStores as PartnerStoresRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
@@ -25,6 +26,7 @@ use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\Esia\Egrul as EgrulResponse;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
+use nikserg\CRMCertificateAPI\models\response\models\Store;
 use nikserg\CRMCertificateAPI\models\response\PassportCheck;
 use nikserg\CRMCertificateAPI\models\response\SnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform;
@@ -61,10 +63,10 @@ class Client
      * @param string $apiKey
      * @param string $url
      */
-    public function __construct($apiKey, $url = 'https://crm.uc-itcom.ru/index.php/')
+    public function __construct($apiKey, $url = 'https://crm.uc-itcom.ru/index.php')
     {
         $this->apiKey = $apiKey;
-        $this->url = trim($url, " /") . "/";
+        $this->url = trim($url, " /");
         $this->guzzle = new \GuzzleHttp\Client([
             RequestOptions::VERIFY      => false,
             RequestOptions::HTTP_ERRORS => false,
@@ -85,7 +87,7 @@ class Client
     {
         $options[RequestOptions::QUERY]['key'] = $this->apiKey;
         try {
-            $response = $this->guzzle->request($method, $this->url . $endpoint, $options);
+            $response = $this->guzzle->request($method, "$this->url/gateway/itkExchange/$endpoint", $options);
         } catch (GuzzleException $e) {
             throw new TransportException("Ошибка запроса; {$e->getMessage()}");
         }
@@ -94,13 +96,13 @@ class Client
             case 204:
                 return $response;
             case 400:
-                throw new InvalidRequestException("Неверный формат запроса");
+                throw new InvalidRequestException("$endpoint: Неверный формат запроса");
             case 404:
-                throw new NotFoundException("Сущность или точка АПИ не найдены");
+                throw new NotFoundException("$endpoint: Сущность или точка АПИ не найдены");
             case 500:
-                throw new ServerException("Ошибка сервера: " . $response->getBody()->getContents());
+                throw new ServerException("$endpoint: Ошибка сервера \n" . $response->getBody()->getContents());
             default:
-                throw new TransportException("Неожиданный код ответа {$response->getStatusCode()}");
+                throw new TransportException("$endpoint: Неожиданный код ответа {$response->getStatusCode()}");
         }
     }
 
@@ -120,12 +122,24 @@ class Client
         $options[RequestOptions::QUERY]['key'] = $this->apiKey;
         $options[RequestOptions::JSON] = $data;
         try {
-            $response = $this->guzzle->request($method, $this->url . $endpoint, $options);
+            $response = $this->guzzle->request($method, "$this->url/gateway/itkExchange/$endpoint", $options);
         } catch (GuzzleException $e) {
             throw new TransportException("Ошибка запроса; {$e->getMessage()}");
         }
         try {
-            return $this->parseJsonResponse($response);
+            $data = $this->getJsonBody($response);
+            switch ($response->getStatusCode()) {
+                case 200:
+                    return $data;
+                case 400:
+                    throw new InvalidRequestException("$endpoint: " . $data->error->message ?? $data->message ?? "Неверный формат запроса");
+                case 404:
+                    throw new NotFoundException("$endpoint: " . $data->error->message ?? $data->message ?? "Сущность или точка АПИ не найдены");
+                case 500:
+                    throw new ServerException("$endpoint: " . $data->error->message ?? $data->message ?? "Неожиданная ошибка сервера");
+                default:
+                    throw new TransportException("$endpoint: " . $data->error->message ?? $data->message ?? "Неожиданный код ответа {$response->getStatusCode()}");
+            }
         } catch (TransportException $e) {
             throw new TransportException('Ошибка во время отправки запроса ' . print_r([
                     $method,
@@ -133,31 +147,6 @@ class Client
                     $options,
                     $data,
                 ], true) . ': ' . $e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-    /**
-     * @param ResponseInterface $response
-     * @return mixed
-     * @throws InvalidRequestException
-     * @throws NotFoundException
-     * @throws ServerException
-     * @throws TransportException
-     */
-    protected function parseJsonResponse(ResponseInterface $response)
-    {
-        $data = $this->getJsonBody($response);
-        switch ($response->getStatusCode()) {
-            case 200:
-                return $data;
-            case 400:
-                throw new InvalidRequestException($data->error->message ?? $data->message ?? "Неверный формат запроса");
-            case 404:
-                throw new NotFoundException($data->error->message ?? $data->message ?? "Сущность или точка АПИ не найдены");
-            case 500:
-                throw new ServerException($data->error->message ?? $data->message ?? "Неожиданная ошибка сервера");
-            default:
-                throw new TransportException($data->error->message ?? $data->message ?? "Неожиданный код ответа {$response->getStatusCode()}");
         }
     }
 
@@ -193,12 +182,8 @@ class Client
      */
     public function sendCustomerForm(SendCustomerFormRequest $customerForm)
     {
-        $result = $this->requestJson('POST', 'gateway/itkExchange/pushCustomerForm', $customerForm);
-        $response = new SendCustomerFormResponse();
-        $response->id = $result->id;
-        $response->token = $result->token;
-        $response->generationToken = $result->generationToken;
-        return $response;
+        $result = $this->requestJson('POST', 'pushCustomerForm', $customerForm);
+        return $this->fill(SendCustomerFormResponse::class, $result);
     }
 
     /**
@@ -213,19 +198,12 @@ class Client
      */
     public function getCustomerForm($customerFormCrmId)
     {
-        $result = $this->getJsonBody($this->request('GET', 'gateway/itkExchange/pullCustomerForm', [
+        $result = $this->getJsonBody($this->request('GET', 'pullCustomerForm', [
             RequestOptions::QUERY => [
                 'id' => $customerFormCrmId,
             ],
         ]));
-        $response = new GetCustomerForm();
-        $response->status = $result->status;
-        $response->tokenCertificate = $result->token;
-        $response->opportunityId = $result->opportunityId;
-        $response->isPay = $result->isPay;
-        $response->owner = $result->owner;
-        $response->totalPrice = $result->totalPrice;
-        return $response;
+        return $this->fill(GetCustomerForm::class, $result);
     }
 
     /**
@@ -240,16 +218,12 @@ class Client
      */
     public function getOpportunity($opportunityCrmId)
     {
-        $result = $this->getJsonBody($this->request('GET', 'gateway/itkExchange/pullOpportunity', [
+        $result = $this->getJsonBody($this->request('GET', 'pullOpportunity', [
             RequestOptions::QUERY => [
                 'id' => $opportunityCrmId,
             ],
         ]));
-        $response = new GetOpportunity();
-        $response->isPay = $result->isPay;
-        $response->accountId = $result->accountId;
-        $response->paymentToken = $result->paymentToken;
-        return $response;
+        return $this->fill(GetOpportunity::class, $result);
     }
 
     /**
@@ -265,7 +239,7 @@ class Client
      */
     public function changeStatus(ChangeStatus $changeStatus)
     {
-        $result = $this->requestJson('POST', 'gateway/itkExchange/pushCustomerFormStatus', $changeStatus);
+        $result = $this->requestJson('POST', 'pushCustomerFormStatus', $changeStatus);
         $response = new BooleanResponse();
         $response->status = $result->status;
         $response->message = $result->message ?? null;
@@ -288,7 +262,7 @@ class Client
      */
     public function deleteCustomerForm($customerFormCrmId)
     {
-        $result = $this->getJsonBody($this->request('GET', 'gateway/itkExchange/deleteCustomerForm', [
+        $result = $this->getJsonBody($this->request('GET', 'deleteCustomerForm', [
             RequestOptions::QUERY => [
                 'id' => $customerFormCrmId,
             ],
@@ -315,7 +289,7 @@ class Client
      */
     public function getCustomerFormClaim($customerFormCrmId, $format = 'pdf')
     {
-        $result = $this->request('GET', 'gateway/itkExchange/union', [
+        $result = $this->request('GET', 'union', [
             RequestOptions::QUERY => [
                 'id'     => $customerFormCrmId,
                 'format' => $format,
@@ -337,7 +311,7 @@ class Client
      */
     public function getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')
     {
-        $result = $this->request('GET', 'gateway/itkExchange/certificateBlank', [
+        $result = $this->request('GET', 'certificateBlank', [
             RequestOptions::QUERY => [
                 'id'     => $customerFormCrmId,
                 'format' => $format,
@@ -358,7 +332,7 @@ class Client
      */
     public function egrul(EgrulRequest $request)
     {
-        return new EgrulResponse($this->requestJson('GET', 'gateway/itkExchange/egrul', $request));
+        return new EgrulResponse($this->requestJson('GET', 'egrul', $request));
     }
 
     /**
@@ -374,15 +348,11 @@ class Client
      */
     public function sendCustomerFormData($crmCustomerFormId, SendCustomerFormData $customerFormData)
     {
-        $result = $this->requestJson('POST', 'gateway/itkExchange/pushCustomerFormData', [
+        $result = $this->requestJson('POST', 'pushCustomerFormData', [
             'id'       => $crmCustomerFormId,
             'formData' => $customerFormData,
         ]);
-        $response = new SendCustomerFormResponse();
-        $response->id = $result->id;
-        $response->token = $result->token;
-        $response->generationToken = $result->generationToken;
-        return $response;
+        return $this->fill(SendCustomerFormResponse::class, $result);
     }
 
     /**
@@ -397,11 +367,8 @@ class Client
      */
     public function checkPassport(CheckPassport $request)
     {
-        $result = $this->requestJson('GET', 'gateway/itkExchange/checkPassport', $request);
-        $response = new PassportCheck();
-        $response->status = $result->status;
-        $response->comment = $result->comment;
-        return $response;
+        $result = $this->requestJson('GET', 'checkPassport', $request);
+        return $this->fill(PassportCheck::class, $result);
     }
 
     /**
@@ -416,13 +383,8 @@ class Client
      */
     public function checkSnils(CheckSnils $request)
     {
-        $result = $this->requestJson('GET', 'gateway/itkExchange/checkSnils', $request);
-        $response = new SnilsCheck();
-        $response->id = $result->id;
-        $response->status = $result->status;
-        $response->comment = $result->comment;
-        $response->created = $result->created;
-        return $response;
+        $result = $this->requestJson('GET', 'checkSnils', $request);
+        return $this->fill(SnilsCheck::class, $result);
     }
 
     /**
@@ -437,19 +399,11 @@ class Client
      */
     public function getReferralUser(SendCheckRef $sendCheckRef)
     {
-        $result = $this->requestJson('POST', 'gateway/itkExchange/getRefUserInfo', $sendCheckRef);
+        $result = $this->requestJson('POST', 'getRefUserInfo', $sendCheckRef);
         if ($result === null) {
             return null;
         }
-        $response = new ReferralUser();
-        $response->id = $result->id;
-        $response->paymentMode = $result->paymentMode;
-        $response->userName = $result->userName;
-        $response->email = $result->email;
-        $response->phone = $result->phone;
-        $response->isOfd = $result->isOfd;
-        $response->enablePlatformSelection = $result->enablePlatformSelection;
-        return $response;
+        return $this->fill(ReferralUser::class, $result);
     }
 
     /**
@@ -464,7 +418,7 @@ class Client
      */
     public function detectPlatforms(DetectPlatformsRequest $request)
     {
-        $result = $this->requestJson('POST', 'gateway/itkExchange/detectPlatforms', $request);
+        $result = $this->requestJson('POST', 'detectPlatforms', $request);
         if (empty($result->variants)) {
             return [];
         }
@@ -515,7 +469,7 @@ class Client
                 'contents' => $documents->signedBlank,
             ];
         }
-        $this->request('POST', 'gateway/itkExchange/pushCustomerFormDocuments', [
+        $this->request('POST', 'pushCustomerFormDocuments', [
             RequestOptions::MULTIPART => $multipart,
         ]);
         return true;
@@ -533,18 +487,8 @@ class Client
      */
     public function getPartnerPlatformsAll(PartnerPlatformsRequest $request)
     {
-        $result = $this->requestJson('POST', 'gateway/itkExchange/getPartnerPlatforms', $request);
-        $response = [];
-        foreach ($result->platforms as $platform) {
-            $partnerPlatform = new PartnerPlatform;
-            $partnerPlatform->name = $platform->name;
-            $partnerPlatform->group = $platform->group;
-            $partnerPlatform->description = $platform->description;
-            $partnerPlatform->platform = $platform->platform;
-            $partnerPlatform->price = $platform->price;
-            $response[] = $partnerPlatform;
-        }
-        return $response;
+        $result = $this->requestJson('POST', 'getPartnerPlatforms', $request);
+        return $this->fillList(PartnerPlatform::class, $result->platforms);
     }
 
     /**
@@ -559,17 +503,8 @@ class Client
      */
     public function getPartnerProductsAll(PartnerProductsRequest $request)
     {
-        $result = $this->requestJson('POST', 'gateway/itkExchange/getPartnerProducts', $request);
-        $response = [];
-        foreach ($result->products as $product) {
-            $partnerPlatform = new PartnerProduct();
-            $partnerPlatform->id = $product->id;
-            $partnerPlatform->name = $product->name;
-            $partnerPlatform->description = $product->description;
-            $partnerPlatform->price = $product->price;
-            $response[] = $partnerPlatform;
-        }
-        return $response;
+        $result = $this->requestJson('POST', 'getPartnerProducts', $request);
+        return $this->fillList(PartnerProduct::class, $result->products);
     }
 
     /**
@@ -584,8 +519,42 @@ class Client
      */
     public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest)
     {
-        $result = $this->requestJson('POST', 'gateway/itkExchange/getPartnerFullPrice', $fullPriceRequest);
+        $result = $this->requestJson('POST', 'getPartnerFullPrice', $fullPriceRequest);
         return $result->price;
+    }
+
+    /**
+     * Отдает список точек/складов/трансферов партнера
+     *
+     * @param PartnerStoresRequest $partnerStores
+     * @return Store[]
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function getPartnerStores(PartnerStoresRequest $partnerStores)
+    {
+        $result = $this->requestJson('POST', 'getPartnerStores', $partnerStores);
+        return $this->fillList(Store::class, $result->stores);
+    }
+
+    public function fill($class, $attributes)
+    {
+        $model = new $class;
+        foreach ($attributes as $attribute => $value) {
+            $model->$attribute = $value;
+        }
+        return $model;
+    }
+
+    public function fillList($class, $list)
+    {
+        $models = [];
+        foreach ($list as $item) {
+            $models[] = $this->fill($class, $item);
+        }
+        return $models;
     }
 
     #region urls
@@ -593,19 +562,17 @@ class Client
     /**
      * Ссылка для скачивания сертификата
      *
-     *
      * @param $customerFormId
      * @param $token
      * @return string
      */
     public function certificateDownloadUrl($customerFormId, $token)
     {
-        return $this->url . 'customerForms/external/downloadCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
+        return $this->url . '/customerForms/external/downloadCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
     }
 
     /**
      * Ссылка для скачивания реализации
-     *
      *
      * @param $customerFormId
      * @param $token
@@ -613,24 +580,22 @@ class Client
      */
     public function realizationDownloadUrl($customerFormId, $token)
     {
-        return $this->url . 'customerForms/external/downloadFirstRealization?token=' . $token . '&customerFormId=' . $customerFormId;
+        return $this->url . '/customerForms/external/downloadFirstRealization?token=' . $token . '&customerFormId=' . $customerFormId;
     }
 
     /**
      * Индивидуальная ссылка для редактирования
-     *
      *
      * @param $token
      * @return string
      */
     public function editUrl($token)
     {
-        return $this->url . 'customerForms/external?token=' . $token;
+        return $this->url . '/customerForms/external?token=' . $token;
     }
 
     /**
      * Индивидуальная ссылка для генерации
-     *
      *
      * @param      $token
      * @param      $generatonToken
@@ -639,7 +604,7 @@ class Client
      */
     public function generationUrl($token, $generatonToken, $iframe = false)
     {
-        $return = $this->url . 'customerForms/external/generate?token=' . $token . '&generationToken=' . $generatonToken;
+        $return = $this->url . '/customerForms/external/generate?token=' . $token . '&generationToken=' . $generatonToken;
         if ($iframe) {
             $return .= '&iframe=1';
         }
@@ -655,7 +620,7 @@ class Client
      */
     public function customerFormFrameUrl($customerFormId, $token)
     {
-        return $this->url . 'customerForms/external/step1?token=' . $token . '&customerFormId=' . $customerFormId;
+        return $this->url . '/customerForms/external/step1?token=' . $token . '&customerFormId=' . $customerFormId;
     }
 
     /**
@@ -667,7 +632,7 @@ class Client
      */
     public function certificateWriteUrl($customerFormId, $token)
     {
-        return $this->url . 'customerForms/external/writeCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
+        return $this->url . '/customerForms/external/writeCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
     }
     #endregion urls
 }
