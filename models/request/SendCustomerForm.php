@@ -149,4 +149,10 @@ class SendCustomerForm
      * @var bool
      */
     public $transferNotRequired;
+    /**
+     * id склада / точки сверки
+     *
+     * @var int
+     */
+    public $transferStoreId;
 }
