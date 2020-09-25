@@ -155,4 +155,10 @@ class SendCustomerForm
      * @var int
      */
     public $transferStoreId;
+    /**
+     * Комментарии по заявке в свободной форме
+     *
+     * @var string
+     */
+    public $description;
 }
