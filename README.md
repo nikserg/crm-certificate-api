@@ -1,3 +1,6 @@
+[![Build Status](https://scrutinizer-ci.com/g/nikserg/crm-certificate-api/badges/build.png?b=master)](https://scrutinizer-ci.com/g/nikserg/crm-certificate-api/build-status/master)
+[![Code Intelligence Status](https://scrutinizer-ci.com/g/nikserg/crm-certificate-api/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
+
 # crm-certificate-api
 
 API для системы https://crm.uc-itcom.ru/
