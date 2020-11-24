@@ -47,5 +47,8 @@ class EgrulTest extends TestCase
         $this->assertEquals('230801001', $egrul->kpp);
         $this->assertEquals('2310152134', $egrul->inn);
         $this->assertEquals('1112310000220', $egrul->ogrn);
+        $this->assertEquals('Сорокин Дмитрий Викторович', $egrul->head->getFIO());
+        $this->assertEquals('Генеральный директор', $egrul->head->jobName);
+        $this->assertEquals('ООО "ИТК"', $egrul->shortName);
     }
 }
