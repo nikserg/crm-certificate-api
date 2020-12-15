@@ -1,5 +1,6 @@
+[![Build Status](https://travis-ci.org/nikserg/crm-certificate-api.svg?branch=master)](https://travis-ci.org/nikserg/crm-certificate-api)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nikserg/crm-certificate-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/nikserg/crm-certificate-api/?branch=master)
-[![Code Intelligence Status](https://scrutinizer-ci.com/g/nikserg/crm-certificate-api/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
+
 
 # crm-certificate-api
 
