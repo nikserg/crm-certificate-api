@@ -1,6 +1,6 @@
 <?php
 
-namespace nikserg\CRMCertificateAPI\tests;
+namespace nikserg\CRMCertificateAPI\tests\unit;
 
 use nikserg\CRMCertificateAPI\models\response\Esia\Egrul;
 use PHPUnit\Framework\TestCase;
