@@ -4,23 +4,26 @@ namespace nikserg\CRMCertificateAPI\models\response;
 
 
 /**
- * Ответ на запрос Сделки
+ * Ответ на запрос СНИЛС
  *
  * @package nikserg\CRMCertificateAPI\models\response
  */
-class GetPassportCheck
+class SnilsCheck
 {
-    const STATUS_INIT = 0;
-    const STATUS_INVALID = 1;
-    const STATUS_VALID = 2;
-
+    /**
+     * @var int
+     */
+    public $id;
     /**
      * @var int
      */
     public $status;
-
     /**
      * @var string
      */
     public $comment;
+    /**
+     * @var string
+     */
+    public $created;
 }

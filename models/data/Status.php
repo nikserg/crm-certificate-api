@@ -40,6 +40,24 @@ class Status {
 
     const CERTIFICATE = 130; //Запрос одобрен, выпущен сертификат
 
+    /**
+     * Статусы, в которых требуется токен генерации
+     *
+     *
+     * @var int[]
+     */
+    public static $generationStatuses = [
+        self::LAUNCH,
+        self::USER_REQUEST,
+        self::USER_CREATED,
+        self::CERTIFICATE_REQUEST_DECLINED,
+        self::CERTIFICATE_REQUEST_FORMED,
+        self::CERTIFICATE_REQUEST_SENDED,
+    ];
+
+    /**
+     * @var string[] Имена статусов
+     */
     public static $names = [
         self::INIT              => 'Анкета не заполнена',
         self::CALLBACK          => 'Требуется связаться с клиентом',

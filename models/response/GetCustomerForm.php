@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: n.zarubin
- * Date: 12.03.2020
- * Time: 11:05
- */
 
 namespace nikserg\CRMCertificateAPI\models\response;
 
@@ -33,6 +27,13 @@ class GetCustomerForm
     public $opportunityId;
 
     /**
+     * Владелец
+     *
+     * @var string
+     */
+    public $owner;
+
+    /**
      * Номер клиента
      *
      * @var int
@@ -42,9 +43,9 @@ class GetCustomerForm
     /**
      * Токен из сертификата.
      *
-     * @var string $tokenCertificate
+     * @var string
      */
-    public $tokenCertificate;
+    public $token;
 
     /**
      * Есть ли подтверждение заявки для ПО и ПР партнеров или есть оплата для сделки для ОУ партнера.
@@ -52,4 +53,11 @@ class GetCustomerForm
      * @var bool
      */
     public $isPay;
+
+    /**
+     * Полная стоимость заявки
+     *
+     * @var float|null
+     */
+    public $totalPrice;
 }

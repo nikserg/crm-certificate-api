@@ -1,50 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: n.zarubin
- * Date: 12.03.2020
- * Time: 11:05
- */
 
 namespace nikserg\CRMCertificateAPI\models\request;
 
 /**
- * Заявка на сертификат в CRM
- * Модель для передачи в CRM
+ * Модель для передачи заявки на сертификат в CRM
  *
  * @package nikserg\CRMCertificateAPI\models\request
  */
 class SendCustomerForm
 {
-    //
-    // Вомзожные значения customerTarget (на кого выпускается подпись)
-    //
-    const CUSTOMER_TARGET_OWNER = 'owner';               //Руководитель организации (ИП) (по умолчанию)
-    const CUSTOMER_TARGET_CONFIDANT = 'confidant';       //Доверенное лицо организации (ИП)
-
-    //
-    // Возможные значения customerLegalForm (организационно-правовая форма)
-    //
-    const CUSTOMER_LEGAL_FORM_LEGAL = 'legal';           //Юр. лицо
-    const CUSTOMER_LEGAL_FORM_INDIVIDUAL = 'individual'; //ИП
-    const CUSTOMER_LEGAL_FORM_PERSON = 'person';         //Физ. лицо
-
-
-    //
-    // Криптопровайдеры
-    //
-    const CRYPTOPROVIDER_CRYPTOPRO = 'CRYPTO_PRO';
-    const CRYPTOPROVIDER_CRYPTOPRO_2012 = 'CRYPTO_PRO_2012'; //По умолчанию
-    const CRYPTOPROVIDER_JACARTA = 'JA_CARTA';
-    const CRYPTOPROVIDER_RUTOKEN_GOST = 'RUTOKEN_GOST';
-    const CRYPTOPROVIDER_VIPNET = 'VIPNET';
-    const CRYPTOPROVIDER_VIPNET_2012 = 'VIPNET_2012';
-    const CRYPTOPROVIDER_ESMART = 'ESMART';
-    const CRYPTOPROVIDER_ESMART_2012 = 'ESMART_2012';
-    const CRYPTOPROVIDER_JACARTA_2012 = 'JA_CARTA_2012';
-    const CRYPTOPROVIDER_RUTOKEN_GOST_2012 = 'RUTOKEN_GOST_2012';
-    const CRYPTOPROVIDER_CRYPTOPRO_CLOUD_CSP = 'CRYPTO_PRO_CLOUD_CSP';
-
     /**
      * ID сделки в CRM, в которую будет добавлена заявка
      *
@@ -62,10 +26,13 @@ class SendCustomerForm
     /**
      * Организационно-правовая форма
      *
-     * @see self::CUSTOMER_LEGAL_FORM_LEGAL
+     * @see CUSTOMER_LEGAL_FORM_LEGAL
      * @var string
      */
     public $customerLegalForm;
+    const CUSTOMER_LEGAL_FORM_LEGAL = 'legal';           //Юр. лицо
+    const CUSTOMER_LEGAL_FORM_INDIVIDUAL = 'individual'; //ИП
+    const CUSTOMER_LEGAL_FORM_PERSON = 'person';         //Физ. лицо
 
     /**
      * Если передан, изменяется запись с указанным ID, иначе создается новая заявка
@@ -77,10 +44,21 @@ class SendCustomerForm
     /**
      * Криптопровайдер
      *
-     * @see self::CRYPTOPROVIDER_CRYPTOPRO_2012
+     * @see CRYPTOPROVIDER_CRYPTOPRO_2012
      * @var string
      */
     public $cryptoProvider;
+    const CRYPTOPROVIDER_CRYPTOPRO = 'CRYPTO_PRO';
+    const CRYPTOPROVIDER_CRYPTOPRO_2012 = 'CRYPTO_PRO_2012'; //По умолчанию
+    const CRYPTOPROVIDER_JACARTA = 'JA_CARTA';
+    const CRYPTOPROVIDER_RUTOKEN_GOST = 'RUTOKEN_GOST';
+    const CRYPTOPROVIDER_VIPNET = 'VIPNET';
+    const CRYPTOPROVIDER_VIPNET_2012 = 'VIPNET_2012';
+    const CRYPTOPROVIDER_ESMART = 'ESMART';
+    const CRYPTOPROVIDER_ESMART_2012 = 'ESMART_2012';
+    const CRYPTOPROVIDER_JACARTA_2012 = 'JA_CARTA_2012';
+    const CRYPTOPROVIDER_RUTOKEN_GOST_2012 = 'RUTOKEN_GOST_2012';
+    const CRYPTOPROVIDER_CRYPTOPRO_CLOUD_CSP = 'CRYPTO_PRO_CLOUD_CSP';
 
     /**
      * ID пользователя в CRM, который будет назначен владельцем. По умолчанию - владелец сделки
@@ -101,7 +79,7 @@ class SendCustomerForm
      *
      * @var bool
      */
-    public $embededCP = false;
+    public $embededCP;
 
     /**
      * ИНН клиента
@@ -127,11 +105,9 @@ class SendCustomerForm
     public $phone;
 
     /**
-     * КПП организации сертификата
-     *
-     * @var string
+     * @var SendCustomerFormData|null
      */
-    public $kpp;
+    public $formData;
 
     /**
      * ОГРН организации
@@ -143,9 +119,22 @@ class SendCustomerForm
     /**
      * На кого выпускается подпись
      *
+     * @see CUSTOMER_TARGET_OWNER
      * @var string
      */
     public $customerTarget;
+    const CUSTOMER_TARGET_OWNER = 'owner';               //Руководитель организации (ИП) (по умолчанию)
+    const CUSTOMER_TARGET_CONFIDANT = 'confidant';       //Доверенное лицо организации (ИП)
+
+    /**
+     * Кто получает подпись
+     *
+     * @see CUSTOMER_RECEIVER_RECEIVER
+     * @var string
+     */
+    public $customerReceiver;
+    const CUSTOMER_RECEIVER_RECEIVER = 'personally'; // лично
+    const CUSTOMER_RECEIVER_CONFIDANT = 'confidant'; // доверенное лицо
 
     /**
      * Дополнительный продукт.
@@ -153,4 +142,23 @@ class SendCustomerForm
      * @var SendProductTemplate[] $additionalProducts
      */
     public $additionalProducts;
+
+    /**
+     * Требуется ли сверка документов (трансфер)
+     *
+     * @var bool
+     */
+    public $transferNotRequired;
+    /**
+     * id склада / точки сверки
+     *
+     * @var int
+     */
+    public $transferStoreId;
+    /**
+     * Комментарии по заявке в свободной форме
+     *
+     * @var string
+     */
+    public $description;
 }

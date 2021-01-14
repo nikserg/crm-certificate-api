@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/nikserg/crm-certificate-api.svg?branch=master)](https://travis-ci.org/nikserg/crm-certificate-api)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nikserg/crm-certificate-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/nikserg/crm-certificate-api/?branch=master)
+
+
 # crm-certificate-api
 
 API для системы https://crm.uc-itcom.ru/
@@ -9,7 +13,7 @@ API для системы https://crm.uc-itcom.ru/
 ## Запуск
 
 ```php
-$client = new Client(<api-ключ>, Client::PRODUCTION_URL); //Для теста использовать Client::TEST_URL
+$client = new Client(<api-ключ>, 'https://crm.uc-itcom.ru/index.php/'); // or 'https://dev.uc-itcom.ru/index.php/'
 ```
 
 ## Функции
@@ -23,10 +27,7 @@ $client = new Client(<api-ключ>, Client::PRODUCTION_URL); //Для тест�
 * `$client->deleteCustomerForm($customerFormCrmId)` - удаление заявки на сертификат
 * `$client->getCustomerFormClaim($customerFormCrmId, $format = 'pdf')` - получение содержимого файла заявления на выпуск сертификата
 * `$client->getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')` - получение содержимого файла бланка сертификата
-* `$client->getEgrul($customerFormCrmId)` - получение выписки из ЕГРЮЛ по заявке на сертификат
 * `$client->sendCustomerFormData($crmCustomerFormId, SendCustomerFormData $customerFormData)` - заполнение формы заявления на выпуск сертификата
-* `$client->getPassportCheck($series, $number)` - проверка паспорта через ЕСИА
-* `$client->getSnilsCheck($customerFormCrmId)` - проверка СНИЛС через ЕСИА
 
 ### Без запроса к API
 
