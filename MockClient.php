@@ -165,6 +165,7 @@ class MockClient extends Client
     public function checkPassport(CheckPassport $request)
     {
         $response = new PassportCheck();
+        $response->created = date("Y-m-d H:i:s");
         if ($request->number == self::PASSPORTCHECK_INVALID_NUMBER) {
             $response->comment = 'Паспорт не существует (тест)';
             $response->status = Semantic::NEGATIVE;
