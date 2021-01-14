@@ -19,4 +19,10 @@ class PassportCheck
      * @var string
      */
     public $comment;
+
+    /**
+     * @var string
+     */
+    public $created;
+
 }
