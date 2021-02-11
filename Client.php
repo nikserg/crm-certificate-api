@@ -10,11 +10,11 @@ use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\exceptions\ServerException;
 use nikserg\CRMCertificateAPI\exceptions\TransportException;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
-use nikserg\CRMCertificateAPI\models\request\CheckSnils;
-use nikserg\CRMCertificateAPI\models\request\Egrul as EgrulRequest;
 use nikserg\CRMCertificateAPI\models\request\CheckPassport;
+use nikserg\CRMCertificateAPI\models\request\CheckSnils;
 use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
+use nikserg\CRMCertificateAPI\models\request\Egrul as EgrulRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerFullPrice as PartnerFullPriceRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
@@ -22,19 +22,21 @@ use nikserg\CRMCertificateAPI\models\request\PartnerStores as PartnerStoresReque
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
+use nikserg\CRMCertificateAPI\models\request\SendOpportunity as SendOpportunityRequest;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
+use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
 use nikserg\CRMCertificateAPI\models\response\Esia\Egrul as EgrulResponse;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
-use nikserg\CRMCertificateAPI\models\response\models\Store;
-use nikserg\CRMCertificateAPI\models\response\PassportCheck;
-use nikserg\CRMCertificateAPI\models\response\SnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
-use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
+use nikserg\CRMCertificateAPI\models\response\models\Store;
+use nikserg\CRMCertificateAPI\models\response\PassportCheck;
 use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
+use nikserg\CRMCertificateAPI\models\response\SendOpportunity as SendOpportunityResponse;
+use nikserg\CRMCertificateAPI\models\response\SnilsCheck;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -187,6 +189,24 @@ class Client
     }
 
     /**
+     * Отправить запрос на создание/изменение сделки и создание/изменение клиента
+     *
+     *
+     * @param SendOpportunityRequest $sendOpportunity
+     * @return SendOpportunityResponse
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function sendOpportunity(SendOpportunityRequest $sendOpportunity)
+    {
+
+        $result = $this->requestJson('POST', 'pushOpportunity', $sendOpportunity);
+        return $this->fill(SendOpportunityResponse::class, $result);
+    }
+
+    /**
      * Получить информацию о заявке на сертификат
      *
      * @param int $customerFormCrmId
@@ -207,7 +227,7 @@ class Client
     }
 
     /**
-     * Получить информацию о сделки
+     * Получить информацию о сделке
      *
      * @param $opportunityCrmId
      * @return GetOpportunity
@@ -543,6 +563,8 @@ class Client
     {
         $model = new $class;
         foreach ($attributes as $attribute => $value) {
+            //zurmo-id => zurmoid
+            $attribute = str_replace('-', '', $attribute);
             $model->$attribute = $value;
         }
         return $model;
@@ -633,6 +655,18 @@ class Client
     public function certificateWriteUrl($customerFormId, $token)
     {
         return $this->url . '/customerForms/external/writeCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
+    }
+
+    /**
+     * Ссылка для оплаты счета онлайн
+     *
+     *
+     * @param $paymentToken
+     * @return string
+     */
+    public function paymentUrl($paymentToken)
+    {
+        return $this->url . '/clients/payment?paymentToken=' . $paymentToken;
     }
     #endregion urls
 }

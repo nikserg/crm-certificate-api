@@ -22,6 +22,8 @@ class SendCustomerForm
      * @var array
      */
     public $platforms;
+    const PLATFORM_EPGU = 'EPGU';
+    const PLATFORM_EPGU_NEP = 'EPGU_NEP';
 
     /**
      * Организационно-правовая форма
@@ -96,6 +98,8 @@ class SendCustomerForm
      * @var int
      */
     public $period;
+    const PERIOD_1_YEAR = 12;
+    const PERIOD_1_YEAR_3_MONTHS = 15;
 
     /**
      * Телефон получателя сертификата
