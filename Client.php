@@ -661,12 +661,13 @@ class Client
      * Ссылка для оплаты счета онлайн
      *
      *
-     * @param $paymentToken
+     * @param      $paymentToken
+     * @param bool $iframe
      * @return string
      */
-    public function paymentUrl($paymentToken)
+    public function paymentUrl($paymentToken, $iframe = false)
     {
-        return $this->url . '/clients/payment?paymentToken=' . $paymentToken;
+        return $this->url . '/clients/payment?paymentToken=' . $paymentToken . '&iframe=' . intval($iframe);
     }
     #endregion urls
 }

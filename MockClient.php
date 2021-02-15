@@ -3,6 +3,7 @@
 namespace nikserg\CRMCertificateAPI;
 
 
+use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\models\request\PartnerStores as PartnerStoresRequest;
 use nikserg\CRMCertificateAPI\models\response\models\Store;
 use nikserg\CRMCertificateAPI\models\response\PartnerStores as PartnerStoresResponse;
