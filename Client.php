@@ -494,8 +494,8 @@ class Client
         foreach (['union', 'passportphoto'] as $documentName) {
             $multipart[] = [
                 'name'     => $documentName,
-                'filename' => basename($documents->{$documentName.'Path'}),
-                'contents' => file_get_contents($documents->{$documentName.'Path'}),
+                'filename' => basename($documents->{$documentName . 'Path'}),
+                'contents' => file_get_contents($documents->{$documentName . 'Path'}),
             ];
         }
 
@@ -672,13 +672,14 @@ class Client
      * Ссылка для оплаты счета онлайн
      *
      *
-     * @param      $paymentToken
-     * @param bool $iframe
+     * @param string $paymentToken
+     * @param bool   $iframe
+     * @param string $locale
      * @return string
      */
-    public function paymentUrl($paymentToken, $iframe = false)
+    public function paymentUrl($paymentToken, $iframe = false, $locale = 'ru')
     {
-        return $this->url . '/clients/payment?paymentToken=' . $paymentToken . '&iframe=' . intval($iframe);
+        return $this->url . '/clients/payment?paymentToken=' . $paymentToken . '&iframe=' . intval($iframe) . '&locale=' . $locale;
     }
     #endregion urls
 }
