@@ -490,7 +490,7 @@ class Client
             ];
         }
 
-        foreach (['union', 'passportPhoto'] as $documentName) {
+        foreach (['union', 'passportphoto'] as $documentName) {
             $multipart[] = [
                 'name'     => $documentName,
                 'filename' => basename($documents->{$documentName.'Path'}),

@@ -31,7 +31,7 @@ class CustomerFormDocuments
      *
      * @var string
      */
-    public $passportPhotoPath;
+    public $passportphotoPath;
 
     /**
      * Заявление на выпуск сертификата
