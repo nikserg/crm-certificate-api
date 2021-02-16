@@ -489,6 +489,15 @@ class Client
                 'contents' => $documents->signedBlank,
             ];
         }
+
+        foreach (['union', 'passportPhoto'] as $documentName) {
+            $multipart[] = [
+                'name'     => $documentName,
+                'filename' => basename($documents->{$documentName.'Path'}),
+                'contents' => file_get_contents($documents->{$documentName.'Path'}),
+            ];
+        }
+
         $this->request('POST', 'pushCustomerFormDocuments', [
             RequestOptions::MULTIPART => $multipart,
         ]);

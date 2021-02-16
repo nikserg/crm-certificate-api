@@ -2,6 +2,7 @@
 
 namespace nikserg\CRMCertificateAPI\models\request;
 
+
 class CustomerFormDocuments
 {
     /**
@@ -24,4 +25,18 @@ class CustomerFormDocuments
      * @var string
      */
     public $signedBlank;
+
+    /**
+     * Паспорт, страница с фото
+     *
+     * @var string
+     */
+    public $passportPhotoPath;
+
+    /**
+     * Заявление на выпуск сертификата
+     *
+     * @var string
+     */
+    public $unionPath;
 }
