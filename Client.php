@@ -33,6 +33,7 @@ use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
 use nikserg\CRMCertificateAPI\models\response\models\Store;
 use nikserg\CRMCertificateAPI\models\response\PassportCheck;
+use nikserg\CRMCertificateAPI\models\response\PushCustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use nikserg\CRMCertificateAPI\models\response\SendOpportunity as SendOpportunityResponse;
@@ -461,7 +462,7 @@ class Client
 
     /**
      * @param CustomerFormDocuments $documents
-     * @return bool
+     * @return PushCustomerFormDocuments
      * @throws InvalidRequestException
      * @throws NotFoundException
      * @throws ServerException
@@ -498,10 +499,11 @@ class Client
             ];
         }
 
-        $this->request('POST', 'pushCustomerFormDocuments', [
+        $response = $this->request('POST', 'pushCustomerFormDocuments', [
             RequestOptions::MULTIPART => $multipart,
         ]);
-        return true;
+        $response = json_decode($response->getBody()->getContents(), true);
+        return $this->fill(PushCustomerFormDocuments::class, $response);
     }
 
     /**
