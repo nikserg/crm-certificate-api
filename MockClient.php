@@ -7,6 +7,7 @@ use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
 use nikserg\CRMCertificateAPI\models\request\PartnerStores as PartnerStoresRequest;
 use nikserg\CRMCertificateAPI\models\response\models\Store;
 use nikserg\CRMCertificateAPI\models\response\PartnerStores as PartnerStoresResponse;
+use nikserg\CRMCertificateAPI\models\response\PushCustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\Semantic;
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\PaymentModes;
@@ -202,7 +203,13 @@ class MockClient extends Client
 
     public function pushCustomerFormDocuments(CustomerFormDocuments $documents)
     {
-        return true;
+        $return = new PushCustomerFormDocuments();
+        $return->union = 100;
+        $return->passportphoto = 100;
+        $return->customerFormId = $documents->customerFormId;
+        $return->signedBlank = 100;
+        $return->signedClaim = 100;
+        return $return;
     }
 
     public function detectPlatforms(DetectPlatformsRequest $request)
