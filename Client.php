@@ -492,10 +492,14 @@ class Client
         }
 
         foreach (['union', 'passportphoto'] as $documentName) {
+            $path = $documents->{$documentName . 'Path'};
+            if (!file_exists($path)) {
+                continue;
+            }
             $multipart[] = [
                 'name'     => $documentName,
                 'filename' => basename($documents->{$documentName . 'Path'}),
-                'contents' => file_get_contents($documents->{$documentName . 'Path'}),
+                'contents' => file_get_contents($path),
             ];
         }
 
