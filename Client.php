@@ -491,7 +491,7 @@ class Client
             ];
         }
 
-        foreach (['union', 'passportphoto'] as $documentName) {
+        foreach (['union', 'passportphoto', 'foreignerpassport'] as $documentName) {
             $path = $documents->{$documentName . 'Path'};
             if (!file_exists($path)) {
                 continue;
