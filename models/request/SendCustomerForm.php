@@ -170,10 +170,4 @@ class SendCustomerForm
      * @var string
      */
     public $description;
-
-
-    /**
-     * @var bool Обновить связанного клиента
-     */
-    public $updateRelatedAccount = true;
 }

@@ -82,4 +82,9 @@ class SendOpportunity
      * @var string
      */
     public $organization;
+
+    /**
+     * @var bool Обновить связанного клиента
+     */
+    public $updateRelatedAccount = true;
 }

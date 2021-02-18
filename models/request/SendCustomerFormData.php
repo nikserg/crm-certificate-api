@@ -46,6 +46,7 @@ class SendCustomerFormData
     public $SNILS;
 
     public $country;
+
     /**
      * @var bool Обновить связанного клиента
      */
