@@ -84,6 +84,11 @@ class SendCustomerForm
     public $embededCP;
 
     /**
+     * @var 1 - выпуск на иностранного гражданина, 0 (по умолчанию) - нет
+     */
+    public $isForeigner;
+
+    /**
      * ИНН клиента
      *
      *
@@ -165,4 +170,10 @@ class SendCustomerForm
      * @var string
      */
     public $description;
+
+
+    /**
+     * @var bool Обновить связанного клиента
+     */
+    public $updateRelatedAccount = true;
 }

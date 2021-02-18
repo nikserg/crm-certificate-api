@@ -44,4 +44,10 @@ class SendCustomerFormData
     public $OGRN;
     public $OGRNIP;
     public $SNILS;
+
+    public $country;
+    /**
+     * @var bool Обновить связанного клиента
+     */
+    public $updateRelatedAccount = true;
 }
