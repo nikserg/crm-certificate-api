@@ -45,4 +45,10 @@ class PushCustomerFormDocuments
      */
     public $union;
 
+    /**
+     * Нотариально заверенный перевод паспорта иностранного гражданина
+     * @var int
+     */
+    public $foreignerpassport;
+
 }

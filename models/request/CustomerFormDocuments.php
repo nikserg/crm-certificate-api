@@ -39,4 +39,11 @@ class CustomerFormDocuments
      * @var string
      */
     public $unionPath;
+
+    /**
+     * Нотариально заверенный перевод паспорта иностранного гражданина
+     *
+     * @var string
+     */
+    public $foreignerpassportPath;
 }

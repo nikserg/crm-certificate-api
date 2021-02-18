@@ -209,6 +209,7 @@ class MockClient extends Client
         $return->customerFormId = $documents->customerFormId;
         $return->signedBlank = 100;
         $return->signedClaim = 100;
+        $return->foreignerpassport = 100;
         return $return;
     }
 
