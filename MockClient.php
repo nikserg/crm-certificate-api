@@ -52,8 +52,8 @@ class MockClient extends Client
     public const PASSPORTCHECK_INVALID_NUMBER = '222222';
 
     // Данные для запроса ЕГРЮЛ
-    public const EGRUL_IP_KULSH = PHP_INT_MAX - 2; // Выписка для ИП Кулиш Янина Викторовна
-    public const EGRUL_LEGAL_ITK = PHP_INT_MAX - 1; // Пыписка для юридического лица ООО "ИТК"
+    public const EGRUL_IP_KULSH =  9000000 - 2; // Выписка для ИП Кулиш Янина Викторовна
+    public const EGRUL_LEGAL_ITK = 9000000 - 1; // Пыписка для юридического лица ООО "ИТК"
 
     private static $data;
 
