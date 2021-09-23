@@ -178,6 +178,11 @@ class MockClient extends Client
         return $response;
     }
 
+    public function checkPassportExtended(CheckPassport $request)
+    {
+        return $this->checkPassport($request);
+    }
+
     public function checkSnils(CheckSnils $request)
     {
         $response = new SnilsCheck();

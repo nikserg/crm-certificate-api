@@ -377,7 +377,7 @@ class Client
     }
 
     /**
-     * Расширенная проверка паспортных данных
+     * Обычная проверка паспортных данных
      *
      * @param CheckPassport $request
      * @return PassportCheck
@@ -389,6 +389,23 @@ class Client
     public function checkPassport(CheckPassport $request)
     {
         $result = $this->requestJson('GET', 'checkPassport', $request);
+        return $this->fill(PassportCheck::class, $result);
+    }
+
+    /**
+     * Расширенная проверка паспортных данных
+     *
+     *
+     * @param \nikserg\CRMCertificateAPI\models\request\CheckPassport $request
+     * @return mixed
+     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     */
+    public function checkPassportExtended(CheckPassport $request) {
+
+        $result = $this->requestJson('GET', 'checkPassportExtended', $request);
         return $this->fill(PassportCheck::class, $result);
     }
 
