@@ -180,4 +180,11 @@ class SendCustomerForm
      * @var string
      */
     public $description;
+
+    /**
+     * Выпуск на бюджетную организацию
+     *
+     * @var bool
+     */
+    public $budgetOrganization;
 }
