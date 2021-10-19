@@ -62,6 +62,7 @@ class Egrul
             $this->head->middleName = $data->headMiddleName;
             $this->head->lastName = $data->headLastName;
             $this->head->jobName = $data->headPosition ?? null;
+            $this->head->inn = $data->headInn ?? null;
         }
     }
 }

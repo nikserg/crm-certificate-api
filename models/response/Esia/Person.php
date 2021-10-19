@@ -13,6 +13,7 @@ class Person
     public $lastName;
     public $middleName;
     public $jobName;
+    public $inn;
 
     /**
      * @return string
