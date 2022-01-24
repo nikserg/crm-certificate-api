@@ -702,5 +702,32 @@ class Client
     {
         return $this->url . '/clients/payment?paymentToken=' . $paymentToken . '&iframe=' . intval($iframe) . '&locale=' . $locale;
     }
+
+    /**
+     * Бланк сертификата
+     *
+     * @param $customerFormId
+     * @param $token
+     *
+     * @return string
+     */
+    public function uploadCertificateBlank($customerFormId, $token)
+    {
+        return $this->url.'/customerForms/external/uploadCertificateBlank?token='.$token.'&customerFormId='.$customerFormId;
+    }
+
+    /**
+     * Бланк отзыва сертификата
+     *
+     * @param $customerFormId
+     * @param $token
+     *
+     * @return string
+     */
+    public function uploadRevocationCertificateBlank($customerFormId, $token)
+    {
+        return $this->url.'/customerForms/external/uploadRevocationCertificateBlank?token='.$token.'&customerFormId='.$customerFormId;
+    }
+
     #endregion urls
 }
