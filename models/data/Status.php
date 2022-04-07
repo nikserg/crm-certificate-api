@@ -3,6 +3,7 @@ namespace nikserg\CRMCertificateAPI\models\data;
 class Status {
     const INIT = 0; //Не заполнено
     const CALLBACK = 5; // Требуется связаться с клиентом
+    const FILLSTATUS_NEED_PREREQUEST = 7; //Нужно сформировать запрос на выпуск
     const FORMFILLED = 10; //Форма заполнена, документы не прикреплены
     const CERTIFICATE_REQUEST_DECLINED = 19; //Запрос сертификата отклонен
     const REFILL = 20; //Необходимо повторно заполнить форму
