@@ -665,6 +665,14 @@ class Client
         return $return;
     }
 
+    public function prerequestUrl($token, $iframe = false) {
+
+        $return = $this->url . '/customerForms/external/generate?token=' . $token;
+        if ($iframe) {
+            $return .= '&iframe=1';
+        }
+        return $return;
+    }
     /**
      * Ссылка на фрейм
      *
