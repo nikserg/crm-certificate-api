@@ -667,7 +667,7 @@ class Client
 
     public function prerequestUrl($token, $iframe = false) {
 
-        $return = $this->url . '/customerForms/external/generate?token=' . $token;
+        $return = $this->url . '/customerForms/external/prerequest?token=' . $token;
         if ($iframe) {
             $return .= '&iframe=1';
         }
