@@ -66,7 +66,7 @@ class Client
      * @param string $apiKey
      * @param string $url
      */
-    public function __construct($apiKey, $url = 'https://crm.uc-itcom.ru/index.php')
+    public function __construct(string $apiKey, string $url = 'https://crm.uc-itcom.ru/index.php')
     {
         $this->apiKey = $apiKey;
         $this->url = trim($url, " /");
@@ -77,16 +77,16 @@ class Client
     }
 
     /**
-     * @param       $method
-     * @param       $endpoint
-     * @param array $options
+     * @param string $method
+     * @param string $endpoint
+     * @param array  $options
      * @return ResponseInterface
      * @throws NotFoundException
      * @throws ServerException
      * @throws TransportException
      * @throws InvalidRequestException
      */
-    protected function request($method, $endpoint, $options = [])
+    protected function request(string $method, string $endpoint, array $options = []): ResponseInterface
     {
         $options[RequestOptions::QUERY]['key'] = $this->apiKey;
         try {
@@ -110,17 +110,17 @@ class Client
     }
 
     /**
-     * @param       $method
-     * @param       $endpoint
-     * @param       $data
-     * @param array $options
+     * @param string $method
+     * @param string $endpoint
+     * @param mixed  $data
+     * @param array  $options
      * @return mixed
      * @throws NotFoundException
      * @throws ServerException
      * @throws TransportException
      * @throws InvalidRequestException
      */
-    protected function requestJson($method, $endpoint, $data, $options = [])
+    protected function requestJson(string $method, string $endpoint, $data, array $options = [])
     {
         $options[RequestOptions::QUERY]['key'] = $this->apiKey;
         $options[RequestOptions::JSON] = $data;
@@ -170,6 +170,7 @@ class Client
         if ($jsonErrorCode !== JSON_ERROR_NONE) {
             throw new TransportException("$jsonErrorMessage: $body", $jsonErrorCode);
         }
+
         return $json;
     }
 
@@ -183,9 +184,10 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function sendCustomerForm(SendCustomerFormRequest $customerForm)
+    public function sendCustomerForm(SendCustomerFormRequest $customerForm): SendCustomerFormResponse
     {
         $result = $this->requestJson('POST', 'pushCustomerForm', $customerForm);
+
         return $this->fill(SendCustomerFormResponse::class, $result);
     }
 
@@ -200,10 +202,11 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function sendOpportunity(SendOpportunityRequest $sendOpportunity)
+    public function sendOpportunity(SendOpportunityRequest $sendOpportunity): SendOpportunityResponse
     {
 
         $result = $this->requestJson('POST', 'pushOpportunity', $sendOpportunity);
+
         return $this->fill(SendOpportunityResponse::class, $result);
     }
 
@@ -217,33 +220,35 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function getCustomerForm($customerFormCrmId)
+    public function getCustomerForm(int $customerFormCrmId): GetCustomerForm
     {
         $result = $this->getJsonBody($this->request('GET', 'pullCustomerForm', [
             RequestOptions::QUERY => [
                 'id' => $customerFormCrmId,
             ],
         ]));
+
         return $this->fill(GetCustomerForm::class, $result);
     }
 
     /**
      * Получить информацию о сделке
      *
-     * @param $opportunityCrmId
+     * @param int $opportunityCrmId
      * @return GetOpportunity
      * @throws InvalidRequestException
      * @throws NotFoundException
      * @throws ServerException
      * @throws TransportException
      */
-    public function getOpportunity($opportunityCrmId)
+    public function getOpportunity(int $opportunityCrmId): GetOpportunity
     {
         $result = $this->getJsonBody($this->request('GET', 'pullOpportunity', [
             RequestOptions::QUERY => [
                 'id' => $opportunityCrmId,
             ],
         ]));
+
         return $this->fill(GetOpportunity::class, $result);
     }
 
@@ -258,7 +263,7 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function changeStatus(ChangeStatus $changeStatus)
+    public function changeStatus(ChangeStatus $changeStatus): BooleanResponse
     {
         $result = $this->requestJson('POST', 'pushCustomerFormStatus', $changeStatus);
         $response = new BooleanResponse();
@@ -267,6 +272,7 @@ class Client
         if (!$response->status) {
             throw new BooleanResponseException('Ошибка при обновлении статуса в CRM ' . print_r($response, true));
         }
+
         return $response;
     }
 
@@ -281,7 +287,7 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function deleteCustomerForm($customerFormCrmId)
+    public function deleteCustomerForm(int $customerFormCrmId): BooleanResponse
     {
         $result = $this->getJsonBody($this->request('GET', 'deleteCustomerForm', [
             RequestOptions::QUERY => [
@@ -294,6 +300,7 @@ class Client
         if (!$response->status) {
             throw new BooleanResponseException('Ошибка при удалении заявки в CRM ' . print_r($response, true));
         }
+
         return $response;
     }
 
@@ -308,7 +315,7 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function getCustomerFormClaim($customerFormCrmId, $format = 'pdf')
+    public function getCustomerFormClaim(int $customerFormCrmId, string $format = 'pdf'): string
     {
         $result = $this->request('GET', 'union', [
             RequestOptions::QUERY => [
@@ -316,6 +323,7 @@ class Client
                 'format' => $format,
             ],
         ]);
+
         return $result->getBody()->getContents();
     }
 
@@ -330,7 +338,7 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')
+    public function getCustomerFormCertificateBlank(int $customerFormCrmId, string $format = 'pdf'): string
     {
         $result = $this->request('GET', 'certificateBlank', [
             RequestOptions::QUERY => [
@@ -338,6 +346,7 @@ class Client
                 'format' => $format,
             ],
         ]);
+
         return $result->getBody()->getContents();
     }
 
@@ -351,7 +360,7 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function egrul(EgrulRequest $request)
+    public function egrul(EgrulRequest $request): EgrulResponse
     {
         return new EgrulResponse($this->requestJson('GET', 'egrul', $request));
     }
@@ -367,12 +376,15 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function sendCustomerFormData($crmCustomerFormId, SendCustomerFormData $customerFormData)
-    {
+    public function sendCustomerFormData(
+        int $crmCustomerFormId,
+        SendCustomerFormData $customerFormData
+    ): SendCustomerFormResponse {
         $result = $this->requestJson('POST', 'pushCustomerFormData', [
             'id'       => $crmCustomerFormId,
             'formData' => $customerFormData,
         ]);
+
         return $this->fill(SendCustomerFormResponse::class, $result);
     }
 
@@ -386,9 +398,10 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function checkPassport(CheckPassport $request)
+    public function checkPassport(CheckPassport $request): PassportCheck
     {
         $result = $this->requestJson('GET', 'checkPassport', $request);
+
         return $this->fill(PassportCheck::class, $result);
     }
 
@@ -403,9 +416,11 @@ class Client
      * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
      * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
      */
-    public function checkPassportExtended(CheckPassport $request) {
+    public function checkPassportExtended(CheckPassport $request)
+    {
 
         $result = $this->requestJson('GET', 'checkPassportExtended', $request);
+
         return $this->fill(PassportCheck::class, $result);
     }
 
@@ -419,9 +434,10 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function checkSnils(CheckSnils $request)
+    public function checkSnils(CheckSnils $request): SnilsCheck
     {
         $result = $this->requestJson('GET', 'checkSnils', $request);
+
         return $this->fill(SnilsCheck::class, $result);
     }
 
@@ -435,12 +451,13 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function getReferralUser(SendCheckRef $sendCheckRef)
+    public function getReferralUser(SendCheckRef $sendCheckRef): ?ReferralUser
     {
         $result = $this->requestJson('POST', 'getRefUserInfo', $sendCheckRef);
         if ($result === null) {
             return null;
         }
+
         return $this->fill(ReferralUser::class, $result);
     }
 
@@ -454,7 +471,7 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function detectPlatforms(DetectPlatformsRequest $request)
+    public function detectPlatforms(DetectPlatformsRequest $request): array
     {
         $result = $this->requestJson('POST', 'detectPlatforms', $request);
         if (empty($result->variants)) {
@@ -474,6 +491,7 @@ class Client
             $variantModel->excluded = $variant->excluded;
             $return[] = $variantModel;
         }
+
         return $return;
     }
 
@@ -485,7 +503,7 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function pushCustomerFormDocuments(CustomerFormDocuments $documents)
+    public function pushCustomerFormDocuments(CustomerFormDocuments $documents): PushCustomerFormDocuments
     {
         $multipart = [
             [
@@ -524,6 +542,7 @@ class Client
             RequestOptions::MULTIPART => $multipart,
         ]);
         $response = json_decode($response->getBody()->getContents(), true);
+
         return $this->fill(PushCustomerFormDocuments::class, $response);
     }
 
@@ -537,9 +556,10 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function getPartnerPlatformsAll(PartnerPlatformsRequest $request)
+    public function getPartnerPlatformsAll(PartnerPlatformsRequest $request): array
     {
         $result = $this->requestJson('POST', 'getPartnerPlatforms', $request);
+
         return $this->fillList(PartnerPlatform::class, $result->platforms);
     }
 
@@ -553,9 +573,10 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function getPartnerProductsAll(PartnerProductsRequest $request)
+    public function getPartnerProductsAll(PartnerProductsRequest $request): array
     {
         $result = $this->requestJson('POST', 'getPartnerProducts', $request);
+
         return $this->fillList(PartnerProduct::class, $result->products);
     }
 
@@ -569,9 +590,10 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest)
+    public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest): float
     {
         $result = $this->requestJson('POST', 'getPartnerFullPrice', $fullPriceRequest);
+
         return $result->price;
     }
 
@@ -585,12 +607,18 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function getPartnerStores(PartnerStoresRequest $partnerStores)
+    public function getPartnerStores(PartnerStoresRequest $partnerStores): array
     {
         $result = $this->requestJson('POST', 'getPartnerStores', $partnerStores);
+
         return $this->fillList(Store::class, $result->stores);
     }
 
+    /**
+     * @param $class
+     * @param $attributes
+     * @return mixed
+     */
     public function fill($class, $attributes)
     {
         $model = new $class;
@@ -599,15 +627,17 @@ class Client
             $attribute = str_replace('-', '', $attribute);
             $model->$attribute = $value;
         }
+
         return $model;
     }
 
-    public function fillList($class, $list)
+    public function fillList($class, $list): array
     {
         $models = [];
         foreach ($list as $item) {
             $models[] = $this->fill($class, $item);
         }
+
         return $models;
     }
 
@@ -620,7 +650,7 @@ class Client
      * @param $token
      * @return string
      */
-    public function certificateDownloadUrl($customerFormId, $token)
+    public function certificateDownloadUrl($customerFormId, $token): string
     {
         return $this->url . '/customerForms/external/downloadCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
     }
@@ -632,7 +662,7 @@ class Client
      * @param $token
      * @return string
      */
-    public function realizationDownloadUrl($customerFormId, $token)
+    public function realizationDownloadUrl($customerFormId, $token): string
     {
         return $this->url . '/customerForms/external/downloadFirstRealization?token=' . $token . '&customerFormId=' . $customerFormId;
     }
@@ -643,7 +673,7 @@ class Client
      * @param $token
      * @return string
      */
-    public function editUrl($token)
+    public function editUrl($token): string
     {
         return $this->url . '/customerForms/external?token=' . $token;
     }
@@ -656,23 +686,27 @@ class Client
      * @param bool $iframe Выводить отображение для фрейма
      * @return string
      */
-    public function generationUrl($token, $generatonToken, $iframe = false)
+    public function generationUrl($token, $generatonToken, $iframe = false): string
     {
         $return = $this->url . '/customerForms/external/generate?token=' . $token . '&generationToken=' . $generatonToken;
         if ($iframe) {
             $return .= '&iframe=1';
         }
+
         return $return;
     }
 
-    public function prerequestUrl($token, $iframe = false) {
+    public function prerequestUrl($token, $iframe = false): string
+    {
 
         $return = $this->url . '/customerForms/external/prerequest?token=' . $token;
         if ($iframe) {
             $return .= '&iframe=1';
         }
+
         return $return;
     }
+
     /**
      * Ссылка на фрейм
      *
@@ -680,7 +714,7 @@ class Client
      * @param $token
      * @return string
      */
-    public function customerFormFrameUrl($customerFormId, $token)
+    public function customerFormFrameUrl($customerFormId, $token): string
     {
         return $this->url . '/customerForms/external/step1?token=' . $token . '&customerFormId=' . $customerFormId;
     }
@@ -692,7 +726,7 @@ class Client
      * @param $token
      * @return string
      */
-    public function certificateWriteUrl($customerFormId, $token)
+    public function certificateWriteUrl($customerFormId, $token): string
     {
         return $this->url . '/customerForms/external/writeCertificate?token=' . $token . '&customerFormId=' . $customerFormId;
     }
@@ -706,7 +740,7 @@ class Client
      * @param string $locale
      * @return string
      */
-    public function paymentUrl($paymentToken, $iframe = false, $locale = 'ru')
+    public function paymentUrl(string $paymentToken, bool $iframe = false, string $locale = 'ru'): string
     {
         return $this->url . '/clients/payment?paymentToken=' . $paymentToken . '&iframe=' . intval($iframe) . '&locale=' . $locale;
     }
@@ -719,9 +753,9 @@ class Client
      *
      * @return string
      */
-    public function uploadCertificateBlank($customerFormId, $token)
+    public function uploadCertificateBlank($customerFormId, $token): string
     {
-        return $this->url.'/customerForms/external/uploadCertificateBlank?token='.$token.'&customerFormId='.$customerFormId;
+        return $this->url . '/customerForms/external/uploadCertificateBlank?token=' . $token . '&customerFormId=' . $customerFormId;
     }
 
     /**
@@ -732,9 +766,9 @@ class Client
      *
      * @return string
      */
-    public function uploadRevocationCertificateBlank($customerFormId, $token)
+    public function uploadRevocationCertificateBlank($customerFormId, $token): string
     {
-        return $this->url.'/customerForms/external/uploadRevocationCertificateBlank?token='.$token.'&customerFormId='.$customerFormId;
+        return $this->url . '/customerForms/external/uploadRevocationCertificateBlank?token=' . $token . '&customerFormId=' . $customerFormId;
     }
 
     #endregion urls

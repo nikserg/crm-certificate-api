@@ -3,39 +3,37 @@
 namespace nikserg\CRMCertificateAPI;
 
 
-use nikserg\CRMCertificateAPI\exceptions\BooleanResponseException;
-use nikserg\CRMCertificateAPI\models\request\PartnerStores as PartnerStoresRequest;
-use nikserg\CRMCertificateAPI\models\response\models\Store;
-use nikserg\CRMCertificateAPI\models\response\PartnerStores as PartnerStoresResponse;
-use nikserg\CRMCertificateAPI\models\response\PushCustomerFormDocuments;
-use nikserg\CRMCertificateAPI\models\Semantic;
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\PaymentModes;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
 use nikserg\CRMCertificateAPI\models\request\CheckPassport;
 use nikserg\CRMCertificateAPI\models\request\CheckSnils;
 use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
+use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\Egrul as EgrulRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerFullPrice as PartnerFullPriceRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
-use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
-use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
+use nikserg\CRMCertificateAPI\models\request\PartnerStores as PartnerStoresRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
+use nikserg\CRMCertificateAPI\models\request\SendCustomerForm;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
+use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
+use nikserg\CRMCertificateAPI\models\response\Esia\Egrul as EgrulResponse;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
-use nikserg\CRMCertificateAPI\models\response\PassportCheck;
-use nikserg\CRMCertificateAPI\models\response\SnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
+use nikserg\CRMCertificateAPI\models\response\models\Store;
+use nikserg\CRMCertificateAPI\models\response\PassportCheck;
+use nikserg\CRMCertificateAPI\models\response\PushCustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
-use nikserg\CRMCertificateAPI\models\request\SendCustomerForm;
-use nikserg\CRMCertificateAPI\models\response\Esia\Egrul as EgrulResponse;
+use nikserg\CRMCertificateAPI\models\response\SnilsCheck;
+use nikserg\CRMCertificateAPI\models\Semantic;
 
 /**
  * Тестовый клиент для связи с API CRM
@@ -52,18 +50,23 @@ class MockClient extends Client
     public const PASSPORTCHECK_INVALID_NUMBER = '222222';
 
     // Данные для запроса ЕГРЮЛ
-    public const EGRUL_IP_KULSH =  9000000 - 2; // Выписка для ИП Кулиш Янина Викторовна
+    public const EGRUL_IP_KULSH = 9000000 - 2; // Выписка для ИП Кулиш Янина Викторовна
     public const EGRUL_LEGAL_ITK = 9000000 - 1; // Пыписка для юридического лица ООО "ИТК"
 
     private static $data;
+
+    private static function mockFilename(): string
+    {
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'mock.runtime';
+    }
 
     private static function getData()
     {
         if (!empty(self::$data)) {
             return self::$data;
         }
-        if (file_exists(__DIR__ . '/mock.runtime')) {
-            self::$data = unserialize(file_get_contents(__DIR__ . '/mock.runtime'));
+        if (file_exists(self::mockFilename())) {
+            self::$data = unserialize(file_get_contents(self::mockFilename()));
         } else {
             self::$data = [
                 'currentId'     => 1,
@@ -72,36 +75,38 @@ class MockClient extends Client
                 ],
             ];
         }
+
         return self::$data;
     }
 
     private static function flushData($data)
     {
         self::$data = $data;
-        file_put_contents(__DIR__ . '/mock.runtime', serialize(self::$data));
+        file_put_contents(self::mockFilename(), serialize(self::$data));
     }
 
-    public function egrul(EgrulRequest $request)
+    public function egrul(EgrulRequest $request): EgrulResponse
     {
         if ($request->customerForm == self::EGRUL_IP_KULSH) {
             return new EgrulResponse(json_decode('{ "id": 695854, "status": 2, "comment": "ok","data": { "organizationShortName": "ИП КУЛИШ ЯНИНА ВИКТОРОВНА", "OGRNIP": "306232719200028", "INN": "232702943100", "headLastName": "Кулиш", "headFirstName": "Янина", "headMiddleName": "Викторовна", "ownerGender": 2 }, "customerFormId": "559196" }'));
         } elseif ($request->customerForm == self::EGRUL_LEGAL_ITK) {
             return new EgrulResponse(json_decode('{ "id": 689373, "status": 2, "comment": "ok", "data": { "organizationShortName": "ООО \"ИТК\"", "organizationFullName": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ИНТЕРНЕТ ТЕХНОЛОГИИ И КОММУНИКАЦИИ\"", "OGRN": "1112310000220", "INN": "2310152134", "KPP": "230801001", "fiasAddress": "КРАЙ КРАСНОДАРСКИЙ, ГОРОД КРАСНОДАР, УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "rawParticipators": [ " ", " ", " " ], "rawRegion": "КРАЙ КРАСНОДАРСКИЙ", "rawCity": "КРАСНОДАР", "rawOffice": "ПОМЕЩЕНИЕ 140", "rawHouse": "ДОМ 39\/3", "rawStreet": "УЛИЦА ДАЛЬНЯЯ", "postcode": "350051", "region": "23 Краснодарский край", "city": "Краснодар", "street": "УЛИЦА ДАЛЬНЯЯ, ДОМ 39\/3, ПОМЕЩЕНИЕ 140", "headLastName": "Сорокин", "headFirstName": "Дмитрий", "headMiddleName": "Викторович", "headPosition": "Генеральный директор" }, "customerFormId": "557436" }'));
         }
+
         return new EgrulResponse(json_decode('{"id":1,"status":2,"comment":"ok","data":{"organizationShortName":"ООО \"ИТК\"","organizationFullName":"ООО \"ИТК\"","OGRN":"1112310000220","INN":"2310152134","KPP":"12345678","region":"KRD","city":"Krasnodar","street":"One way st.","fiasAddress":"Krasnodar, One way st. 1337","headFirstName":"Дмитрий","headMiddleName":"Викторович","headLastName":"Сорокин","headPosition":"Генеральный директор"}}'));
     }
 
-    public function getCustomerFormCertificateBlank($customerFormCrmId, $format = 'pdf')
+    public function getCustomerFormCertificateBlank(int $customerFormCrmId, string $format = 'pdf'): string
     {
         return base64_encode(file_get_contents(__DIR__ . '/data/blank.pdf'));
     }
 
-    public function getCustomerFormClaim($customerFormCrmId, $format = 'pdf')
+    public function getCustomerFormClaim(int $customerFormCrmId, string $format = 'pdf'): string
     {
         return base64_encode(file_get_contents(__DIR__ . '/data/claim.pdf'));
     }
 
-    public function sendCustomerForm(SendCustomerFormRequest $customerForm)
+    public function sendCustomerForm(SendCustomerFormRequest $customerForm): SendCustomerFormResponse
     {
         $response = new SendCustomerFormResponse();
         if ($customerForm->id) {
@@ -115,10 +120,11 @@ class MockClient extends Client
         }
         $response->token = 'crmToken';
         $response->generationToken = 'crmGenerateToken';
+
         return $response;
     }
 
-    public function getCustomerForm($customerFormCrmId)
+    public function getCustomerForm(int $customerFormCrmId): GetCustomerForm
     {
         $response = new GetCustomerForm();
         $data = self::getData();
@@ -126,45 +132,52 @@ class MockClient extends Client
         $response->tokenCertificate = 'crmToken';
         $response->token = 'token';
         $response->opportunityId = 1;
+
         return $response;
     }
 
-    public function getOpportunity($opportunityCrmId)
+    public function getOpportunity(int $opportunityCrmId): GetOpportunity
     {
         $response = new GetOpportunity();
         $response->isPay = true;
         $response->accountId = 1;
         $response->paymentToken = 'paymentToken';
+
         return $response;
     }
 
-    public function changeStatus(ChangeStatus $changeStatus)
+    public function changeStatus(ChangeStatus $changeStatus): BooleanResponse
     {
         $data = self::getData();
         $data['currentStatus'][$changeStatus->id] = $changeStatus->status;
         self::flushData($data);
         $response = new BooleanResponse();
         $response->status = true;
+
         return $response;
     }
 
-    public function deleteCustomerForm($customerFormCrmId)
+    public function deleteCustomerForm(int $customerFormCrmId): BooleanResponse
     {
         $response = new BooleanResponse();
         $response->status = true;
+
         return $response;
     }
 
-    public function sendCustomerFormData($crmCustomerFormId, SendCustomerFormData $customerFormData)
-    {
+    public function sendCustomerFormData(
+        int $crmCustomerFormId,
+        SendCustomerFormData $customerFormData
+    ): SendCustomerFormResponse {
         $response = new SendCustomerFormResponse();
         $response->id = $crmCustomerFormId;
         $response->token = 'crmToken';
         $response->generationToken = 'crmGenerateToken';
+
         return $response;
     }
 
-    public function checkPassport(CheckPassport $request)
+    public function checkPassport(CheckPassport $request): PassportCheck
     {
         $response = new PassportCheck();
         $response->created = date("Y-m-d H:i:s");
@@ -175,6 +188,7 @@ class MockClient extends Client
             $response->comment = '';
             $response->status = Semantic::POSITIVE;
         }
+
         return $response;
     }
 
@@ -183,17 +197,18 @@ class MockClient extends Client
         return $this->checkPassport($request);
     }
 
-    public function checkSnils(CheckSnils $request)
+    public function checkSnils(CheckSnils $request): SnilsCheck
     {
         $response = new SnilsCheck();
         $response->id = 1;
         $response->status = Semantic::POSITIVE;
         $response->comment = '';
         $response->created = date("Y-m-d H:i:s");
+
         return $response;
     }
 
-    public function getReferralUser(SendCheckRef $sendCheckRef)
+    public function getReferralUser(SendCheckRef $sendCheckRef): ReferralUser
     {
         $response = new ReferralUser();
         $response->id = 1;
@@ -203,10 +218,11 @@ class MockClient extends Client
         $response->phone = 'hi :)';
         $response->isOfd = true;
         $response->enablePlatformSelection = true;
+
         return $response;
     }
 
-    public function pushCustomerFormDocuments(CustomerFormDocuments $documents)
+    public function pushCustomerFormDocuments(CustomerFormDocuments $documents): PushCustomerFormDocuments
     {
         $return = new PushCustomerFormDocuments();
         $return->union = 100;
@@ -215,10 +231,11 @@ class MockClient extends Client
         $return->signedBlank = 100;
         $return->signedClaim = 100;
         $return->foreignerpassport = 100;
+
         return $return;
     }
 
-    public function detectPlatforms(DetectPlatformsRequest $request)
+    public function detectPlatforms(DetectPlatformsRequest $request): array
     {
         $known = [
             "1.3.6.1.5.5.7.3.2",
@@ -248,10 +265,11 @@ class MockClient extends Client
         $variant->platforms = [$platform1, $platform2];
         $variant->price = 5000;
         $variant->excluded = $unknown;
+
         return [$variant];
     }
 
-    public function getPartnerPlatformsAll(PartnerPlatformsRequest $request)
+    public function getPartnerPlatformsAll(PartnerPlatformsRequest $request): array
     {
         $json = /** @lang JSON */
             '{
@@ -305,10 +323,11 @@ class MockClient extends Client
             $partnerPlatform->price = $platform->price;
             $response[] = $partnerPlatform;
         }
+
         return $response;
     }
 
-    public function getPartnerProductsAll(PartnerProductsRequest $request)
+    public function getPartnerProductsAll(PartnerProductsRequest $request): array
     {
         $json = /** @lang JSON */
             '{
@@ -343,15 +362,16 @@ class MockClient extends Client
             $partnerPlatform->price = $product->price;
             $response[] = $partnerPlatform;
         }
+
         return $response;
     }
 
-    public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest)
+    public function getPartnerFullPrice(PartnerFullPriceRequest $fullPriceRequest): float
     {
         return 666;
     }
 
-    public function getPartnerStores(PartnerStoresRequest $partnerStores)
+    public function getPartnerStores(PartnerStoresRequest $partnerStores): array
     {
         $json = /** @lang JSON */
             '{
@@ -383,6 +403,7 @@ class MockClient extends Client
               ]
             }';
         $result = json_decode($json);
+
         return $this->fillList(Store::class, $result->stores);
     }
 }
