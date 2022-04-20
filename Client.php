@@ -327,6 +327,36 @@ class Client
         return $result->getBody()->getContents();
     }
 
+
+    /**
+     * Откатить заявку на нулевой статус
+     *
+     *
+     * @param int $customerFormCrmId
+     * @return \nikserg\CRMCertificateAPI\models\response\BooleanResponse
+     * @throws \nikserg\CRMCertificateAPI\exceptions\BooleanResponseException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     */
+    public function revert(int $customerFormCrmId): BooleanResponse
+    {
+        $result = $this->request('GET', 'revert', [
+            RequestOptions::QUERY => [
+                'id'     => $customerFormCrmId,
+            ],
+        ]);
+        $response = new BooleanResponse();
+        $response->status = $result->status;
+        $response->message = $result->message ?? null;
+        if (!$response->status) {
+            throw new BooleanResponseException('Ошибка при откате заявки в CRM ' . print_r($response, true));
+        }
+
+        return $response;
+    }
+
     /**
      * Получить заявление на выпуск сертификата
      *
