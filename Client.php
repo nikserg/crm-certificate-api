@@ -101,7 +101,7 @@ class Client
             case 400:
                 throw new InvalidRequestException("$endpoint: Неверный формат запроса");
             case 404:
-                throw new NotFoundException("$endpoint: Сущность или точка АПИ не найдены");
+                throw new NotFoundException("$endpoint: Сущность или точка АПИ не найдены: \n ".$response->getBody()->getContents());
             case 500:
                 throw new ServerException("$endpoint: Ошибка сервера \n" . $response->getBody()->getContents());
             default:
