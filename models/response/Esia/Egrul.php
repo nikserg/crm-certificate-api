@@ -59,7 +59,7 @@ class Egrul
             $this->address->raw = $data->fiasAddress ?? null;
             $this->head = new Person();
             $this->head->firstName = $data->headFirstName;
-            $this->head->middleName = $data->headMiddleName;
+            $this->head->middleName = $data->headMiddleName ?? null;
             $this->head->lastName = $data->headLastName;
             $this->head->jobName = $data->headPosition ?? null;
             $this->head->inn = $data->headInn ?? null;
