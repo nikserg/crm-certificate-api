@@ -46,7 +46,7 @@ class Egrul
         $this->comment = $json->comment;
         if (isset($json->data)) {
             $data = $json->data;
-            $this->shortName = $data->organizationShortName;
+            $this->shortName = $data->organizationShortName ?? null;
             $this->fullName = $data->organizationFullName ?? null;
             $this->ogrn = $data->OGRN ?? null;
             $this->ogrnip = $data->OGRNIP ?? null;
@@ -58,9 +58,9 @@ class Egrul
             $this->address->street = $data->street ?? null;
             $this->address->raw = $data->fiasAddress ?? null;
             $this->head = new Person();
-            $this->head->firstName = $data->headFirstName;
+            $this->head->firstName = $data->headFirstName ?? null;
             $this->head->middleName = $data->headMiddleName ?? null;
-            $this->head->lastName = $data->headLastName;
+            $this->head->lastName = $data->headLastName ?? null;
             $this->head->jobName = $data->headPosition ?? null;
             $this->head->inn = $data->headInn ?? null;
         }
