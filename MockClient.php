@@ -19,6 +19,7 @@ use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
+use nikserg\CRMCertificateAPI\models\request\SendReqFile;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
 use nikserg\CRMCertificateAPI\models\response\Esia\Egrul as EgrulResponse;
@@ -159,6 +160,15 @@ class MockClient extends Client
 
     public function deleteCustomerForm(int $customerFormCrmId): BooleanResponse
     {
+        $response = new BooleanResponse();
+        $response->status = true;
+
+        return $response;
+    }
+
+
+    public function sendReqFile(SendReqFile $sendReqFile): BooleanResponse {
+
         $response = new BooleanResponse();
         $response->status = true;
 
@@ -406,4 +416,5 @@ class MockClient extends Client
 
         return $this->fillList(Store::class, $result->stores);
     }
+
 }

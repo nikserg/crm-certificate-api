@@ -23,6 +23,7 @@ use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
 use nikserg\CRMCertificateAPI\models\request\SendOpportunity as SendOpportunityRequest;
+use nikserg\CRMCertificateAPI\models\request\SendReqFile;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
 use nikserg\CRMCertificateAPI\models\response\Esia\Egrul as EgrulResponse;
@@ -101,7 +102,7 @@ class Client
             case 400:
                 throw new InvalidRequestException("$endpoint: Неверный формат запроса");
             case 404:
-                throw new NotFoundException("$endpoint: Сущность или точка АПИ не найдены: \n ".$response->getBody()->getContents());
+                throw new NotFoundException("$endpoint: Сущность или точка АПИ не найдены: \n " . $response->getBody()->getContents());
             case 500:
                 throw new ServerException("$endpoint: Ошибка сервера \n" . $response->getBody()->getContents());
             default:
@@ -276,6 +277,32 @@ class Client
         return $response;
     }
 
+
+    /**
+     * Отправить файл запроса
+     *
+     *
+     * @param \nikserg\CRMCertificateAPI\models\request\SendReqFile $sendReqFile
+     * @return \nikserg\CRMCertificateAPI\models\response\BooleanResponse
+     * @throws \nikserg\CRMCertificateAPI\exceptions\BooleanResponseException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     */
+    public function sendReqFile(SendReqFile $sendReqFile): BooleanResponse
+    {
+        $result = $this->requestJson('POST', 'pushCustomerFormReqFile', $sendReqFile);
+        $response = new BooleanResponse();
+        $response->status = $result->status;
+        $response->message = $result->message ?? null;
+        if (!$response->status) {
+            throw new BooleanResponseException('Ошибка при отправке файла запроса в CRM ' . print_r($response, true));
+        }
+
+        return $response;
+    }
+
     /**
      * Удалить заявку на сертификат
      *
@@ -344,7 +371,7 @@ class Client
     {
         $result = $this->request('GET', 'revert', [
             RequestOptions::QUERY => [
-                'id'     => $customerFormCrmId,
+                'id' => $customerFormCrmId,
             ],
         ]);
         $response = new BooleanResponse();
