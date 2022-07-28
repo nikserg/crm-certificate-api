@@ -16,6 +16,7 @@ use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatform
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerStores as PartnerStoresRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
+use nikserg\CRMCertificateAPI\models\request\SendCrtFile;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
@@ -168,6 +169,13 @@ class MockClient extends Client
 
 
     public function sendReqFile(SendReqFile $sendReqFile): BooleanResponse {
+
+        $response = new BooleanResponse();
+        $response->status = true;
+
+        return $response;
+    }
+    public function sendCrtFile(SendCrtFile $sendCrtFile): BooleanResponse {
 
         $response = new BooleanResponse();
         $response->status = true;

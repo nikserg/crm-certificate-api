@@ -20,6 +20,7 @@ use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatform
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerStores as PartnerStoresRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCheckRef;
+use nikserg\CRMCertificateAPI\models\request\SendCrtFile;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerForm as SendCustomerFormRequest;
 use nikserg\CRMCertificateAPI\models\request\SendCustomerFormData;
 use nikserg\CRMCertificateAPI\models\request\SendOpportunity as SendOpportunityRequest;
@@ -298,6 +299,32 @@ class Client
         $response->message = $result->message ?? null;
         if (!$response->status) {
             throw new BooleanResponseException('Ошибка при отправке файла запроса в CRM ' . print_r($response, true));
+        }
+
+        return $response;
+    }
+
+
+    /**
+     * Отправить файл выпущенного сертификата
+     *
+     *
+     * @param \nikserg\CRMCertificateAPI\models\request\SendCrtFile $sendCrtFile
+     * @return \nikserg\CRMCertificateAPI\models\response\BooleanResponse
+     * @throws \nikserg\CRMCertificateAPI\exceptions\BooleanResponseException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     */
+    public function sendCrtFile(SendCrtFile $sendCrtFile): BooleanResponse
+    {
+        $result = $this->requestJson('POST', 'pushCustomerFormCrtFile', $sendCrtFile);
+        $response = new BooleanResponse();
+        $response->status = $result->status;
+        $response->message = $result->message ?? null;
+        if (!$response->status) {
+            throw new BooleanResponseException('Ошибка при отправке файла выпущенного сертификата в CRM ' . print_r($response, true));
         }
 
         return $response;
