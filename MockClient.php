@@ -168,14 +168,17 @@ class MockClient extends Client
     }
 
 
-    public function sendReqFile(SendReqFile $sendReqFile): BooleanResponse {
+    public function sendReqFile(SendReqFile $sendReqFile): BooleanResponse
+    {
 
         $response = new BooleanResponse();
         $response->status = true;
 
         return $response;
     }
-    public function sendCrtFile(SendCrtFile $sendCrtFile): BooleanResponse {
+
+    public function sendCrtFile(SendCrtFile $sendCrtFile): BooleanResponse
+    {
 
         $response = new BooleanResponse();
         $response->status = true;
@@ -238,6 +241,12 @@ class MockClient extends Client
         $response->enablePlatformSelection = true;
 
         return $response;
+    }
+
+
+    public function pushDocument(int $customerFormId, string $documentId, string $fileExt, mixed $content): void
+    {
+
     }
 
     public function pushCustomerFormDocuments(CustomerFormDocuments $documents): PushCustomerFormDocuments

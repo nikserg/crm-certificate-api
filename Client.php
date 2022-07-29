@@ -324,7 +324,8 @@ class Client
         $response->status = $result->status;
         $response->message = $result->message ?? null;
         if (!$response->status) {
-            throw new BooleanResponseException('Ошибка при отправке файла выпущенного сертификата в CRM ' . print_r($response, true));
+            throw new BooleanResponseException('Ошибка при отправке файла выпущенного сертификата в CRM ' . print_r($response,
+                    true));
         }
 
         return $response;
@@ -577,6 +578,40 @@ class Client
         }
 
         return $return;
+    }
+
+    /**
+     * Отправить файл в CRM
+     *
+     * @param int    $customerFormId
+     * @param string $documentId
+     * @param string $fileExt
+     * @param mixed  $content
+     * @return void
+     * @throws \nikserg\CRMCertificateAPI\exceptions\BooleanResponseException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
+     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     */
+    public function pushDocument(int $customerFormId, string $documentId, string $fileExt, mixed $content): void
+    {
+        $response = $this->request('POST', 'pushCustomerFormDocument', [
+            RequestOptions::QUERY     => [
+                'id'         => $customerFormId,
+                'documentId' => $documentId,
+            ],
+            RequestOptions::MULTIPART => [
+                $documentId => [
+                    'name'     => $documentId,
+                    'filename' => $documentId . '.' . $fileExt,
+                    'contents' => $content,
+                ],
+            ],
+        ]);
+        if ($response->getBody()->getContents() != "OK") {
+            throw new BooleanResponseException($response->getBody()->getContents());
+        }
     }
 
     /**
