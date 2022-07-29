@@ -609,8 +609,9 @@ class Client
                 ],
             ],
         ]);
-        if ($response->getBody()->getContents() != "OK") {
-            throw new BooleanResponseException($response->getBody()->getContents());
+        $response = json_decode($response->getBody()->getContents(), true);
+        if (!isset($response['code']) || $response['code'] != 0) {
+            throw new BooleanResponseException(print_r($response, true));
         }
     }
 
