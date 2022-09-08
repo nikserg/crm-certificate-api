@@ -187,4 +187,11 @@ class SendCustomerForm
      * @var bool
      */
     public $budgetOrganization;
+
+    /**
+     * Мобильная электронная подпись
+     *
+     * @var bool
+     */
+    public $isMep;
 }
