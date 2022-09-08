@@ -30,4 +30,10 @@ class SendCustomerForm
      */
     public $generationToken;
 
+    /**
+     * ID удостоверяющего центра
+     *
+     * @var int
+     */
+    public $uc;
 }
