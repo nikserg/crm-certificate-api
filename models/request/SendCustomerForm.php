@@ -194,4 +194,10 @@ class SendCustomerForm
      * @var bool
      */
     public $isMep;
+    /**
+     * Мобильная электронная подпись для Ипотеха
+     *
+     * @var bool
+     */
+    public $mepIpoteh;
 }
