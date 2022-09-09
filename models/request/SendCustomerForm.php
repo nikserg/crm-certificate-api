@@ -200,4 +200,12 @@ class SendCustomerForm
      * @var bool
      */
     public $mepIpoteh;
+
+    /**
+     * Не ставить галочку "Второй новый процесс выпуска"
+     *
+     *
+     * @var bool
+     */
+    public $oldProcess;
 }
