@@ -44,6 +44,16 @@ use nikserg\CRMCertificateAPI\models\Semantic;
  */
 class MockClient extends Client
 {
+    /**
+     * Если установить флаг в true, клиент будет выбрасывать ошибки
+     * nikserg\CRMCertificateAPI\exceptions\NotFoundException в тех местах, где это
+     * предусмотрено
+     *
+     *
+     * @var bool
+     */
+    public static $throwNotFound = false;
+
     // "Правильные" паспорта
     public const PASSPORTCHECK_VALID_SERIES = '1111';
     public const PASSPORTCHECK_VALID_NUMBER = '111111';
