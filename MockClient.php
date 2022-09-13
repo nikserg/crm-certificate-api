@@ -3,6 +3,7 @@
 namespace nikserg\CRMCertificateAPI;
 
 
+use Exception;
 use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\PaymentModes;
@@ -184,7 +185,9 @@ class MockClient extends Client
 
     public function sendReqFile(SendReqFile $sendReqFile): BooleanResponse
     {
-
+        if (self::$throwNotFound) {
+            throw new Exception('Ошибка при отправке req-файла');
+        }
         $response = new BooleanResponse();
         $response->status = true;
 
