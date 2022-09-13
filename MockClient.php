@@ -3,6 +3,7 @@
 namespace nikserg\CRMCertificateAPI;
 
 
+use nikserg\CRMCertificateAPI\exceptions\NotFoundException;
 use nikserg\CRMCertificateAPI\models\data\Status;
 use nikserg\CRMCertificateAPI\models\PaymentModes;
 use nikserg\CRMCertificateAPI\models\request\ChangeStatus;
@@ -171,6 +172,9 @@ class MockClient extends Client
 
     public function deleteCustomerForm(int $customerFormCrmId): BooleanResponse
     {
+        if (self::$throwNotFound) {
+            throw new NotFoundException("deleteCustomerForm: Сущность или точка АПИ не найдены: \n ");
+        }
         $response = new BooleanResponse();
         $response->status = true;
 
