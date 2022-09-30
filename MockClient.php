@@ -57,6 +57,15 @@ class MockClient extends Client
      */
     public static $throwNotFound = false;
 
+    /**
+     * Если установить флаг в true, клиент будет возвращать null там, где это
+     * предусмотрено
+     *
+     *
+     * @var bool
+     */
+    public static $returnNull = false;
+
     // "Правильные" паспорта
     public const PASSPORTCHECK_VALID_SERIES = '1111';
     public const PASSPORTCHECK_VALID_NUMBER = '111111';
@@ -102,6 +111,9 @@ class MockClient extends Client
 
     public function payment(int $crmCustomerFormId): ?PaymentInfo
     {
+        if (self::$returnNull) {
+            return null;
+        }
         $return = new PaymentInfo();
         $return->totalPrice = 100;
         $return->paymentLink = 'https://google.com';
