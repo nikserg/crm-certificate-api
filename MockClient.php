@@ -33,6 +33,7 @@ use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
 use nikserg\CRMCertificateAPI\models\response\models\Store;
 use nikserg\CRMCertificateAPI\models\response\PassportCheck;
+use nikserg\CRMCertificateAPI\models\response\PaymentInfo;
 use nikserg\CRMCertificateAPI\models\response\PushCustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
@@ -83,7 +84,7 @@ class MockClient extends Client
             self::$data = unserialize(file_get_contents(self::mockFilename()));
         } else {
             self::$data = [
-                'currentId'     => 1,
+                'currentId' => 1,
                 'currentStatus' => [
                     1 => 0,
                 ],
@@ -97,6 +98,17 @@ class MockClient extends Client
     {
         self::$data = $data;
         file_put_contents(self::mockFilename(), serialize(self::$data));
+    }
+
+    public function payment(int $crmCustomerFormId): ?PaymentInfo
+    {
+        $return = new PaymentInfo();
+        $return->totalPrice = 100;
+        $return->paymentLink = 'https://google.com';
+        $return->isPayed = false;
+        $return->opportunityId = 1;
+        $return->paymentDate = null;
+        return $return;
     }
 
     public function egrul(EgrulRequest $request): EgrulResponse
@@ -204,9 +216,10 @@ class MockClient extends Client
     }
 
     public function sendCustomerFormData(
-        int $crmCustomerFormId,
+        int                  $crmCustomerFormId,
         SendCustomerFormData $customerFormData
-    ): SendCustomerFormResponse {
+    ): SendCustomerFormResponse
+    {
         $response = new SendCustomerFormResponse();
         $response->id = $crmCustomerFormId;
         $response->token = 'crmToken';
