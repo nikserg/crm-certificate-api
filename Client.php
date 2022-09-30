@@ -35,6 +35,7 @@ use nikserg\CRMCertificateAPI\models\response\models\PartnerPlatform;
 use nikserg\CRMCertificateAPI\models\response\models\PartnerProduct;
 use nikserg\CRMCertificateAPI\models\response\models\Store;
 use nikserg\CRMCertificateAPI\models\response\PassportCheck;
+use nikserg\CRMCertificateAPI\models\response\PaymentInfo;
 use nikserg\CRMCertificateAPI\models\response\PushCustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
@@ -73,7 +74,7 @@ class Client
         $this->apiKey = $apiKey;
         $this->url = trim($url, " /");
         $this->guzzle = new \GuzzleHttp\Client([
-            RequestOptions::VERIFY      => false,
+            RequestOptions::VERIFY => false,
             RequestOptions::HTTP_ERRORS => false,
         ]);
     }
@@ -81,7 +82,7 @@ class Client
     /**
      * @param string $method
      * @param string $endpoint
-     * @param array  $options
+     * @param array $options
      * @return ResponseInterface
      * @throws NotFoundException
      * @throws ServerException
@@ -114,8 +115,8 @@ class Client
     /**
      * @param string $method
      * @param string $endpoint
-     * @param mixed  $data
-     * @param array  $options
+     * @param mixed $data
+     * @param array $options
      * @return mixed
      * @throws NotFoundException
      * @throws ServerException
@@ -362,7 +363,7 @@ class Client
     /**
      * Получить заявление на выпуск сертификата
      *
-     * @param int    $customerFormCrmId
+     * @param int $customerFormCrmId
      * @param string $format
      * @return string
      * @throws InvalidRequestException
@@ -374,7 +375,7 @@ class Client
     {
         $result = $this->request('GET', 'union', [
             RequestOptions::QUERY => [
-                'id'     => $customerFormCrmId,
+                'id' => $customerFormCrmId,
                 'format' => $format,
             ],
         ]);
@@ -415,7 +416,7 @@ class Client
     /**
      * Получить заявление на выпуск сертификата
      *
-     * @param int    $customerFormCrmId
+     * @param int $customerFormCrmId
      * @param string $format
      * @return string
      * @throws InvalidRequestException
@@ -427,7 +428,7 @@ class Client
     {
         $result = $this->request('GET', 'certificateBlank', [
             RequestOptions::QUERY => [
-                'id'     => $customerFormCrmId,
+                'id' => $customerFormCrmId,
                 'format' => $format,
             ],
         ]);
@@ -451,9 +452,32 @@ class Client
     }
 
     /**
+     * Платежная информация по заявке
+     *
+     *
+     * @param int $crmCustomerFormId
+     * @return PaymentInfo|null
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function payment(int $crmCustomerFormId): ?PaymentInfo
+    {
+        $result = $this->requestJson('GET', 'paymentInfo', [
+            'id' => $crmCustomerFormId,
+        ]);
+
+        if (!$result) {
+            return null;
+        }
+        return $this->fill(PaymentInfo::class, $result);
+    }
+
+    /**
      * Отправить данные бланка заявки на сертификат
      *
-     * @param int                  $crmCustomerFormId
+     * @param int $crmCustomerFormId
      * @param SendCustomerFormData $customerFormData
      * @return SendCustomerFormResponse
      * @throws InvalidRequestException
@@ -462,11 +486,12 @@ class Client
      * @throws TransportException
      */
     public function sendCustomerFormData(
-        int $crmCustomerFormId,
+        int                  $crmCustomerFormId,
         SendCustomerFormData $customerFormData
-    ): SendCustomerFormResponse {
+    ): SendCustomerFormResponse
+    {
         $result = $this->requestJson('POST', 'pushCustomerFormData', [
-            'id'       => $crmCustomerFormId,
+            'id' => $crmCustomerFormId,
             'formData' => $customerFormData,
         ]);
 
@@ -583,10 +608,10 @@ class Client
     /**
      * Отправить файл в CRM
      *
-     * @param int    $customerFormId
+     * @param int $customerFormId
      * @param string $documentId
      * @param string $fileExt
-     * @param mixed  $content
+     * @param mixed $content
      * @return void
      * @throws \nikserg\CRMCertificateAPI\exceptions\BooleanResponseException
      * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
@@ -597,13 +622,13 @@ class Client
     public function pushDocument(int $customerFormId, string $documentId, string $fileExt, mixed $content): void
     {
         $response = $this->request('POST', 'pushCustomerFormDocument', [
-            RequestOptions::QUERY     => [
-                'id'         => $customerFormId,
+            RequestOptions::QUERY => [
+                'id' => $customerFormId,
                 'documentId' => $documentId,
             ],
             RequestOptions::MULTIPART => [
                 $documentId => [
-                    'name'     => $documentId,
+                    'name' => $documentId,
                     'filename' => $documentId . '.' . $fileExt,
                     'contents' => $content,
                 ],
@@ -627,20 +652,20 @@ class Client
     {
         $multipart = [
             [
-                'name'     => 'customerFormId',
+                'name' => 'customerFormId',
                 'contents' => $documents->customerFormId,
             ],
         ];
         if ($documents->signedClaim) {
             $multipart[] = [
-                'name'     => 'signedClaim',
+                'name' => 'signedClaim',
                 'filename' => 'claim.pdf.sig',
                 'contents' => $documents->signedClaim,
             ];
         }
         if ($documents->signedBlank) {
             $multipart[] = [
-                'name'     => 'signedBlank',
+                'name' => 'signedBlank',
                 'filename' => 'blank.pdf.sig',
                 'contents' => $documents->signedBlank,
             ];
@@ -652,7 +677,7 @@ class Client
                 continue;
             }
             $multipart[] = [
-                'name'     => $documentName,
+                'name' => $documentName,
                 'filename' => basename($documents->{$documentName . 'Path'}),
                 'contents' => file_get_contents($path),
             ];
@@ -856,7 +881,7 @@ class Client
      *
      *
      * @param string $paymentToken
-     * @param bool   $iframe
+     * @param bool $iframe
      * @param string $locale
      * @return string
      */
