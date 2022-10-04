@@ -208,4 +208,60 @@ class SendCustomerForm
      * @var bool
      */
     public $oldProcess;
+
+    /**
+     * Требуются цветные сканы
+     *
+     *
+     * @var bool
+     */
+    public $noColorScan;
+
+    /**
+     * Выпуск на несовершеннолетнего
+     *
+     *
+     * @var bool
+     */
+    public $isMinor;
+
+    /**
+     * Выпуск на главу крестьянско-фремерского хозяйства
+     *
+     *
+     * @var bool
+     */
+    public $isGKFH;
+
+    /**
+     * Выпуск на иностранную компанию
+     *
+     *
+     * @var bool
+     */
+    public $isForeignCompany;
+
+    /**
+     * Экспортируемый ключ
+     *
+     *
+     * @var bool
+     */
+    public $exportableKey;
+
+    /**
+     * Удостоверяющий центр
+     *
+     *
+     * @var int
+     */
+    public $uc;
+
+    /**
+     * Индивидуальный токен безопасности для доступа к заявке
+     *
+     *
+     * @var string
+     */
+    public $token;
 }
