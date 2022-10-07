@@ -284,13 +284,13 @@ class Client
      * Отправить файл запроса
      *
      *
-     * @param \nikserg\CRMCertificateAPI\models\request\SendReqFile $sendReqFile
-     * @return \nikserg\CRMCertificateAPI\models\response\BooleanResponse
-     * @throws \nikserg\CRMCertificateAPI\exceptions\BooleanResponseException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     * @param SendReqFile $sendReqFile
+     * @return BooleanResponse
+     * @throws BooleanResponseException
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function sendReqFile(SendReqFile $sendReqFile): BooleanResponse
     {
@@ -310,13 +310,13 @@ class Client
      * Отправить файл выпущенного сертификата
      *
      *
-     * @param \nikserg\CRMCertificateAPI\models\request\SendCrtFile $sendCrtFile
-     * @return \nikserg\CRMCertificateAPI\models\response\BooleanResponse
-     * @throws \nikserg\CRMCertificateAPI\exceptions\BooleanResponseException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     * @param SendCrtFile $sendCrtFile
+     * @return BooleanResponse
+     * @throws BooleanResponseException
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function sendCrtFile(SendCrtFile $sendCrtFile): BooleanResponse
     {
@@ -389,12 +389,12 @@ class Client
      *
      *
      * @param int $customerFormCrmId
-     * @return \nikserg\CRMCertificateAPI\models\response\BooleanResponse
-     * @throws \nikserg\CRMCertificateAPI\exceptions\BooleanResponseException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     * @return BooleanResponse
+     * @throws BooleanResponseException
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function revert(int $customerFormCrmId): BooleanResponse
     {
@@ -465,7 +465,9 @@ class Client
     public function payment(int $crmCustomerFormId): ?PaymentInfo
     {
         $result = $this->requestJson('GET', 'paymentInfo', [
-            'id' => $crmCustomerFormId,
+            RequestOptions::QUERY => [
+                'id' => $crmCustomerFormId,
+            ],
         ]);
 
         if (!$result) {
@@ -519,12 +521,12 @@ class Client
      * Расширенная проверка паспортных данных
      *
      *
-     * @param \nikserg\CRMCertificateAPI\models\request\CheckPassport $request
+     * @param CheckPassport $request
      * @return mixed
-     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function checkPassportExtended(CheckPassport $request)
     {
@@ -613,11 +615,11 @@ class Client
      * @param string $fileExt
      * @param mixed $content
      * @return void
-     * @throws \nikserg\CRMCertificateAPI\exceptions\BooleanResponseException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\InvalidRequestException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\NotFoundException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\ServerException
-     * @throws \nikserg\CRMCertificateAPI\exceptions\TransportException
+     * @throws BooleanResponseException
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
      */
     public function pushDocument(int $customerFormId, string $documentId, string $fileExt, mixed $content): void
     {
