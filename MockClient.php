@@ -66,6 +66,13 @@ class MockClient extends Client
      */
     public static $returnNull = false;
 
+    /**
+     * Если true, будет передан признак, что заявка оплачена
+     *
+     * @var bool
+     */
+    public static $payed = false;
+
     // "Правильные" паспорта
     public const PASSPORTCHECK_VALID_SERIES = '1111';
     public const PASSPORTCHECK_VALID_NUMBER = '111111';
@@ -117,7 +124,7 @@ class MockClient extends Client
         $return = new PaymentInfo();
         $return->totalPrice = 100;
         $return->paymentLink = 'https://google.com';
-        $return->isPayed = false;
+        $return->isPayed = self::$payed;
         $return->opportunityId = 1;
         $return->paymentDate = null;
         return $return;
