@@ -73,6 +73,14 @@ class MockClient extends Client
      */
     public static $payed = false;
 
+    /**
+     * Если установлено, следующее создание заявки будет с указанным ID
+     *
+     *
+     * @var null
+     */
+    public static $nextId = null;
+
     // "Правильные" паспорта
     public const PASSPORTCHECK_VALID_SERIES = '1111';
     public const PASSPORTCHECK_VALID_NUMBER = '111111';
@@ -158,7 +166,11 @@ class MockClient extends Client
             $response->id = $customerForm->id;
         } else {
             $data = self::getData();
-            $response->id = $data['currentId'];
+            if (self::$nextId === null) {
+                $response->id = $data['currentId'];
+            } else {
+                $response->id = self::$nextId;
+            }
             $data['currentStatus'][$response->id] = Status::INIT;
             $data['currentId'] = $response->id + 1;
             self::flushData($data);
