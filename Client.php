@@ -15,6 +15,7 @@ use nikserg\CRMCertificateAPI\models\request\CheckSnils;
 use nikserg\CRMCertificateAPI\models\request\CustomerFormDocuments;
 use nikserg\CRMCertificateAPI\models\request\DetectPlatforms as DetectPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\Egrul as EgrulRequest;
+use nikserg\CRMCertificateAPI\models\request\ModifyProlongation;
 use nikserg\CRMCertificateAPI\models\request\PartnerFullPrice as PartnerFullPriceRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerPlatforms as PartnerPlatformsRequest;
 use nikserg\CRMCertificateAPI\models\request\PartnerProducts as PartnerProductsRequest;
@@ -193,6 +194,21 @@ class Client
         $result = $this->requestJson('POST', 'pushCustomerForm', $customerForm);
 
         return $this->fill(SendCustomerFormResponse::class, $result);
+    }
+
+    public function modifyProlongation(ModifyProlongation $modifyProlongation)
+    {
+        $result = $this->requestJson('POST', 'modifyProlongation', $modifyProlongation);
+
+        $response = new BooleanResponse();
+        $response->status = $result->status;
+        $response->message = $result->message ?? null;
+        if (!$response->status) {
+            throw new BooleanResponseException('Ошибка при попытке модифицировать заявку по продлению в CRM ' . print_r($response,
+                    true));
+        }
+
+        return $response;
     }
 
     /**
