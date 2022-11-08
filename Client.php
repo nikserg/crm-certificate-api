@@ -42,6 +42,7 @@ use nikserg\CRMCertificateAPI\models\response\ReferralUser;
 use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFormResponse;
 use nikserg\CRMCertificateAPI\models\response\SendOpportunity as SendOpportunityResponse;
 use nikserg\CRMCertificateAPI\models\response\SnilsCheck;
+use nikserg\CRMCertificateAPI\models\response\TransferInfo;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -196,6 +197,38 @@ class Client
         return $this->fill(SendCustomerFormResponse::class, $result);
     }
 
+    /**
+     * Информация о трансфере
+     *
+     *
+     * @param int $customerFormId
+     * @return TransferInfo
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function transferInfo(int $customerFormId):TransferInfo {
+
+        $result = $this->getJsonBody($this->request('GET', 'transferInfo', [
+            RequestOptions::QUERY => [
+                'id' => $customerFormId,
+            ],
+        ]));
+
+        return $this->fill(TransferInfo::class, $result);
+    }
+    /**
+     * Изменение информации с сделке по продлению
+     *
+     * @param ModifyProlongation $modifyProlongation
+     * @return BooleanResponse
+     * @throws BooleanResponseException
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
     public function modifyProlongation(ModifyProlongation $modifyProlongation)
     {
         $result = $this->requestJson('POST', 'modifyProlongation', $modifyProlongation);
