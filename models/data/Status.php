@@ -3,11 +3,16 @@ namespace nikserg\CRMCertificateAPI\models\data;
 class Status {
     const INIT = 0; //Не заполнено
     const CALLBACK = 5; // Требуется связаться с клиентом
-    const FILLSTATUS_NEED_PREREQUEST = 7; //Нужно сформировать запрос на выпуск
+    const FORMATION_APPLICATION_BLANK = 6; //Формирование бланка заявления
+    const NEED_PREREQUEST = 7; //Нужно сформировать запрос на выпуск
     const FORMFILLED = 10; //Форма заполнена, документы не прикреплены
+    const NEED_REVOCATION_BLANK = 15; //Требуется подписать бланк отзыва сертификата
     const CERTIFICATE_REQUEST_DECLINED = 19; //Запрос сертификата отклонен
     const REFILL = 20; //Необходимо повторно заполнить форму
     const DOCUMENTSLOADED = 30; //Заполнено, не проверено
+
+    const NEED_OPERATOR_MODERATION = 32; //Требуется проверка документов оператором
+
     const NEED_MANUAL_START = 35; //Требуется одобрение выпуска
 
     const NEED_UNION = 37; //Требуется загрузка заявления на выпуск сертификата
@@ -60,12 +65,16 @@ class Status {
      * @var string[] Имена статусов
      */
     public static $names = [
-        self::INIT              => 'Анкета не заполнена',
-        self::CALLBACK          => 'Требуется связаться с клиентом',
-        self::FORMFILLED        => 'Анкета заполнена',
-        self::REFILL            => 'Исправить документы',
-        self::DOCUMENTSLOADED   => 'Требуется проверка документов',
-        self::NEED_MANUAL_START => 'Требуется оплата счета',
+        self::INIT                        => 'Анкета не заполнена',
+        self::CALLBACK                    => 'Требуется связаться с клиентом',
+        self::FORMATION_APPLICATION_BLANK => 'Формирование бланка заявления',
+        self::NEED_PREREQUEST             => 'Нужно сформировать запрос на выпуск',
+        self::FORMFILLED                  => 'Анкета заполнена',
+        self::NEED_REVOCATION_BLANK       => 'Требуется подписать бланк отзыва сертификата',
+        self::REFILL                      => 'Исправить документы',
+        self::DOCUMENTSLOADED             => 'Требуется проверка документов',
+        self::NEED_OPERATOR_MODERATION    => 'Требуется проверка документов оператором',
+        self::NEED_MANUAL_START           => 'Требуется оплата счета',
 
         self::NEED_UNION        => 'Загрузить заявление',
         self::NEED_UNION_RELOAD => 'Исправить заявление',
@@ -82,6 +91,9 @@ class Status {
         self::CERTIFICATE_REQUEST_DECLINED => 'Запрос отклонен',
         self::CERTIFICATE_REQUEST_FORMED   => 'Запрос на выдачу сертификата сформирован',
         self::CERTIFICATE_REQUEST_SENDED   => 'Запрос на выдачу сертификата отправлен',
+
+        self::CERTIFICATE_SIGNED_REQUEST_FORMED => 'Сформирован подписанный запрос сертификата',
+        self::CERTIFICATE_SIGNED_REQUEST_SENDED => 'Отправлен подписанный запрос сертификата',
 
         self::CERTIFICATE_PAUSED     => 'Приостановлен',
         self::CERTIFICATE_EXPIRED    => 'Просрочен',
