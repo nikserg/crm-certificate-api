@@ -23,4 +23,10 @@ class TransferInfo
      * @var ?string
      */
     public $city;
+    /**
+     * Адрес
+     *
+     * @var ?string
+     */
+    public $address;
 }
