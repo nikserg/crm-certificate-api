@@ -43,6 +43,7 @@ use nikserg\CRMCertificateAPI\models\response\SendCustomerForm as SendCustomerFo
 use nikserg\CRMCertificateAPI\models\response\SendOpportunity as SendOpportunityResponse;
 use nikserg\CRMCertificateAPI\models\response\SnilsCheck;
 use nikserg\CRMCertificateAPI\models\response\TransferInfo;
+use nikserg\CRMCertificateAPI\models\response\UserInfo;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -85,7 +86,7 @@ class Client
     /**
      * @param string $method
      * @param string $endpoint
-     * @param array  $options
+     * @param array $options
      * @return ResponseInterface
      * @throws NotFoundException
      * @throws ServerException
@@ -118,8 +119,8 @@ class Client
     /**
      * @param string $method
      * @param string $endpoint
-     * @param mixed  $data
-     * @param array  $options
+     * @param mixed $data
+     * @param array $options
      * @return mixed
      * @throws NotFoundException
      * @throws ServerException
@@ -208,7 +209,8 @@ class Client
      * @throws ServerException
      * @throws TransportException
      */
-    public function transferInfo(int $customerFormId):TransferInfo {
+    public function transferInfo(int $customerFormId): TransferInfo
+    {
 
         $result = $this->getJsonBody($this->request('GET', 'transferInfo', [
             RequestOptions::QUERY => [
@@ -218,6 +220,29 @@ class Client
 
         return $this->fill(TransferInfo::class, $result);
     }
+
+    /**
+     * Информация о пользователе
+     *
+     *
+     * @param int $userId
+     * @return UserInfo
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function userInfo(int $userId): UserInfo
+    {
+        $result = $this->getJsonBody($this->request('GET', 'userInfo', [
+            RequestOptions::QUERY => [
+                'id' => $userId,
+            ],
+        ]));
+
+        return $this->fill(UserInfo::class, $result);
+    }
+
     /**
      * Изменение информации с сделке по продлению
      *
@@ -413,7 +438,7 @@ class Client
     /**
      * Получить заявление на выпуск сертификата
      *
-     * @param int    $customerFormCrmId
+     * @param int $customerFormCrmId
      * @param string $format
      * @return string
      * @throws InvalidRequestException
@@ -466,7 +491,7 @@ class Client
     /**
      * Получить заявление на выпуск сертификата
      *
-     * @param int    $customerFormCrmId
+     * @param int $customerFormCrmId
      * @param string $format
      * @return string
      * @throws InvalidRequestException
@@ -529,7 +554,7 @@ class Client
     /**
      * Отправить данные бланка заявки на сертификат
      *
-     * @param int                  $crmCustomerFormId
+     * @param int $crmCustomerFormId
      * @param SendCustomerFormData $customerFormData
      * @return SendCustomerFormResponse
      * @throws InvalidRequestException
@@ -660,10 +685,10 @@ class Client
     /**
      * Отправить файл в CRM
      *
-     * @param int    $customerFormId
+     * @param int $customerFormId
      * @param string $documentId
      * @param string $fileExt
-     * @param mixed  $content
+     * @param mixed $content
      * @return void
      * @throws BooleanResponseException
      * @throws InvalidRequestException
@@ -933,7 +958,7 @@ class Client
      *
      *
      * @param string $paymentToken
-     * @param bool   $iframe
+     * @param bool $iframe
      * @param string $locale
      * @return string
      */
