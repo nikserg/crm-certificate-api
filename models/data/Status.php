@@ -34,6 +34,9 @@ class Status {
     const CERTIFICATE_SIGNED_REQUEST_FORMED = 100; //Сформирован подписанный запрос сертификата
     const CERTIFICATE_SIGNED_REQUEST_SENDED = 110; //Отправлен подписанный запрос сертификата
 
+    const NEED_CERTIFICATE_BLANK = 112; //Требуется подписать бланк выпущенного сертификата
+    const NEED_SAFETY_POLICY = 113; //Требуется подписать памятку по безопасности
+
     const AWAITING_BLANK = 115; //Ожидание загрузки бланка сертификата
     const AWAITING_BLANK_RESEND = 116; //Ожидание исправления бланка сертификата
     const AWAITING_BLANK_ITK_CONFIRM = 117; //Ожидание подтверждения бланка сертификата со стороны ИТК
@@ -99,6 +102,9 @@ class Status {
         self::CERTIFICATE_EXPIRED    => 'Просрочен',
         self::CERTIFICATE_REVOKED    => 'Отозван',
         self::CERTIFICATE_KEYEXPIRED => 'Ключ просрочен',
+
+        self::NEED_CERTIFICATE_BLANK => 'Требуется подписать бланк выпущенного сертификата',
+        self::NEED_SAFETY_POLICY => 'Требуется подписать памятку по безопасности',
 
         self::AWAITING_BLANK                  => 'Ожидание загрузки бланка',
         self::AWAITING_BLANK_RESEND           => 'Ожидание исправленного бланка',
