@@ -239,7 +239,9 @@ class MockClient extends Client
 
     public function sendCrtFile(SendCrtFile $sendCrtFile): BooleanResponse
     {
-
+        if (self::$throwNotFound) {
+            throw new Exception('Ошибка при отправке crt-файла');
+        }
         $response = new BooleanResponse();
         $response->status = true;
 
