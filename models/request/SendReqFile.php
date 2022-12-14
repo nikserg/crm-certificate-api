@@ -9,7 +9,6 @@ namespace nikserg\CRMCertificateAPI\models\request;
  */
 class SendReqFile
 {
-
     /**
      * @var int ID заявки
      */
@@ -25,16 +24,22 @@ class SendReqFile
      */
     public $container;
 
+    /**
+     * @var ?string Информация о ключевом носителе
+     */
+    public $containerInfo;
 
     /**
      * @param int $id
      * @param string $content
      * @param string $container
+     * @param ?string $containerInfo
      */
-    public function __construct($id, $content, $container)
+    public function __construct($id, $content, $container, $containerInfo = null)
     {
         $this->id = $id;
         $this->content = $content;
         $this->container = $container;
+        $this->containerInfo = $containerInfo;
     }
 }
