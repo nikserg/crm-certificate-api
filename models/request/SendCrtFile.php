@@ -9,7 +9,6 @@ namespace nikserg\CRMCertificateAPI\models\request;
  */
 class SendCrtFile
 {
-
     /**
      * @var int ID заявки
      */
@@ -19,7 +18,6 @@ class SendCrtFile
      * @var string Base64-строка с содержимым файла сертификата
      */
     public $content;
-
 
     /**
      * @param int $id
