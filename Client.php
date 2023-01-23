@@ -29,6 +29,8 @@ use nikserg\CRMCertificateAPI\models\request\SendReqFile;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
 use nikserg\CRMCertificateAPI\models\response\Esia\Egrul as EgrulResponse;
+use nikserg\CRMCertificateAPI\models\response\GetAccounts;
+use nikserg\CRMCertificateAPI\models\response\GetAccountsIds;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform;
@@ -330,6 +332,42 @@ class Client
         return $this->fill(GetOpportunity::class, $result);
     }
 
+    /**
+     * Получить все ID аккаунтов
+     *
+     * @return mixed
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function getAccountsIds()
+    {
+        $result = $this->getJsonBody($this->request('GET', 'accountIds'));
+        return $this->fill(GetAccountsIds::class, $result);
+    }
+
+    /**
+     * Получить информацию по аккаунтам
+     * 
+     * @param string $ids
+     * @return mixed
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function getAccounts(string $ids)
+    {
+        $result = $this->getJsonBody($this->request('GET', 'account', [
+            RequestOptions::QUERY => [
+                'ids' => $ids,
+            ],
+        ]));
+        return $this->fill(GetAccounts::class, $result);
+    }
+    
+    
     /**
      * Изменить статус заявки
      *

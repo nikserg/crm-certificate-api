@@ -23,6 +23,8 @@ $client = new Client(<api-ключ>, 'https://crm.uc-itcom.ru/index.php/'); // o
 * `$client->sendCustomerForm(SendCustomerFormRequest $customerForm)` - создание заявки на сертификат
 * `$client->getCustomerForm($customerFormCrmId)` - получение данных о заявке на сертификат
 * `$client->getOpportunity($opportunityCrmId)` - получение данных о сделке
+* `$client->getAccountsIds()` - получение все ID аккаунтов
+* `$client->getAccounts()` - получение информации по аккаунтам
 * `$client->changeStatus(ChangeStatus $changeStatus)` - cмена статуса заявки
 * `$client->deleteCustomerForm($customerFormCrmId)` - удаление заявки на сертификат
 * `$client->getCustomerFormClaim($customerFormCrmId, $format = 'pdf')` - получение содержимого файла заявления на выпуск сертификата
