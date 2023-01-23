@@ -26,6 +26,8 @@ use nikserg\CRMCertificateAPI\models\request\SendReqFile;
 use nikserg\CRMCertificateAPI\models\response\BooleanResponse;
 use nikserg\CRMCertificateAPI\models\response\DetectPlatformVariant;
 use nikserg\CRMCertificateAPI\models\response\Esia\Egrul as EgrulResponse;
+use nikserg\CRMCertificateAPI\models\response\GetAccounts;
+use nikserg\CRMCertificateAPI\models\response\GetAccountsIds;
 use nikserg\CRMCertificateAPI\models\response\GetCustomerForm;
 use nikserg\CRMCertificateAPI\models\response\GetOpportunity;
 use nikserg\CRMCertificateAPI\models\response\models\DetectPlatformVariantPlatform;
@@ -199,6 +201,28 @@ class MockClient extends Client
         $response->isPay = true;
         $response->accountId = 1;
         $response->paymentToken = 'paymentToken';
+
+        return $response;
+    }
+
+    public function getAccountsIds(): GetAccountsIds
+    {
+        $response = new GetAccountsIds();
+        $response->ids = [1, 2, 3, 4];
+
+        return $response;
+    }
+
+    public function getAccounts(string $ids)
+    {
+        $response = new GetAccounts();
+        $response->accounts = [
+            [
+                'id' => 1,
+                'inn' => '2801068082',
+                'ogrn' => '1022800536440'
+            ]
+        ];
 
         return $response;
     }
