@@ -12,7 +12,8 @@ class Status {
     const DOCUMENTSLOADED = 30; //Заполнено, не проверено
 
     const NEED_OPERATOR_MODERATION = 32; //Требуется проверка документов оператором
-
+    const NEED_DEVICE_CODE = 33; //Ожидание кода устройства
+    const NEED_UNION_HEAD_SIGN = 34; //Требуется подписание заявления руководителем организации
     const NEED_MANUAL_START = 35; //Требуется одобрение выпуска
 
     const NEED_UNION = 37; //Требуется загрузка заявления на выпуск сертификата
@@ -77,6 +78,8 @@ class Status {
         self::REFILL                      => 'Исправить документы',
         self::DOCUMENTSLOADED             => 'Требуется проверка документов',
         self::NEED_OPERATOR_MODERATION    => 'Требуется проверка документов оператором',
+        self::NEED_DEVICE_CODE            => 'Ожидание кода устройства',
+        self::NEED_UNION_HEAD_SIGN        => 'Требуется электронная подпись руководителя на заявлении',
         self::NEED_MANUAL_START           => 'Требуется оплата счета',
 
         self::NEED_UNION        => 'Загрузить заявление',

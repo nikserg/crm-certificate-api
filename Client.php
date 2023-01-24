@@ -213,7 +213,6 @@ class Client
      */
     public function transferInfo(int $customerFormId): TransferInfo
     {
-
         $result = $this->getJsonBody($this->request('GET', 'transferInfo', [
             RequestOptions::QUERY => [
                 'id' => $customerFormId,
@@ -284,7 +283,6 @@ class Client
      */
     public function sendOpportunity(SendOpportunityRequest $sendOpportunity): SendOpportunityResponse
     {
-
         $result = $this->requestJson('POST', 'pushOpportunity', $sendOpportunity);
 
         return $this->fill(SendOpportunityResponse::class, $result);
@@ -344,6 +342,7 @@ class Client
     public function getAccountsIds()
     {
         $result = $this->getJsonBody($this->request('GET', 'accountIds'));
+
         return $this->fill(GetAccountsIds::class, $result);
     }
 
@@ -364,6 +363,7 @@ class Client
                 'ids' => $ids,
             ],
         ]));
+
         return $this->fill(GetAccounts::class, $result);
     }
     
@@ -602,7 +602,7 @@ class Client
      */
     public function sendCustomerFormData(
         int                  $crmCustomerFormId,
-        SendCustomerFormData $customerFormData,
+        SendCustomerFormData $customerFormData
     ): SendCustomerFormResponse
     {
         $result = $this->requestJson('POST', 'pushCustomerFormData', [
@@ -611,6 +611,38 @@ class Client
         ]);
 
         return $this->fill(SendCustomerFormResponse::class, $result);
+    }
+
+    /**
+     * Отправить код устройства
+     *
+     * @param int    $crmCustomerFormId
+     * @param string $deviceCode
+     * @return BooleanResponse
+     * @throws BooleanResponseException
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws TransportException
+     */
+    public function sendDeviceCode(
+        int    $crmCustomerFormId,
+        string $deviceCode
+    ): BooleanResponse
+    {
+        $result = $this->requestJson('POST', 'pushDeviceCode', [
+            'id'         => $crmCustomerFormId,
+            'deviceCode' => $deviceCode,
+        ]);
+
+        $response = new BooleanResponse();
+        $response->status = $result->status;
+        $response->message = $result->message ?? null;
+        if (!$response->status) {
+            throw new BooleanResponseException('Ошибка сохранения кода устройства в CRM ' . print_r($response, true));
+        }
+
+        return $response;
     }
 
     /**
@@ -643,7 +675,6 @@ class Client
      */
     public function checkPassportExtended(CheckPassport $request)
     {
-
         $result = $this->requestJson('GET', 'checkPassportExtended', $request);
 
         return $this->fill(PassportCheck::class, $result);
