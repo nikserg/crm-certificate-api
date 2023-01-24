@@ -285,6 +285,20 @@ class MockClient extends Client
         return $response;
     }
 
+    public function sendDeviceCode(
+        int    $crmCustomerFormId,
+        string $deviceCode
+    ): BooleanResponse
+    {
+        if (self::$throwNotFound) {
+            throw new Exception('Ошибка сохранения кода устройства');
+        }
+        $response = new BooleanResponse();
+        $response->status = true;
+
+        return $response;
+    }
+
     public function checkPassport(CheckPassport $request): PassportCheck
     {
         $response = new PassportCheck();
